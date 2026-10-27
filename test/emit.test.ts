@@ -54,8 +54,24 @@ test("skill emission preserves extra frontmatter, body and supporting files with
     assert.doesNotMatch(tool, /raise Exception/u);
     assert.match(tool, /CC_TO_CURSOR_AGENT_STUB_DISABLED/u);
     for (const field of Object.keys(skill.frontmatter)) assert.match(String(plan.files.get("MIGRATION.zh-CN.md")), new RegExp(`\\| ${field} \\|`));
-    assert.match(String(plan.files.get("evals/skills.eval.ts")), /t\.loadedSkill\("fixture"\)/u);
+    const skillEval = String(plan.files.get("evals/skills.eval.ts"));
+    assert.match(skillEval, /t\.loadedSkill\("fixture"\)/u);
+    assert.match(skillEval, /timeoutMs: 240000/u);
+    assert.match(skillEval, /做一个最小例子/u);
+    assert.match(skillEval, /不要执行其中的脚本/u);
+    assert.doesNotMatch(skillEval, /一句话说明用途/u);
   } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test("subagent routing evals delegate a minimal example without forbidding tools", async () => {
+  const ir = empty();
+  ir.agents.push({ id: "reviewer", source: "reviewer.md", body: "Review.", frontmatter: { name: "reviewer" }, description: "Reviews code.", findings: [] });
+  const text = String((await planProject(ir, options)).files.get("evals/subagents.eval.ts"));
+  assert.match(text, /timeoutMs: 240000/u);
+  assert.match(text, /最小例子/u);
+  assert.match(text, /t\.calledSubagent\("reviewer"\)/u);
+  assert.doesNotMatch(text, /已就绪/u);
+  assert.doesNotMatch(text, /不要使用任何工具/u);
 });
 
 test("a generated script stub consumes input and fails closed without touching its source", () => {

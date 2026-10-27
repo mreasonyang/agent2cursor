@@ -62,8 +62,8 @@ export function renderReport(ir: MigrationIR, options: ConvertOptions, validatio
     ...(rows.length ? [] : [zh ? "| — | — | ✅ 已映射 | — | 没有发现输入字段。 |" : "| — | — | ✅ Mapped | — | No input fields found. |"]),
     "", `## ${zh ? "自动生成的 eval" : "Generated evals"}`, "",
     zh
-      ? "每个 skill 生成 loadedSkill 触发用例，每个子代理生成 calledSubagent 委派用例。这些用例只能验证路由行为，不证明能力或安全性。未运行真实模型时，不能称为 eval 通过。禁用脚本存根不生成成功调用用例；实现后请补充 calledTool 和结果断言。"
-      : "Each skill receives a loadedSkill trigger case; each subagent receives a calledSubagent delegation case. These cases test routing, not capability or safety. They are not passing evals until run against a real model. Disabled script stubs do not receive successful-call cases; add calledTool and result assertions after implementation.",
+      ? "每个 skill 生成 loadedSkill 用例，每个子代理生成 calledSubagent 用例。提示要求按源说明做一个最小例子，用来检查是否加载了对应 skill、是否委派给对应子代理；不要求模型忽略自己的说明。这些用例不证明能力或安全性。未运行真实模型时，不能称为 eval 通过。禁用脚本存根不生成成功调用用例；实现后请补充 calledTool 和结果断言。"
+      : "Each skill receives a loadedSkill case; each subagent receives a calledSubagent case. The prompt asks for one minimal example that follows the source instructions, so the case checks that the named skill was loaded or the named subagent was called. It does not ask the model to ignore those instructions. These cases do not prove capability or safety and are not passing evals until run against a real model. Disabled script stubs do not receive successful-call cases; add calledTool and result assertions after implementation.",
     "", `## ${zh ? "SDK 自检" : "SDK validation"}`, "",
     `- ${zh ? "状态" : "Status"}: ${labels[result.status]}`,
     `- ${zh ? "命令" : "Command"}: ${markdown(result.command)}`,

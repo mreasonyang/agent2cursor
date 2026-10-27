@@ -2,7 +2,7 @@
 
 Convert existing Claude Code subagents and Agent Skills into editable [Cursor Agent SDK](https://cursor.com/docs/agent-sdk) (`@grok/agent-sdk`) TypeScript projects, with routing eval scaffolds and a field-by-field migration report.
 
-[中文说明](README.zh-CN.md) · [MIT License](LICENSE) · Node **>=22.13** · Targets **`@grok/agent-sdk@0.3.0`**
+[中文说明](README.zh-CN.md) · **0.1.0** · [MIT License](LICENSE) · Node **>=22.13** · Targets **`@grok/agent-sdk@0.3.0`**
 
 ![Converting Claude subagents and skills into an Agent SDK project with a field-by-field migration report](docs/assets/cc-to-cursor-agent-demo.gif)
 
@@ -141,7 +141,7 @@ Both demos disable their GitHub channel until `bot/lib/settings.ts` replaces `"O
 
 ## Limitations and Verification Status
 
-The live model and signed PR replay results below were recorded before the rename from `cc2agent`. The [original evidence](docs/evidence/online-2026-10-27.json) keeps its source hashes; the rename reruns local checks only.
+The [independent evaluation](evaluation/README.md) covers the corrected converter and revised routing evals. Earlier demo model runs and the signed PR replay were recorded before the rename from `cc2agent`; their [original evidence](docs/evidence/online-2026-10-27.json) retains its source hashes. These are separate runs, with their respective scope preserved.
 
 - **Tool-name scan coverage:** a fixed, case-sensitive identifier list detects `WebFetch`, `WebSearch`, `AskUserQuestion`, `request_user_input`, `delegate_task`, `orchestrator_capabilities`, `watch_pull_request`, `unwatch_pull_request`, and `Monitor` in bodies and supporting Markdown. Matches may include instructions prohibiting a call; absence of a match does not establish compatibility. Source prompts are not rewritten.
 - **Root allowlists do not isolate subagents:** `--root-tools` restricts the root agent only. In `@grok/agent-sdk@0.3.0`, `task` subagents retain the harness `task` toolset. Never assume a root allowlist makes child agents read-only, and never treat `shell` as read-only (it can write files and run arbitrary commands).
@@ -152,7 +152,8 @@ The live model and signed PR replay results below were recorded before the renam
 
 | Evidence level | Status | What is and is not proven |
 | --- | --- | --- |
-| Offline tests & SDK structure | **PASS** | 58 local tests (`npm run check`) and SDK `validate` / `info` / `eval --list` / strict `tsc` (`npm run test:sdk`) pass. Generated projects are checked in independent temporary directories before and after installing their own dependencies. `eval --list` proves case discovery only |
+| Offline tests & SDK structure | **PASS** (existing evidence) | 59 local tests passed before repository cleanup. Generated projects passed SDK `validate` / `info` / `eval --list` and strict `tsc`, with their own dependencies installed in independent temporary directories. `eval --list` proves case discovery only. Cleanup did not rerun these suites |
+| Independent conversion and routing evaluation | **PASS** (bounded dataset) | 24/24 normal conversions and post-install validations; revised generated routing evals passed 41/41 across 30 projects. Three real tasks, each repeated three times, matched direct-copy/plugin baselines. [Counts and source hashes](docs/evidence/independent-evaluation.json) |
 | Live model runs | **PASS** (narrow cases) | Official `agent-sdk login` succeeded. `migration-smoke` passed (**1 case / 2 assertions**: `succeeded`, `loadedSkill`). `pr-review` council inline diff passed (**1 case / 9 assertions**, same model / 3 perspectives). `full-send` local `run` loaded the skill with 1 read call and 0 writes/execs/merges |
 | GitHub PR replay | **PASS** (local replay) | [Private test PR #1](https://github.com/mreasonyang/cc-to-cursor-agent/pull/1) passed via HMAC-signed **local replay** (bounded snapshot + 3 reviewer delegates + Chinese table; 0 tool errors, 0 writes/execs, 0 GitHub comments/reactions/reviews; PR closed unmerged). Not a live hosted webhook delivery |
 | Cloud hosting & npm release | **Not run / On hold** | `agent-sdk deploy --dry-run` stopped because the test account has no default team configured; no hosted deployment or URL exists. The repository is private, the package has `private: true`, and npm release is on hold |

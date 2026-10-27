@@ -8,7 +8,7 @@ import { mergeBlockReason } from '../demos/full-send/bot/lib/merge-policy.ts';
 const allowed = { enabled: '1', approved: true, purpose: 'production', configuredRepository: 'owner/repo', sessionRepository: 'owner/repo', currentHead: 'a'.repeat(40), expectedHead: 'a'.repeat(40), state: 'open', draft: false, mergeableState: 'clean' };
 
 test('unconfigured demos disable GitHub channels while configured channels preserve scope and auth gates', async () => {
-  for (const path of ['demos/full-send', 'demos/pr-review', 'deployments/pr-review']) {
+  for (const path of ['demos/full-send', 'demos/pr-review']) {
     const source = await readFile(`${path}/bot/channels/github.ts`, 'utf8');
     // Evaluate the authored channel options with an identity SDK factory. This
     // exercises the real conditional configuration without a network or token.

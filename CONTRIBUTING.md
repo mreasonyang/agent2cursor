@@ -52,6 +52,12 @@ node scripts/build-demos.mjs
 
 After regenerating demos, run `npm run check` to verify that provenance hashes, license files (`LICENSE-tstack`), and channel/snapshot templates remain in sync.
 
+## Evaluation Evidence
+
+Keep tests, demo eval suites and source fixtures with the implementation. [evaluation/README.md](evaluation/README.md) indexes the independent evaluation; `docs/evidence/` contains bounded, portable summaries. Local raw runs, generated projects and deployment workspaces are ignored. Preserve those artifacts locally when they are needed for an audit; do not stage them with a blanket `git add`.
+
+The maintained demo projects live only in `demos/`. Create personal deployment copies outside the repository or in the ignored `deployments/` directory. The README animation retains its editable source under `docs/demo-video/` and final media under `docs/assets/`.
+
 ## Repository Rules and Safety Invariants
 
 1. **Account for every frontmatter field.** Every input frontmatter field path must appear in `MIGRATION.zh-CN.md` / `MIGRATION.en.md` as `mapped`, `degraded`, or `dropped`.

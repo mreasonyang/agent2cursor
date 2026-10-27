@@ -9,12 +9,5 @@
   "media": {
     "autoProxy": true
   },
-  "authoringSkill": "general-video",
-  "registryItems": [
-    {
-      "name": "code-terminal-run",
-      "type": "hyperframes:component",
-      "target": "compositions/components/code-terminal-run.html"
-    }
-  ]
+  "authoringSkill": "hyperframes"
 }

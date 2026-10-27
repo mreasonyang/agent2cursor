@@ -1,13 +1,13 @@
 # pr-review demo
 
-基于 tstack council + leaving-pr-comments 改编；见 LICENSE-tstack、TSTACK-PROVENANCE.json 和各 SKILL.md 的改动说明。当前只完成结构与 eval 发现验证，不是已部署服务。
+基于 tstack council + leaving-pr-comments 改编；见 LICENSE-tstack、TSTACK-PROVENANCE.json 和各 SKILL.md 的改动说明。结构校验、真实模型三视角评审及本地 PR 签名回放已通过，完整范围见[验收记录](https://github.com/mreasonyang/cc-to-cursor-agent/blob/main/docs/acceptance.md)。托管部署尚未完成。
 
 ```bash
 npm install
 npm run validate
 npm run eval:list
-agent-sdk login
-agent-sdk dev --dir .
+npx agent-sdk login
+npx agent-sdk dev --dir .
 ```
 
 本地加载 council 或评审手动提供的离线 diff 时，可以保留 `bot/lib/settings.ts` 的 `OWNER/REPO`。这时使用 SDK 的 `disableChannel()` 完全禁用 GitHub channel，不为占位仓库请求凭据，也不响应 PR 事件；模型运行本身仍需要 Cursor 登录。`pr_wait` 会提示先配置仓库。

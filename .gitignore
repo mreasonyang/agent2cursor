@@ -10,3 +10,11 @@ coverage/
 .agent-serve/
 .agent-sdk/
 .cursor/
+
+# Local deployment workspaces and evaluation runs stay on disk.
+deployments/
+evaluation/*
+!evaluation/README.md
+!evaluation/20261027-2216/
+evaluation/20261027-2216/*
+!evaluation/20261027-2216/复测结论.md

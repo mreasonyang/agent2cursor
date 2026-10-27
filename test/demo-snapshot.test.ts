@@ -87,12 +87,10 @@ test('snapshot errors and timeouts fail closed without returning diagnostic deta
   assert.equal(timed.value.reason, 'snapshot_timeout');
 });
 
-test('demo builder templates and deployed snapshot implementation remain identical', async () => {
+test('demo builder templates and shipped snapshot implementation remain identical', async () => {
   const template = await readFile('scripts/demo-templates/pr-snapshot.ts', 'utf8');
-  for (const path of ['demos/pr-review', 'deployments/pr-review']) {
-    assert.equal(await readFile(`${path}/bot/lib/pr-snapshot.ts`, 'utf8'), template);
-    assert.equal(await readFile(`${path}/bot/channels/github.ts`, 'utf8'), await readFile('scripts/demo-templates/github-pr-review.ts', 'utf8'));
-  }
+  assert.equal(await readFile('demos/pr-review/bot/lib/pr-snapshot.ts', 'utf8'), template);
+  assert.equal(await readFile('demos/pr-review/bot/channels/github.ts', 'utf8'), await readFile('scripts/demo-templates/github-pr-review.ts', 'utf8'));
   assert.equal(await readFile('demos/full-send/bot/channels/github.ts', 'utf8'), await readFile('scripts/demo-templates/github-full-send.ts', 'utf8'));
 });
 

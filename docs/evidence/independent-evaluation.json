@@ -1,0 +1,61 @@
+{
+  "recordedAt": "2026-10-28",
+  "source": "Existing independent evaluation from 2026-10-27; not rerun during repository cleanup.",
+  "report": "evaluation/20261027-2216/复测结论.md",
+  "baselineCommit": "d5a9da3283d8746c87a9df0eafd0dd52d2fe901c",
+  "revisedGeneratorSha256": {
+    "src/emit/evals.ts": "f816d7a4eb4fc0df96b07387b4620ffcfe74228fd247ef01ed1acf193cb98be8",
+    "src/emit/report.ts": "d2badc5b8d805df6516a98366ed711eb6c5963ba616a820f418a5b9a797584ca",
+    "test/emit.test.ts": "63541ca2a4f57df3fa227be5593c852ad30c9f5bdf17b17c0780b7b39c465b3a"
+  },
+  "normalInputs": {
+    "total": 24,
+    "conversionPassed": 24,
+    "postInstallValidationPassed": 24
+  },
+  "boundaryInputs": {
+    "total": 12,
+    "expectedRejections": 6,
+    "observedRejections": 6,
+    "correction": "B-08 initially used the wrong canary path; its corrected run rejected the input without writing a project."
+  },
+  "routingEvals": {
+    "original": {
+      "projects": 30,
+      "passed": 35,
+      "failed": 6
+    },
+    "revised": {
+      "projects": 30,
+      "passed": 41,
+      "failed": 0
+    },
+    "revision": "Use a minimal example matching the source instructions and a 240000 ms suite timeout."
+  },
+  "liveTasks": {
+    "scenarios": 3,
+    "repeatsPerScenarioPerMethod": 3,
+    "converterPassed": 9,
+    "baselinePassed": 9,
+    "totalRuns": 18,
+    "interpretation": "Matched direct-copy/plugin baselines on this dataset; does not establish a general quality improvement."
+  },
+  "permissionProbe": {
+    "runs": 1,
+    "sourceRestrictionPreventedShell": false
+  },
+  "scriptStub": {
+    "exitCode": 78,
+    "disabled": true,
+    "sourceScriptExecuted": false
+  },
+  "hosting": {
+    "deployed": false,
+    "reason": "No default team configured."
+  },
+  "limitations": [
+    "Routing assertions do not establish task quality or safety.",
+    "Source subagent tool restrictions are not enforced by the target SDK.",
+    "Raw runs and generated projects are retained locally and excluded from Git."
+  ]
+}

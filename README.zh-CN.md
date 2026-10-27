@@ -2,7 +2,7 @@
 
 把已写好的 Claude Code 子代理（subagents）与 Agent Skills 整理成可编辑的 [Cursor Agent SDK](https://cursor.com/docs/agent-sdk)（`@grok/agent-sdk`）TypeScript 项目，同时生成路由评测（eval）骨架和逐字段迁移报告。
 
-[English](README.md) · [MIT 许可证](LICENSE) · Node **>=22.13** · 适配 **`@grok/agent-sdk@0.3.0`**
+[English](README.md) · **0.1.0** · [MIT 许可证](LICENSE) · Node **>=22.13** · 适配 **`@grok/agent-sdk@0.3.0`**
 
 ![将 Claude 子代理与 Skills 转换为 Agent SDK 项目并生成逐字段迁移报告](docs/assets/cc-to-cursor-agent-demo.gif)
 
@@ -141,7 +141,7 @@ export default defineAgent({
 
 ## 核心限制与验收状态
 
-下面的真实模型与 PR 签名回放结果记录于更名之前（原名 `cc2agent`）。[原始证据](docs/evidence/online-2026-10-27.json) 保留对应源码哈希；本次更名仅重新执行本地校验。
+[独立评测](evaluation/README.md)覆盖修复后的转换器与新版路由 eval。较早的 demo 真实模型与 PR 签名回放结果来自更名之前（原名 `cc2agent`），[原始证据](docs/evidence/online-2026-10-27.json)保留对应源码哈希；不同轮次的结果与验证范围分别记录。
 
 - **工具名扫描范围：** 固定名单区分大小写检测正文和附属 Markdown 中的 `WebFetch`、`WebSearch`、`AskUserQuestion`、`request_user_input`、`delegate_task`、`orchestrator_capabilities`、`watch_pull_request`、`unwatch_pull_request`、`Monitor`。命中可能来自禁止调用的说明；未命中不代表工具兼容，不改写源提示词。
 - **根代理工具白名单不等于子代理隔离：** `--root-tools` 仅约束根代理。`@grok/agent-sdk@0.3.0` 的 `task` 子代理仍保有 harness 自身的 `task` 工具集，不能把根白名单当作子代理只读的证明；同时任何启用 `shell` 的配置都能写文件和执行任意命令，绝非只读。
@@ -152,7 +152,8 @@ export default defineAgent({
 
 | 证据层级 | 状态 | 已验证范围与未覆盖边界 |
 | --- | --- | --- |
-| 离线单测与结构校验 | **PASS** | 58 项本地测试（`npm run check`）及生成项目的 SDK `validate` / `info` / `eval --list` / 严格 `tsc`（`npm run test:sdk`）通过。生成工程在独立临时目录中分别验收安装自身依赖前后的行为。`eval --list` 仅证明发现用例 |
+| 离线单测与结构校验 | **PASS**（已有证据） | 仓库清理前 59 项本地测试通过。生成项目在独立临时目录中安装自身依赖，通过 SDK `validate` / `info` / `eval --list` 及严格 `tsc`。`eval --list` 仅证明发现用例；本次清理未重跑这些测试 |
+| 独立转换与路由评测 | **PASS**（限定数据集） | 正常转换及安装后校验 24/24；新版自动路由 eval 在 30 个项目中 41/41 通过。3 个真实任务各重复 3 次，与直接复制/插件对照打平。[计数与源码哈希](docs/evidence/independent-evaluation.json) |
 | 真实模型运行 | **PASS**（窄用例） | 已完成官方 `agent-sdk login`。`migration-smoke` 通过（**1 条用例 / 2 个断言**：`succeeded`、`loadedSkill`）；`pr-review` 内联 diff 评审通过（**1 条用例 / 9 个断言**，同模型 3 视角）；`full-send` 本地 `run` 完成 1 次 skill 读取，0 次写入/执行/合并 |
 | GitHub PR 回放 | **PASS**（本地回放） | [私有测试 PR #1](https://github.com/mreasonyang/cc-to-cursor-agent/pull/1) 经 HMAC 签名**本地回放**通过（有界快照 + 3 次子代理委派 + 中文评分表；0 工具错误、0 写入/执行、0 GitHub 评论/reaction/review；测试 PR 已关闭且未合并）。不等于线上托管 webhook 投递 |
 | 云端托管与 npm 发布 | **未运行 / 暂缓** | 测试账号未配置默认团队（`no default team`），`agent-sdk deploy --dry-run` 在前置条件处停止，未执行实际部署，无部署 URL。仓库保持私有，软件包设置 `private: true`，暂不发布 npm |

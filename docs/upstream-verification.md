@@ -49,7 +49,7 @@ The sanitized evidence files are local, ignored artifacts. They retain pass coun
 - `pr_wait` access in a sandboxed model session and credential/environment exposure boundaries.
 - Actual hosted GitHub webhook delivery, score quality beyond the tested fixture, and no unintended writes across all harness paths. Signed local replay passed its narrower acceptance.
 - Hosted deployment, exact effective egress list, GitHub permissions, required plan/roles and stable URL. The dry-run currently reports no default team. Only `api.github.com` is authored because current server tools use GitHub REST; the managed platform supplies additional base egress, which must be inspected on a real deployment.
-- MCP `defineConnection` mapping, Claude WebFetch/WebSearch equivalents and exact permission-mode semantics remain outside MVP conversion. Unsupported fields receive report entries.
+- MCP `defineConnection` mapping, Claude WebFetch/WebSearch equivalents and exact permission-mode semantics remain outside the supported conversion scope. Unsupported fields receive report entries.
 - npm publication and project name availability at publication time. Private repository acceptance continues; public and social release are intentionally on hold. The README GIF demonstrates fixture conversion, not deployment or production acceptance.
 
 Use metadata-only auth checks. Never save raw model logs, process arguments or credential values as verification evidence.

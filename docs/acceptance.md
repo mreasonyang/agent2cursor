@@ -1,6 +1,6 @@
 # cc-to-cursor-agent 验收记录
 
-日期：2026-10-27。目标 SDK：`@grok/agent-sdk@0.3.0`。用户已确定项目名为 `cc-to-cursor-agent`。
+更新日期：2026-10-28。版本：`0.1.0`。目标 SDK：`@grok/agent-sdk@0.3.0`。用户已确定项目名为 `cc-to-cursor-agent`。
 
 用户决定：使用 `mreasonyang/cc-to-cursor-agent` **私有仓库**验收；暂不公开发布。根 package.json 保持 `private: true`。
 
@@ -9,7 +9,7 @@
 | 项目 | 结果 | 证据边界 |
 | --- | --- | --- |
 | TypeScript 构建 | PASS | 本机 Node 26.11.0；私有 GitHub CI Node 22.13 / 24 通过；生成项目严格类型检查也通过 |
-| 自动测试 | PASS，58 项 | 包括 CLI、字段完整性、模型映射、依赖、许可证、拒绝覆盖、并发报告替换、合并门禁、GitHub channel 开关、有界 PR 快照及独立评测发现的四项回归 |
+| 自动测试 | PASS，59 项（已有记录） | 包括 CLI、字段完整性、模型映射、依赖、许可证、拒绝覆盖、并发报告替换、合并门禁、GitHub channel 开关、有界 PR 快照及路由 eval 提示词修复；2026-10-28 清理复用已有结果，未重跑 |
 | 四类 Claude 示例 | PASS，4 个子代理 | 独立编写的官方示例模式 fixture；不是官方示例逐字副本 |
 | 官方原始示例 | PASS，4 个子代理，零诊断 | 从官方 Markdown 下载并提取 code-reviewer/debugger/data-scientist/db-reader，在忽略目录转换；不把官方原文作为 fixture 再分发，哈希见 official-examples.provenance.json |
 | tstack 全量转换 | PASS | 9 个 skill，1 个 pr_wait agent tool；SDK info 核对数量和 execution 字段 |
@@ -43,6 +43,10 @@ npm run test:sdk
 此次修复不改变历史真实模型和线上验收的证据范围。
 
 ## 线上验收
+
+修复后的独立评测见 [最终报告](../evaluation/20261027-2216/复测结论.md) 和 [汇总证据](evidence/independent-evaluation.json)：正常转换与安装后校验均为 24/24；3 个真实任务各重复 3 次，与直接复制/插件对照结果一致。生成的路由 eval 初次为 35/41，修改提示词与超时后为 41/41。汇总记录修复源码的哈希，不把旧提交的结果与新提示词混为一轮。
+
+以下是较早的 demo 验收。重复的 `deployments/pr-review` 本地验收副本已移除，维护入口统一为 `demos/pr-review`；原始证据里的历史路径和哈希仍可在下述历史提交中查验。
 
 以下结果来自更名前的 `cc2agent`。原始 [JSON 证据](evidence/online-2026-10-27.json) 中的仓库名和源码哈希保留不变；对应源码可在更名前提交 `f9fc7fe682252b82bce904f6df0d3da0f3d62de5` 中查验。本次更名重跑本地构建、测试、SDK 结构校验和打包验证，不把历史线上结果算作更名后重新运行。
 

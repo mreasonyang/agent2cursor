@@ -15,8 +15,11 @@
     "docs/official-examples.provenance.json",
     "docs/acceptance.md",
     "docs/upstream-verification.md",
+    "evaluation/README.md",
+    "evaluation/20261027-2216/复测结论.md",
     "README.md",
     "README.zh-CN.md",
+    "CONTRIBUTING.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md"
   ],
