@@ -1,0 +1,27 @@
+{
+  "repository": "https://github.com/t3dotgg/tstack",
+  "commit": "7de017b3fc9d50c03cf3ecb98fb71e0ca65a78bd",
+  "verifiedAt": "2026-10-27",
+  "commitDate": "2026-10-24T19:25:50-07:00",
+  "license": "MIT",
+  "copyright": "Copyright (c) 2026 Theo Browne",
+  "modifications": "None; verbatim skill, README and license snapshot.",
+  "sha256": {
+    "LICENSE": "8095f9a9f97d074131f6a2ce09b952d12c18b36f09f4e5df0517c4e64e82c851",
+    "README.md": "682afc278d4a40d530fc22d2551694bcafc818cf9e056f5aa2d9afdb548333cb",
+    "skills/babysit-pr/SKILL.md": "fbe43ba3ab76a466a88ef8b46dca1b41fb8101347d24a396903849865173a6ac",
+    "skills/babysit-pr/scripts/pr-wait": "90393f85b95b78bff1b039744bdfb09dc88ff2b430e1c3df687ee6f449c97214",
+    "skills/council/SKILL.md": "da8b4166f19defb2b6916e8f8fe30fa93b8bd2eabaf870ba87e9accaa038e2b8",
+    "skills/file-pr/SKILL.md": "174a7ae52e3b9d17f2bd0eaf0a11a89d744d1249164ecbdb0e642359eee75b1b",
+    "skills/full-send/SKILL.md": "ba585e47cd901506b0e2de13025b0e39bc02462c136cf27491ad3efbdfe66020",
+    "skills/full-send/agents/openai.yaml": "8a1e8ce04a774a8a2e469cecf5e45a9cec4d3438b4c587cf166c2f78206390d2",
+    "skills/full-stop/SKILL.md": "243ed08a040df888e35a5db8da704dced345270efdd0afa74252a766e05a4b09",
+    "skills/full-stop/agents/openai.yaml": "6029e872a883aa06aad3426ab58289df016e4b0d23485719c71152603fec7d35",
+    "skills/leaving-pr-comments/SKILL.md": "1d110343022d0514c101dd942286cce10d6b9f5bd5b899f5a0530620d34cd295",
+    "skills/leaving-pr-comments/agents/openai.yaml": "f89fa0d9ae1c3e973b3e9ecb50549faee62fd1a0e59973bade68802c74183fdb",
+    "skills/modernize/SKILL.md": "6172d774c46f535367086da90db1b0aaaaac969ed05ff040444f9afa9a6b1552",
+    "skills/modernize/agents/openai.yaml": "6675e91e10f2b264fe1a027072f6d9f46299f781011e248a5ba075fc1f764e09",
+    "skills/sol-loop/SKILL.md": "1db1eb4c4a156ee666070e9a12623d520cd1bd9b19c3fc21003fe5a440ba0b10",
+    "skills/takeover/SKILL.md": "9f00a7c67bf82603af2e80f56e9ce63f1516a1b4339365b79cf786d9d9055465"
+  }
+}

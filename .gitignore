@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.validation/
+*.tgz
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage/
+.agent-serve/
+.agent-sdk/
+.cursor/

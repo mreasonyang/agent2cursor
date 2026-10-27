@@ -1,0 +1,49 @@
+{
+  "name": "cc2agent",
+  "version": "0.1.0",
+  "description": "Eject Claude agents and Agent Skills into editable Cursor Agent SDK projects, with explicit migration reports.",
+  "type": "module",
+  "bin": {
+    "cc2agent": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "demos",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsx --test test/*.test.ts",
+    "check": "npm run build && npm test",
+    "dev": "tsx src/cli.ts",
+    "prepack": "npm run build",
+    "test:sdk": "node scripts/verify-sdk.mjs"
+  },
+  "author": "Eason Yang (@mr_easonyang)",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^14.0.0",
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mreasonyang/cc2agent.git"
+  },
+  "homepage": "https://github.com/mreasonyang/cc2agent",
+  "bugs": {
+    "url": "https://github.com/mreasonyang/cc2agent/issues"
+  }
+}
