@@ -1,113 +1,160 @@
 # cc2agent
 
-Turn loose Claude Code subagents and Agent Skills into editable Cursor Agent SDK source, eval scaffolds, and a migration report that accounts for every frontmatter field.
+Convert existing Claude Code subagents and Agent Skills into editable [Cursor Agent SDK](https://cursor.com/docs/agent-sdk) (`@grok/agent-sdk`) TypeScript projects, with routing eval scaffolds and a field-by-field migration report.
 
-[中文说明](README.zh-CN.md) · MIT · Node **22.13+** · targets **@grok/agent-sdk 0.3.0**
+[中文说明](README.zh-CN.md) · [MIT License](LICENSE) · Node **>=22.13** · Targets **`@grok/agent-sdk@0.3.0`**
 
-![A real fixture conversion and its field-by-field migration report](docs/assets/cc2agent-demo.gif)
+![Converting Claude subagents and skills into an Agent SDK project with a field-by-field migration report](docs/assets/cc2agent-demo.gif)
+
+If you already wrote subagent prompts and YAML configs in `.claude/agents/*.md` or skill folders containing `SKILL.md` (including [t3dotgg/tstack](https://github.com/t3dotgg/tstack) workflows), `cc2agent` turns those loose files into a standalone Cursor Agent SDK project. It generates editable source files, a per-field migration report, and initial routing evals—it does **not** migrate underlying models or chat history, and it does **not** guarantee preserved runtime behavior or subagent permission boundaries.
+
+```text
+.claude/agents/code-reviewer.md → bot/subagents/code-reviewer/{agent.ts,instructions.md}
+skills/<name>/SKILL.md          → bot/skills/<name>/SKILL.md
+skills/*/scripts/*              → bot/tools/*.ts (disabled JSON adapter stubs)
+frontmatter + routing checks    → MIGRATION.zh-CN.md (or .en.md) + evals/*.eval.ts
+```
+
+## Quickstart
+
+`cc2agent` (`0.1.0`, `"private": true` in [`package.json`](package.json)) has not been published to npm yet—do not run `npx cc2agent`. Build from this checkout and run against the included [`fixtures/`](fixtures/claude) directory:
 
 ```bash
-# From this checkout; cc2agent has not been published to npm yet.
-npm install
+npm ci --ignore-scripts
 npm run build
-node dist/cli.js convert .claude/agents ~/.claude/skills/full-send \
-  --with-deps --out ./my-agent
+
+# Inspect or convert the checked-in Claude subagents + tstack full-send skill closure
+node dist/cli.js inspect ./fixtures/claude ./fixtures/tstack/skills/full-send --with-deps --lang en
+node dist/cli.js convert ./fixtures/claude ./fixtures/tstack/skills/full-send \
+  --with-deps --lang en --out /tmp/my-agent
 ```
 
 ```text
-.claude/agents/reviewer.md      → bot/subagents/reviewer/{agent.ts,instructions.md}
-skills/full-send/SKILL.md       → bot/skills/full-send/SKILL.md
-skills/*/scripts/*             → bot/tools/*.ts (disabled JSON adapter stubs)
-frontmatter + unsupported APIs → MIGRATION.zh-CN.md + TODO(cc2agent) comments
-skills + subagents             → evals/*.eval.ts
+cc2agent v0.1.0 → @grok/agent-sdk 0.3.0
+Scanned: 4 agents, 5 skills, 1 script stubs
+...
 ```
 
-The converter never executes input scripts and refuses to overwrite output. Model names inherit by default; use an explicit map only after checking your account's model availability. A generated project that validates is a structural migration, not proof of model behavior or preserved permissions.
+On this fixture input (4 subagents, 5 skills including 4 `tstack` dependencies, and 1 script stub), `cc2agent` writes **28 files** and flags **41 migration concerns** in `/tmp/my-agent/MIGRATION.en.md`. Exact counts and `Validation` status depend on your inputs, flags, and whether the SDK CLI is already installed (`unavailable` is expected before installing dependencies in `/tmp/my-agent`).
 
-## Local installation and use
+To install the SDK inside the generated project and run structural checks from this checkout:
 
 ```bash
-npm pack
-npm install --global ./cc2agent-0.1.0.tgz
-cc2agent inspect ./fixtures/tstack
-cc2agent convert ./fixtures/tstack/skills --with-deps --out /tmp/my-tstack-agent
-cc2agent demo full-send --out /tmp/full-send-agent
-cc2agent demo pr-review --out /tmp/pr-review-agent
-cc2agent doctor --dir /tmp/my-tstack-agent
+(cd /tmp/my-agent && npm install && npx agent-sdk validate --dir . && npx agent-sdk eval --dir . --list)
+node dist/cli.js doctor --dir /tmp/my-agent
 ```
 
-After an actual npm publication, the intended command is `npx cc2agent convert <input> --out <directory>`. The command above is not a claim that an npm release exists.
+If you want a global `cc2agent` command locally before npm publication, run `npm pack && npm install --global ./cc2agent-0.1.0.tgz`.
 
-Install the SDK using its documented package name:
+- **SDK package name:** [Official Cursor Agent SDK docs](https://cursor.com/docs/agent-sdk) specify **`@grok/agent-sdk`** (formerly `@cursor/bdk`). Do not substitute `@cursor/agent-sdk` from older blog posts; see [upstream verification](docs/upstream-verification.md). Generated `package.json` pins `@grok/agent-sdk` to `0.3.0` and declares `zod` `^3.25.0`.
+- **Account requirements by step:**
+  1. **Offline conversion & structural checks** (`convert`, `inspect`, `doctor`, `agent-sdk validate`, `agent-sdk eval --list`) require **no** Cursor account or API key.
+  2. **Live model execution** (`agent-sdk dev`, `agent-sdk run`, live `agent-sdk eval`) requires `agent-sdk login` and model access on your Cursor account.
+  3. **Cloud hosting** (`agent-sdk deploy`) is optional and requires an account/team with hosting enabled and repository permissions.
 
-```bash
-npm install --global @grok/agent-sdk@0.3.0
-cd /tmp/my-tstack-agent
-npm install
-agent-sdk validate --dir .
-agent-sdk eval --dir . --list
-# Interactive account authentication and paid model execution are separate steps:
-agent-sdk login
-agent-sdk dev --dir .
-```
+## When to Use cc2agent
 
-[Official SDK documentation](https://cursor.com/docs/agent-sdk) specifies `@grok/agent-sdk` (formerly `@cursor/bdk`). Do not substitute the announcement's `@cursor/agent-sdk` package name. See [verification notes](docs/upstream-verification.md) for the timestamped evidence and remaining checks.
+`@grok/agent-sdk` already supports native skills and plugins. Choose the lightest path that fits your assets:
 
-## CLI
-
-```text
-cc2agent convert <input...> [--out <dir>] [--name <name>]
-  [--model-map sonnet=<id>,opus=<id>] [--keep-model]
-  [--root-tools read,grep,glob,ls,task] [--lang zh|en]
-  [--with-deps] [--dry-run] [--json] [--no-validate]
-cc2agent inspect <input...>
-cc2agent demo <full-send|pr-review> [--out <dir>]
-cc2agent doctor [--dir <project>]
-```
-
-Inputs can be individual subagent Markdown files, `.claude/agents/` trees, skill directories, a directory of skills, or a tstack repository. `--with-deps` includes the pinned tstack dependency graph. `--dry-run` previews without creating output; `--json` produces machine-readable output. Chinese is the default output language.
-
-Subagent `model: inherit` is omitted. Other source model IDs are omitted with a warning unless mapped or explicitly kept. Unknown skill frontmatter remains in SKILL.md and is listed in the report. Every input field receives a mapped, degraded or dropped result. Tool names in prompts are scanned and explained, not silently rewritten.
-
-`--root-tools` is an explicit root harness allowlist; omitting it preserves SDK defaults and may give agents broad tools. It cannot faithfully preserve different per-subagent permission policies. SDK task subagents retain their own harness toolset: a root allowlist is not proof of child isolation. `shell` is arbitrary execution, not read-only access. Review the report before using migrated prompts with real credentials.
-
-## How this differs from official support
-
-| Path | What it gives you |
+| Approach | When to use it |
 | --- | --- |
-| SDK `cursorPlugin()` | Runtime loading of Cursor/Claude plugins with manifests; useful when runtime mounting is enough |
-| Copy SKILL.md | Native SDK skills; no converter needed for compatible skill files |
-| cc2agent | Loose files, editable source, field-by-field loss accounting, foreign-tool warnings, eval scaffolds and Chinese demos |
+| Copy `SKILL.md` directly | You only have compatible `SKILL.md` directories and do not need subagent conversion, script stubs, or a migration report |
+| SDK `cursorPlugin()` | You have a Cursor/Claude plugin manifest and runtime mounting is enough |
+| `agent-sdk init --from automation:` / `migrate` | You are migrating a Cursor Automation or upgrading an older SDK project |
+| **`cc2agent`** | You hold loose `.claude/agents/*.md` files, skill directories, or `tstack` workflows and want editable SDK source, field-by-field loss accounting, foreign-tool warnings, disabled script stubs, and routing eval scaffolds |
 
-The SDK's `init --from automation:` and `migrate` serve other migration paths. cc2agent uses public generated APIs and invokes the CLI for validation; it does not import SDK internal APIs. It does not implement unsupported hooks, MCP configuration, persistent Claude memory, or model-provider routing for you.
+## What Gets Migrated (Example: `code-reviewer`)
 
-## The two demos
+Given [`fixtures/claude/agents/code-reviewer.md`](fixtures/claude/agents/code-reviewer.md):
 
-Both are adapted from a pinned [tstack](https://github.com/t3dotgg/tstack) MIT snapshot and include `LICENSE-tstack` and provenance. They are runnable project templates with explicit remaining runtime gates, not verified hosted services.
-
-- **full-send:** five skills, a reviewer, Chinese PR preparation, a bounded read-only `pr_wait` server tool, and a gated `merge_pr`. The root has no shell; its authored workflow cannot run tests, git push or create a PR automatically. This is not a verified guarantee about the separate harness toolset used by child agents. It prepares local edits and a PR draft, then stops. The original Python watcher is retained with a disabled agent adapter. The authored merge tool requires `CC2AGENT_ALLOW_MERGE=1`, human tool approval, a configured GitHub-session repository, the exact current head SHA and a clean PR. It declares `effect: "write"` and a non-merging `dryRunResult`; eval sessions cannot merge.
-- **pr-review:** council and comment-format skills, three reviewer perspectives, a Chinese `Council review` table, and an explicit same-model fallback statement. Its root excludes shell/edit/delete and its authored tools do not post reviews, comments or modify PR descriptions. Root settings do not prove child-agent isolation.
-
-Unconfigured demos disable their GitHub channel, so local runs do not request credentials for `OWNER/REPO`. Set `bot/lib/settings.ts` to the intended `owner/repo` to enable non-draft `opened`, `reopened` and `ready_for_review` events. Both channels explicitly disable reply posting, reactions and mention handling. PR review requests read-only GitHub permission and seeds a bounded, revision-checked diff snapshot before the model turn. This works with sandbox enabled; `pr_wait` access from a sandboxed model remains unverified.
-
-[Full-send operation guide](demos/full-send/README.md) · [PR-review operation guide](demos/pr-review/README.md)
-
-## Evidence and release status
-
-The acceptance repository is private; npm and public launch are on hold at the owner's request. The root package has `private: true`.
-
-The checked-in tests exercise migration contracts, no-overwrite behavior, source safety, provenance and merge gate denial. Structural SDK checks validate generated fixtures and list eval cases. Official SDK login has also succeeded, and two authenticated model evals have passed:
-
-- Generated `migration-smoke`: **1 case, 2 assertions passed** (`succeeded` and `loadedSkill`).
-- PR-review council against an inline PR example: **1 case, 9 assertions passed** (completion, three completed reviewer delegations, `Council review`, the downgrade marker and three table rows). The reviewers inherit the same model; this does not establish three-provider execution or child-agent isolation.
-
-Full-send's direct `agent-sdk run` passed a skill-loading check; the final default demo made one successful skill read, with no write/exec or merge call. A signed local replay of [private test PR #1](https://github.com/mreasonyang/cc2agent/pull/1) completed three reviewer delegations and a Chinese scoring table, with no tool errors, comments, reactions or reviews. The test PR was closed without merging. Replay is not a real hosted webhook delivery. Hosted `deploy --dry-run` reports no default team; no actual deployment ran and no deployment URL exists. npm publication, public release and social launch remain on hold.
-
-See [acceptance results](docs/acceptance.md) for exact evidence. `eval --list` only proves discovery; the live eval results above cover their named assertions. Recognized tstack sources must include the verified MIT license. One conversion is limited to 128 MiB of generated content.
-
-```bash
-npm run check
-node scripts/build-demos.mjs   # regenerate demo source from the pinned snapshot
+```markdown
+---
+name: code-reviewer
+description: Review changed code for defects, maintainability, and missing verification.
+tools: Read, Grep, Glob
+model: sonnet
+---
+Review the changed code. Prioritize concrete defects and cite the affected file and line.
+Do not edit files. Explain what was verified and what remains uncertain.
 ```
 
-SDK source/docs are not vendored. Its proprietary terms are separate from this project's MIT license. See [third-party notices](THIRD_PARTY_NOTICES.md). Based on tstack, with no affiliation or endorsement from Theo / T3.
+`cc2agent convert` emits `bot/subagents/code-reviewer/agent.ts`, writes the prompt body to `bot/subagents/code-reviewer/instructions.md`, and logs every frontmatter field in `MIGRATION.zh-CN.md` (or `MIGRATION.en.md`):
+
+```ts
+// bot/subagents/code-reviewer/agent.ts
+// Generated by cc2agent. Review the migration report before running.
+import { defineAgent } from "@grok/agent-sdk";
+
+export default defineAgent({
+  description: "Review changed code for defects, maintainability, and missing verification.",
+  // TODO(cc2agent): tools: Security boundary lost: task children retain the harness task-tool toolset; do not assume root allowlists constrain them. Reference name mapping (read, grep, glob). For enforced read-only access use separate agents or disable task and constrain execution separately; shell can write.
+  // TODO(cc2agent): model: Omitted model to inherit the parent model; use --model-map to select a target model explicitly.
+});
+```
+
+<details>
+<summary><strong>Field-by-field disposition reference</strong></summary>
+
+| Source asset or field | SDK output location | Disposition | Behavior |
+| --- | --- | --- | --- |
+| Subagent `name` | `bot/subagents/<id>/` | `✅ Mapped` / `⚠️ Degraded` | `✅` when already a valid slug; `⚠️` when normalized or derived from the filename |
+| Subagent `description` | `bot/subagents/<id>/agent.ts` | `✅ Mapped` / `⚠️ Degraded` | `✅` when non-empty; `⚠️` with a generated placeholder when missing or blank |
+| Subagent Markdown body | `bot/subagents/<id>/instructions.md` | `✅ Mapped` | Preserves body text (with shared-skill loading hints appended when applicable); scans for foreign tool names without rewriting prose |
+| Subagent `model` | `bot/subagents/<id>/agent.ts` | `✅ Mapped` / `⚠️ Degraded` | `inherit` is omitted (`✅`). Other IDs (`sonnet`, `opus`, `haiku`) are omitted by default (`⚠️`) to inherit the parent model unless mapped with `--model-map` (`✅`) or kept with `--keep-model` (`⚠️`) |
+| Subagent `tools` / `disallowedTools` | `MIGRATION.*.md` + `TODO(cc2agent)` | `⚠️ Degraded` | Per-subagent tool lists are unsupported in SDK `0.3.0`; `task` children retain the harness `task` toolset |
+| Subagent `skills` | `bot/instructions.md` + `instructions.md` | `⚠️ Degraded` | Emits shared-skill loading hints (no native per-subagent preloading) |
+| `permissionMode`, `hooks`, `mcpServers`, `memory`, unknown agent fields | `MIGRATION.*.md` + `TODO(cc2agent)` | `❌ Dropped` | No verified 1:1 SDK equivalent; documented in the report for manual implementation |
+| `SKILL.md` + supporting files | `bot/skills/<id>/**` | `✅ Mapped` / `⚠️ Degraded` | Keeps body, supporting files, and extra frontmatter (`license`, `metadata.*`); `name`/`description` degrade to `⚠️` if normalized/missing, and `allowed-tools` is marked `⚠️` |
+| `skills/*/agents/openai.yaml` | `evals/skills.eval.ts` | `✅ Mapped` / `⚠️ Degraded` | Uses `interface.default_prompt` as the skill eval trigger when valid (`✅`), or falls back to a generated trigger (`⚠️`) |
+| `skills/*/scripts/*` | `bot/skills/<id>/scripts/*` + `bot/tools/<script>.ts` | `⚠️ Degraded` | Copies script without executable bits and emits a disabled `execution: "agent"` stub (`CC2AGENT_STUB_DISABLED`) |
+
+</details>
+
+## CLI Reference
+
+| Command or flag | Description |
+| --- | --- |
+| `convert <input...>` | Convert subagent `.md` files, `.claude/agents/` trees, skill directories, or a `tstack` repo into a new SDK project |
+| `inspect <input...>` | Print the migration report (or `--json` summary) without writing files |
+| `demo <full-send\|pr-review>` | Export one of the two adapted `tstack` demo projects (`--out <dir>`, `--json`, `--no-validate`) |
+| `doctor [--dir <project>]` | Check Node `>=22.13` and run `agent-sdk validate` with credential-safe diagnostic summaries |
+| `--out <dir>` | New output directory for `convert` (default `./my-agent`; never overwrites existing paths) |
+| `--name <name>` | Generated agent name (`1–64` lowercase letters, digits, `-`, or `_`, starting with a letter or digit; default `converted-agent`) |
+| `--lang <zh\|en>` | Language for generated instructions, eval prompts, and `MIGRATION.zh-CN.md` / `MIGRATION.en.md` (default `zh`) |
+| `--with-deps` | Include sibling skills required by the `tstack` dependency graph |
+| `--model-map <map>` | Map source models explicitly, e.g. `--model-map sonnet=<account-verified-id>` (verify ID availability on your account) |
+| `--keep-model` | Keep unverified source model IDs as-is instead of omitting them to inherit |
+| `--root-tools <list>` | Explicit root allowlist (`read,grep,glob,ls,shell,edit,task,delete`); omitting preserves SDK defaults |
+| `--dry-run` / `--no-validate` / `--json` | Plan `convert` without writing files / skip `agent-sdk validate` / print machine-readable JSON |
+
+## Included Demos
+
+Both demos are adapted in Chinese from a pinned [t3dotgg/tstack](https://github.com/t3dotgg/tstack) MIT snapshot (`7de017b3fc9d50c03cf3ecb98fb71e0ca65a78bd`) and include `LICENSE-tstack` and `TSTACK-PROVENANCE.json`. Export them with `node dist/cli.js demo <full-send|pr-review> --out <dir>`:
+
+- **`full-send` ([operation guide](demos/full-send/README.md)):** five skills (`full-send`, `sol-loop`, `file-pr`, `babysit-pr`, `leaving-pr-comments`), a `reviewer` subagent, a one-shot read-only `pr_wait` snapshot tool (no polling), a disabled `pr_wait_script` stub alongside the retained Python `pr-wait` script, and a gated `merge_pr` tool. Its root tools exclude `shell`, so **it prepares local edits and a PR draft and stops before publishing or merging**—automatic test execution, `git push`, and PR creation are not implemented. `merge_pr` is off by default and requires `CC2AGENT_ALLOW_MERGE=1`, human approval, a matching configured GitHub session, an open/non-draft/clean PR, and the exact current head SHA (eval sessions cannot merge).
+- **`pr-review` ([operation guide](demos/pr-review/README.md)):** `council` and `leaving-pr-comments` with three reviewer subagents (`reviewer-a`, `reviewer-b`, `reviewer-c`). All three inherit the same parent model, outputting a Chinese `Council review` table and an explicit notice that the review uses three perspectives on one model rather than three separate model providers. Its root tools are read/search/delegate only, and its authored tools never post comments or edit PR descriptions.
+
+Both demos disable their GitHub channel until `bot/lib/settings.ts` replaces `"OWNER/REPO"`. Even after configuring a repository, automatic reply comments, reactions, and `@mention` triggers remain disabled. `pr-review` pre-fetches a bounded, revision-checked diff snapshot on the host side before the sandboxed model turn; direct `pr_wait` calls from inside a sandboxed model turn remain unverified.
+
+## Limitations and Verification Status
+
+- **Root allowlists do not isolate subagents:** `--root-tools` restricts the root agent only. In `@grok/agent-sdk@0.3.0`, `task` subagents retain the harness `task` toolset. Never assume a root allowlist makes child agents read-only, and never treat `shell` as read-only (it can write files and run arbitrary commands).
+- **Script tools are disabled stubs:** conversion never executes source scripts. Generated `bot/tools/*.ts` wrappers return `CC2AGENT_STUB_DISABLED` until an operator audits `.cursor/skills/<id>/scripts/*`, implements the JSON stdin/stdout contract, and enables `shell`.
+- **Scoped input/output guards:** conversion refuses to overwrite existing output directories, rejects symlinks, caps output at 128 MiB, skips or rejects known credential paths (`.env`, `.npmrc`, private key files), and rejects sensitive YAML frontmatter keys (`token`, `apiKey`, `secret`). It does not scan arbitrary prose or binary attachments for secrets.
+
+**Verification summary (each evidence level is tracked separately):**
+
+| Evidence level | Status | What is and is not proven |
+| --- | --- | --- |
+| Offline tests & SDK structure | **PASS** | 52 local tests (`npm run check`) and SDK `validate` / `info` / `eval --list` / strict `tsc` (`npm run test:sdk`) pass. `eval --list` proves case discovery only |
+| Live model runs | **PASS** (narrow cases) | Official `agent-sdk login` succeeded. `migration-smoke` passed (**1 case / 2 assertions**: `succeeded`, `loadedSkill`). `pr-review` council inline diff passed (**1 case / 9 assertions**, same model / 3 perspectives). `full-send` local `run` loaded the skill with 1 read call and 0 writes/execs/merges |
+| GitHub PR replay | **PASS** (local replay) | [Private test PR #1](https://github.com/mreasonyang/cc2agent/pull/1) passed via HMAC-signed **local replay** (bounded snapshot + 3 reviewer delegates + Chinese table; 0 tool errors, 0 writes/execs, 0 GitHub comments/reactions/reviews; PR closed unmerged). Not a live hosted webhook delivery |
+| Cloud hosting & npm release | **Not run / On hold** | `agent-sdk deploy --dry-run` stopped because the test account has no default team configured; no hosted deployment or URL exists. The repository is private, the package has `private: true`, and npm release is on hold |
+
+These checks do not prove average model quality, multi-provider routing, or child-agent tool isolation. Full records: [acceptance results](docs/acceptance.md) · [upstream verification](docs/upstream-verification.md) · [sanitized online evidence](docs/evidence/online-2026-10-27.json) · [official example provenance](docs/official-examples.provenance.json).
+
+## Contributing and License
+
+Maintainer commands (`npm run check`, `npm run test:sdk`, `node scripts/build-demos.mjs`) and safety invariants are in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+`cc2agent` is MIT-licensed (`Copyright (c) 2026 Eason Yang`, [LICENSE](LICENSE)). The pinned snapshot in [`fixtures/tstack`](fixtures/tstack) ([`PROVENANCE.json`](fixtures/tstack/PROVENANCE.json)) and the adapted demos derive from [t3dotgg/tstack](https://github.com/t3dotgg/tstack), `Copyright (c) 2026 Theo Browne`, under the MIT license ([`fixtures/tstack/LICENSE`](fixtures/tstack/LICENSE) and `LICENSE-tstack`); recognized `tstack` inputs must retain this MIT notice. `@grok/agent-sdk@0.3.0` is a proprietary dependency (no SDK source or docs are vendored here). Not affiliated with or endorsed by Theo Browne, T3, Anthropic, Cursor, Anysphere, or xAI. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

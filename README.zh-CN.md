@@ -1,112 +1,160 @@
 # cc2agent
 
-![真实子代理转换与逐字段迁移报告](docs/assets/cc2agent-demo.gif)
+把已写好的 Claude Code 子代理（subagents）与 Agent Skills 整理成可编辑的 [Cursor Agent SDK](https://cursor.com/docs/agent-sdk)（`@grok/agent-sdk`）TypeScript 项目，同时生成路由评测（eval）骨架和逐字段迁移报告。
 
-当前在私有仓库验收，暂不公开发布。根 package.json 保持 `private: true`。见 [验收记录](docs/acceptance.md)。已知 tstack 源必须保留可核实的 MIT 许可证；单次生成内容上限为 128 MiB。
+[English](README.md) · [MIT 许可证](LICENSE) · Node **>=22.13** · 适配 **`@grok/agent-sdk@0.3.0`**
 
-把散装 Claude Code 子代理和 Agent Skills 转成可编辑的 Cursor Agent SDK 源码、eval 骨架和逐字段中文迁移报告。
+![将 Claude 子代理与 Skills 转换为 Agent SDK 项目并生成逐字段迁移报告](docs/assets/cc2agent-demo.gif)
 
-[English](README.md) · MIT · Node **22.13+** · 适配 **@grok/agent-sdk 0.3.0**
+如果你手里已经有写好的 `.claude/agents/*.md` 子代理工作说明与 YAML 配置，或存放在目录中的 `SKILL.md` 技能文件（包括 [t3dotgg/tstack](https://github.com/t3dotgg/tstack) 这类工作流），`cc2agent` 可以把这些散装资产整理成独立的 Cursor Agent SDK 项目。它产出可编辑源码、逐个 frontmatter 字段的去向报告和初始路由 eval——**不会**迁移底层模型本身或聊天历史，也**不会**自动保证运行时行为或子代理权限边界与 Claude Code 等价。
+
+```text
+.claude/agents/code-reviewer.md → bot/subagents/code-reviewer/{agent.ts,instructions.md}
+skills/<name>/SKILL.md          → bot/skills/<name>/SKILL.md
+skills/*/scripts/*              → bot/tools/*.ts（默认禁用的 JSON 适配存根）
+frontmatter + 路由检查           → MIGRATION.zh-CN.md（或 .en.md）+ evals/*.eval.ts
+```
+
+## 快速试用
+
+`cc2agent`（`0.1.0`，[`package.json`](package.json) 保持 `"private": true`）尚未发布到 npm，请勿运行 `npx cc2agent`。直接在当前仓库编译，并用内置的 [`fixtures/`](fixtures/claude) 样本运行：
 
 ```bash
-# 当前从源码使用；本项目尚未发布到 npm。
-npm install
+npm ci --ignore-scripts
 npm run build
-node dist/cli.js convert .claude/agents ~/.claude/skills/full-send \
-  --with-deps --out ./my-agent
+
+# 预览或转换仓库自带的 Claude 子代理 + tstack full-send 技能闭包（默认生成中文报告）
+node dist/cli.js inspect ./fixtures/claude ./fixtures/tstack/skills/full-send --with-deps
+node dist/cli.js convert ./fixtures/claude ./fixtures/tstack/skills/full-send \
+  --with-deps --out /tmp/my-agent
 ```
 
 ```text
-.claude/agents/reviewer.md → bot/subagents/reviewer/{agent.ts,instructions.md}
-skills/*/SKILL.md         → bot/skills/*/SKILL.md
-skills/*/scripts/*        → bot/tools/*.ts（默认禁用的 JSON 适配存根）
-每个 frontmatter 字段    → MIGRATION.zh-CN.md 中的 ✅ / ⚠️ / ❌ 结论
-eval 骨架                → evals/*.eval.ts
+cc2agent v0.1.0 → @grok/agent-sdk 0.3.0
+扫描: 4 agents, 5 skills, 1 script stubs
+...
 ```
 
-转换不会执行输入脚本，默认不覆盖输出。模型默认继承父代理；模型 ID 是否可用需要用自己的账户核实。`validate` 通过只代表项目结构有效，不代表模型行为、权限语义或托管部署通过。
+在这组内置样本输入下（4 个子代理、5 个 skill 含 4 个 `tstack` 依赖、1 个脚本存根），`cc2agent` 会生成 **28 个文件**，并在 `/tmp/my-agent/MIGRATION.zh-CN.md` 记录 **41 项迁移提醒**。具体文件数、提醒数与 `自检`（`Validation`）状态会随输入资产、参数及本机是否已安装 SDK CLI 而变化（在 `/tmp/my-agent` 安装依赖前显示 `unavailable` 属正常现象）。
 
-## 本地安装
+保持当前仓库目录不变，直接为生成项目安装依赖并运行结构校验与 `doctor`：
 
 ```bash
-npm pack
-npm install --global ./cc2agent-0.1.0.tgz
-cc2agent inspect ./fixtures/tstack
-cc2agent convert ./fixtures/tstack/skills --with-deps --out /tmp/my-tstack-agent
-cc2agent demo full-send --out /tmp/full-send-agent
-cc2agent demo pr-review --out /tmp/pr-review-agent
-cc2agent doctor --dir /tmp/my-tstack-agent
+(cd /tmp/my-agent && npm install && npx agent-sdk validate --dir . && npx agent-sdk eval --dir . --list)
+node dist/cli.js doctor --dir /tmp/my-agent
 ```
 
-正式 npm 发布后才可以把第一步换成 `npx cc2agent ...`。现在展示该命令不等于包已发布。
+若希望在本地全局直接使用 `cc2agent` 命令，可执行 `npm pack && npm install --global ./cc2agent-0.1.0.tgz`。
 
-SDK 按[官方文档](https://cursor.com/docs/agent-sdk)安装：
+- **SDK 真实包名：** [Cursor Agent SDK 官方文档](https://cursor.com/docs/agent-sdk)指定的包名为 **`@grok/agent-sdk`**（旧称 `@cursor/bdk`），请勿使用早期公告中的 `@cursor/agent-sdk`；详见[上游核实说明](docs/upstream-verification.md)。生成的 `package.json` 将 `@grok/agent-sdk` 锁定为 `0.3.0`，并声明 `zod` 为 `^3.25.0`。
+- **不同步骤的账号与权限要求：**
+  1. **离线转换与结构校验**（`convert`、`inspect`、`doctor`、`agent-sdk validate`、`agent-sdk eval --list`）：无需登录 Cursor 账号或配置 API Key。
+  2. **调用真实模型运行**（`agent-sdk dev`、`agent-sdk run`、实际执行 `agent-sdk eval`）：需先运行 `agent-sdk login` 登录，且账号具备对应模型访问权限。
+  3. **云端托管部署**（`agent-sdk deploy`）：可选步骤，需账号所属团队已开通 hosting 权限并授权对应仓库。
 
-```bash
-npm install --global @grok/agent-sdk@0.3.0
-cd /tmp/my-tstack-agent
-npm install
-agent-sdk validate --dir .
-agent-sdk eval --dir . --list
-```
+## 适用场景与官方方案对比
 
-交互认证使用 `agent-sdk login`，随后可运行 `agent-sdk dev --dir .`。真实包名是 `@grok/agent-sdk`，旧名为 `@cursor/bdk`。不要使用公告里写的 `@cursor/agent-sdk`。核实日期与边界见[上游核实记录](docs/upstream-verification.md)。
-
-## 命令
-
-```text
-cc2agent convert <input...> [--out <dir>] [--name <name>]
-  [--model-map sonnet=<id>,opus=<id>] [--keep-model]
-  [--root-tools read,grep,glob,ls,task] [--lang zh|en]
-  [--with-deps] [--dry-run] [--json] [--no-validate]
-cc2agent inspect <input...>
-cc2agent demo <full-send|pr-review> [--out <dir>]
-cc2agent doctor [--dir <project>]
-```
-
-支持单个子代理 Markdown、递归 `.claude/agents/`、单个 skill、skill 集合和 tstack 仓库。`--with-deps` 携带 tstack 依赖；`--dry-run` 只预览，`--json` 输出机器可读结果。默认中文。
-
-子代理 `inherit` 不输出 model，其余模型名默认去掉并报告。`--model-map` 显式映射，`--keep-model` 原样保留并承担运行时验证责任。skill 的未知字段保留在原文件，同时进入报告。prompt 中的异构工具名称会被扫描提示，不擅自改写普通用户的正文。
-
-`--root-tools` 设置根代理内置工具白名单；未传入时使用 SDK 默认工具集。不同子代理的独立权限无法忠实映射。`shell` 可以任意执行命令，不能称为只读。SDK 0.3.0 的子代理仍使用 harness task 工具自己的工具集，根代理白名单**不能证明子代理同样受限**；运行前要检查报告与实际隔离条件。
-
-## 与官方方案的区别
+`@grok/agent-sdk` 已原生支持直接加载 `SKILL.md` 和挂载插件，可按手头资产选择最简方案：
 
 | 方案 | 适用情况 |
 | --- | --- |
-| `cursorPlugin()` | 有插件清单，希望运行时挂载 Claude/Cursor 插件 |
-| 直接复制 SKILL.md | 已兼容原生 skill，无需转换器 |
-| cc2agent | 散装文件、源码输出、逐字段损失说明、异构工具提示、eval 骨架、中文模板 |
+| 直接复制 `SKILL.md` | 只有现成兼容的 `SKILL.md` 目录，不需要转换子代理、脚本存根或生成逐字段迁移报告 |
+| SDK `cursorPlugin()` | 已有带清单（manifest）的 Cursor / Claude 插件，只需运行时挂载 |
+| `agent-sdk init --from automation:` / `migrate` | 从 Cursor Automation 迁移，或升级旧版 SDK 项目 |
+| **`cc2agent`** | 手头有散装 `.claude/agents/*.md`、多技能目录或 `tstack` 工作流，希望导出为可编辑的 SDK 源码、获得逐字段损失清单、异构工具警告、禁用脚本存根与路由 eval 骨架 |
 
-`init --from automation:` 和 `migrate` 面向其他迁移来源。cc2agent 仅生成公开 API 并调用 SDK CLI 自检，不依赖 SDK 内部 API；不会自动实现 Claude hooks、MCP、memory 或跨厂商模型路由。
+## 转换前后实例与字段去向（`code-reviewer`）
 
-## 两个 tstack demo
+以仓库自带的 [`fixtures/claude/agents/code-reviewer.md`](fixtures/claude/agents/code-reviewer.md) 为例：
 
-两者都来自固定 MIT 快照，附完整 `LICENSE-tstack`、来源提交与改动说明。council 真实 eval、full-send 本地加载及真实 PR 的签名回放已通过；托管部署尚未完成，详见下方状态。
-
-- **full-send**：5 个 skill、一个 reviewer、中文本地修改/PR 草稿流程；`pr_wait` 是单次 GitHub GET 快照。根代理没有 shell，因此本项目编写的流程不会运行测试、git push 或创建 PR。保留原 Python watcher，但 `pr_wait_script` 适配存根默认禁用。`merge_pr` 是服务端写工具，只有操作员开启环境开关、人工批准本次调用、GitHub 会话仓库匹配、head SHA 未变且 PR clean 时才尝试合并；eval 禁止合并，dry-run 返回未合并。
-- **pr-review**：council + leaving-pr-comments，3 个 reviewer 分别关注正确性、安全、测试和维护。默认继承同一模型，明确输出降级声明和中文 `Council review` 评分表。根代理无 shell/edit/delete；作者提供的工具只有读取，不提供发评论或改 PR 描述功能。
-
-这些是本项目代码与 prompt 的默认边界，**不是经过真实 harness 验证的全体子代理隔离保证**。两个 demo 都开 `local.sandbox`；SDK 文档指出它会阻止本地 MCP 调用，因此 `pr_wait` 在真实本地模型回合中的可用性也未通过验收。不能为了演示方便自动关闭 sandbox。远程账户权限和子代理运行时工具仍需独立检查。
-
-未配置仓库时 GitHub channel 完全禁用，本地试跑不会申请占位仓库凭据。把 `bot/lib/settings.ts` 的 `OWNER/REPO` 改成自己的仓库后，接收非 draft 的 opened/reopened/ready_for_review 事件。两个 channel 显式关闭自动评论、reaction 和 mention 触发。pr-review 只申请只读 GitHub 权限，由服务端核对事件 SHA 并准备有界 diff 快照供 sandbox 内模型读取，截断或失败会明确标记。
-
-[full-send 操作说明](demos/full-send/README.md) · [pr-review 操作说明](demos/pr-review/README.md)
-
-## 验证与发布状态
-
-```bash
-npm run check
-node scripts/build-demos.mjs
+```markdown
+---
+name: code-reviewer
+description: Review changed code for defects, maintainability, and missing verification.
+tools: Read, Grep, Glob
+model: sonnet
+---
+Review the changed code. Prioritize concrete defects and cite the affected file and line.
+Do not edit files. Explain what was verified and what remains uncertain.
 ```
 
-本地测试覆盖转换契约、输入与覆盖边界、tstack 来源字节、合并开关拒绝路径。SDK `validate` 和 `eval --list` 不需要真实模型运行；`--list` 只能证明发现了用例。官方 SDK 登录已经成功，另有两项真实模型 eval 通过：
+`cc2agent convert` 会生成 `bot/subagents/code-reviewer/agent.ts`，把提示词正文写入 `bot/subagents/code-reviewer/instructions.md`，并在 `MIGRATION.zh-CN.md`（或 `MIGRATION.en.md`）逐项记录每个 frontmatter 字段的结论：
 
-- 转换生成的 `migration-smoke`：**1 条用例、2 个断言通过**，验证运行成功与 `loadedSkill`。
-- pr-review council 的内联 PR 示例：**1 条用例、9 个断言通过**，验证运行成功、3 次 reviewer 完成委派、`Council review`、降级标记和三行评分表。三名 reviewer 继承同一模型，不能据此声称三家厂商模型运行或子代理权限隔离已经验证。
+```ts
+// bot/subagents/code-reviewer/agent.ts
+// Generated by cc2agent. Review the migration report before running.
+import { defineAgent } from "@grok/agent-sdk";
 
-full-send 真实 `agent-sdk run` 已通过加载检查；最终默认模板只执行一次成功的 skill 读取，没有写入、命令执行或合并调用。[私有测试 PR #1](https://github.com/mreasonyang/cc2agent/pull/1) 的本地签名回放完成三次委派和中文评分表，工具零错误，GitHub 评论、reaction、review 均为零；测试 PR 已关闭且未合并。回放不等于托管 webhook 投递。托管 `deploy --dry-run` 返回账户没有默认 team；没有执行实际部署，也没有部署 URL。仓库保持私有，根 package.json 保持 `private: true`，不发布 npm、不公开发布、不进行社交发布。
+export default defineAgent({
+  description: "Review changed code for defects, maintainability, and missing verification.",
+  // TODO(cc2agent): tools: 危险：子代理工具限制未生效，task 子代理保留 harness 自己的工具集；不能假定根白名单会约束子代理。工具名参考映射 (read, grep, glob)；若必须强制只读，需使用独立代理或禁用 task，并另行约束执行环境；shell 可写入。
+  // TODO(cc2agent): model: 已省略 model，继承父代理模型；使用 --model-map 显式指定目标模型。
+});
+```
 
-具体证据见[验收记录](docs/acceptance.md)。上述真实 eval 只覆盖列出的断言，不代表整套迁移或托管流程均已通过。
+<details>
+<summary><strong>逐类输入与 frontmatter 字段去向表</strong></summary>
 
-基于 [t3dotgg/tstack](https://github.com/t3dotgg/tstack)（MIT）改编，与 Theo / T3 无官方关联或背书。SDK 是专有依赖，本项目不复制它的源码或文档。见[第三方声明](THIRD_PARTY_NOTICES.md)。
+| 源文件或字段 | SDK 输出位置 | 迁移结论 | 处理方式 |
+| --- | --- | --- | --- |
+| 子代理 `name` | `bot/subagents/<id>/` | `✅ 已映射` / `⚠️ 降级` | 已是合法目录 ID 时为 `✅`；发生字符规范化或缺失回退为文件名时为 `⚠️` |
+| 子代理 `description` | `bot/subagents/<id>/agent.ts` | `✅ 已映射` / `⚠️ 降级` | 非空有效时为 `✅`；缺失或空白时生成占位描述并标为 `⚠️` |
+| 子代理 Markdown 正文 | `bot/subagents/<id>/instructions.md` | `✅ 已映射` | 保留原正文（必要时在末尾追加共享技能加载提示）；扫描异构工具名并在报告中提示，不改写正文 |
+| 子代理 `model` | `bot/subagents/<id>/agent.ts` | `✅ 已映射` / `⚠️ 降级` | `inherit` 直接省略（`✅`）；`sonnet`、`opus`、`haiku` 等默认省略以继承父模型（`⚠️`），除非用 `--model-map` 显式映射（`✅`）或用 `--keep-model` 原样保留（`⚠️`） |
+| 子代理 `tools` / `disallowedTools` | `MIGRATION.*.md` + `TODO(cc2agent)` | `⚠️ 降级` | SDK `0.3.0` 不支持子代理级工具限制，`task` 子代理仍使用 harness `task` 工具集 |
+| 子代理 `skills` | `bot/instructions.md` + `instructions.md` | `⚠️ 降级` | 生成共享 skill 加载提示（无原生子代理独立预加载机制） |
+| `permissionMode`、`hooks`、`mcpServers`、`memory` 及未知代理字段 | `MIGRATION.*.md` + `TODO(cc2agent)` | `❌ 丢弃` | 目标 SDK 无已核实的等价字段，在报告中列出供人工补齐 |
+| `SKILL.md` 及附属文件 | `bot/skills/<id>/**` | `✅ 已映射` / `⚠️ 降级` | 保留正文、附属文件与额外 frontmatter（`license`、`metadata.*`）；`name`/`description` 被规范化或缺失时标为 `⚠️`，`allowed-tools` 标为 `⚠️` |
+| `skills/*/agents/openai.yaml` | `evals/skills.eval.ts` | `✅ 已映射` / `⚠️ 降级` | 存在有效 `interface.default_prompt` 时用作 eval 触发词（`✅`），否则回退为默认触发词（`⚠️`） |
+| `skills/*/scripts/*` | `bot/skills/<id>/scripts/*` + `bot/tools/<script>.ts` | `⚠️ 降级` | 复制脚本内容（去除可执行位），并在 `bot/tools/` 生成默认禁用的 `execution: "agent"` 存根（`CC2AGENT_STUB_DISABLED`） |
+
+</details>
+
+## 命令行参考
+
+| 命令或参数 | 说明 |
+| --- | --- |
+| `convert <input...>` | 将子代理 `.md`、`.claude/agents/` 目录、skill 目录或 `tstack` 仓库转换为新的 SDK 项目 |
+| `inspect <input...>` | 仅输出迁移报告（或 `--json` 摘要），不写入任何文件 |
+| `demo <full-send\|pr-review>` | 导出内置的两个 `tstack` 改编示例项目（支持 `--out <dir>`、`--json`、`--no-validate`） |
+| `doctor [--dir <project>]` | 检查 Node `>=22.13` 并调用 `agent-sdk validate` 输出脱敏诊断摘要 |
+| `--out <dir>` | `convert` 的新输出目录（默认 `./my-agent`；路径已存在时拒绝覆盖） |
+| `--name <name>` | 生成的代理名称（`1–64` 位小写字母、数字、`-` 或 `_`，以字母或数字开头，默认 `converted-agent`） |
+| `--lang <zh\|en>` | 生成的说明书、eval 提示词与 `MIGRATION.zh-CN.md` / `MIGRATION.en.md` 语言（默认 `zh`） |
+| `--with-deps` | 按 `tstack` 依赖图自动补齐同级目录中被依赖的关联技能 |
+| `--model-map <map>` | 显式映射模型 ID，如 `--model-map sonnet=<已核实模型ID>`（需用自己的账号核实可用性） |
+| `--keep-model` | 原样保留未验证的源模型 ID，而不是省略以继承父模型 |
+| `--root-tools <list>` | 显式设置根代理工具白名单（`read,grep,glob,ls,shell,edit,task,delete`）；不传则使用 SDK 默认值 |
+| `--dry-run` / `--no-validate` / `--json` | 仅计算生成计划不写文件 / 跳过 `agent-sdk validate` / 输出机器可读 JSON |
+
+## 内置示例（Demos）
+
+两个示例均基于 [t3dotgg/tstack](https://github.com/t3dotgg/tstack) 固定 MIT 快照（`7de017b3fc9d50c03cf3ecb98fb71e0ca65a78bd`）改编为中文工作流，附带 `LICENSE-tstack` 与 `TSTACK-PROVENANCE.json`。可通过 `node dist/cli.js demo <full-send|pr-review> --out <dir>` 导出：
+
+- **`full-send`（[操作说明](demos/full-send/README.md)）：** 含 5 个技能（`full-send`、`sol-loop`、`file-pr`、`babysit-pr`、`leaving-pr-comments`）、1 个 `reviewer` 子代理、做一次只读快照且不轮询的 `pr_wait` 工具、默认禁用的 `pr_wait_script` 存根（保留原版 Python `pr-wait` 供审阅），以及带门禁的 `merge_pr` 工具。根代理不含 `shell`，因此**默认只完成本地代码修改、评审并输出 PR 草稿，在发布和合并前停止**——未实现自动跑测试、`git push` 和创建 PR。`merge_pr` 默认关闭，必须同时满足 `CC2AGENT_ALLOW_MERGE=1`、人工批准本次调用、匹配已配置 GitHub 仓库会话、PR 处于 open/非 draft/clean 状态且 `expectedHead` 精确匹配当前 head SHA（eval 会话禁止合并）。
+- **`pr-review`（[操作说明](demos/pr-review/README.md)）：** 含 `council` 与 `leaving-pr-comments` 技能及 3 个评审子代理（`reviewer-a`、`reviewer-b`、`reviewer-c`）。三个子代理继承同一父模型，输出中文 `Council review` 评分表，并明确声明当前是同一模型的三种视角而非三家模型厂商。根代理仅保留只读搜索与委派工具，不提供发评论或改 PR 描述的工具。
+
+两个示例在 `bot/lib/settings.ts` 保持默认 `"OWNER/REPO"` 时完全禁用 GitHub channel；配置实际仓库后也显式关闭自动回复评论、reaction 和 `@mention` 触发。`pr-review` 在服务端预先拉取并校验有界 diff 快照供沙箱内模型读取；而在沙箱模型回合中直接调用 `pr_wait` 仍未通过验收。
+
+## 核心限制与验收状态
+
+- **根代理工具白名单不等于子代理隔离：** `--root-tools` 仅约束根代理。`@grok/agent-sdk@0.3.0` 的 `task` 子代理仍保有 harness 自身的 `task` 工具集，不能把根白名单当作子代理只读的证明；同时任何启用 `shell` 的配置都能写文件和执行任意命令，绝非只读。
+- **脚本工具默认是禁用存根：** 转换过程绝不执行输入脚本。生成的 `bot/tools/*.ts` 固定返回 `CC2AGENT_STUB_DISABLED`，需操作员审查 `.cursor/skills/<id>/scripts/*` 中的原脚本、实现 JSON stdin/stdout 契约并开启 `shell` 后才能启用。
+- **输入与输出防护范围：** 转换器拒绝覆盖已有输出目录、拒绝符号链接、限制单次生成体积上限为 128 MiB，跳过或拒绝已知凭据路径（`.env`、`.npmrc`、私钥文件），并拒绝敏感 YAML frontmatter 键名（`token`、`apiKey`、`secret`）且不回显源值；它不会对任意正文段落或二进制附件做全量秘密扫描。
+
+**当前验收状态摘要（各证据层级严格区分）：**
+
+| 证据层级 | 状态 | 已验证范围与未覆盖边界 |
+| --- | --- | --- |
+| 离线单测与结构校验 | **PASS** | 52 项本地测试（`npm run check`）及生成项目的 SDK `validate` / `info` / `eval --list` / 严格 `tsc`（`npm run test:sdk`）通过。`eval --list` 仅证明发现用例 |
+| 真实模型运行 | **PASS**（窄用例） | 已完成官方 `agent-sdk login`。`migration-smoke` 通过（**1 条用例 / 2 个断言**：`succeeded`、`loadedSkill`）；`pr-review` 内联 diff 评审通过（**1 条用例 / 9 个断言**，同模型 3 视角）；`full-send` 本地 `run` 完成 1 次 skill 读取，0 次写入/执行/合并 |
+| GitHub PR 回放 | **PASS**（本地回放） | [私有测试 PR #1](https://github.com/mreasonyang/cc2agent/pull/1) 经 HMAC 签名**本地回放**通过（有界快照 + 3 次子代理委派 + 中文评分表；0 工具错误、0 写入/执行、0 GitHub 评论/reaction/review；测试 PR 已关闭且未合并）。不等于线上托管 webhook 投递 |
+| 云端托管与 npm 发布 | **未运行 / 暂缓** | 测试账号未配置默认团队（`no default team`），`agent-sdk deploy --dry-run` 在前置条件处停止，未执行实际部署，无部署 URL。仓库保持私有，软件包设置 `private: true`，暂不发布 npm |
+
+上述单点结果不证明任意输入下的平均模型质量、多厂商路由或子代理运行时隔离。完整记录见：[验收记录](docs/acceptance.md) · [上游核实说明](docs/upstream-verification.md) · [脱敏线上证据](docs/evidence/online-2026-10-27.json) · [官方示例来源记录](docs/official-examples.provenance.json)。
+
+## 开发维护与许可证
+
+维护者自检命令（`npm run check`、`npm run test:sdk`、`node scripts/build-demos.mjs`）与仓库安全守则见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+`cc2agent` 采用 [MIT 许可证](LICENSE)（`Copyright (c) 2026 Eason Yang`）。[`fixtures/tstack`](fixtures/tstack)（[`PROVENANCE.json`](fixtures/tstack/PROVENANCE.json)）中的固定快照与两个改编示例源自 [t3dotgg/tstack](https://github.com/t3dotgg/tstack)，`Copyright (c) 2026 Theo Browne`，采用 MIT 许可（保存在 [`fixtures/tstack/LICENSE`](fixtures/tstack/LICENSE) 与 `LICENSE-tstack` 中）；被识别的 `tstack` 输入源必须保留该 MIT 声明。`@grok/agent-sdk@0.3.0` 是专有依赖（本仓库不内置或再分发其源码与文档）。本项目与 Theo Browne、T3、Anthropic、Cursor、Anysphere 或 xAI 无官方关联或背书。详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
