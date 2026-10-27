@@ -30,12 +30,13 @@ node dist/cli.js convert ./fixtures/claude ./fixtures/tstack/skills/full-send \
 ```
 
 ```text
+⚠️ 子代理限制未生效（4 个）：源 tools / disallowedTools / permissionMode 未迁移。SDK 校验通过不代表只读；--root-tools 只设置根代理白名单。
 cc-to-cursor-agent v0.1.0 → @grok/agent-sdk 0.3.0
 扫描: 4 agents, 5 skills, 1 script stubs
 ...
 ```
 
-在这组内置样本输入下（4 个子代理、5 个 skill 含 4 个 `tstack` 依赖、1 个脚本存根），`cc-to-cursor-agent` 会生成 **28 个文件**，并在 `/tmp/my-agent/MIGRATION.zh-CN.md` 记录 **41 项迁移提醒**。具体文件数、提醒数与 `自检`（`Validation`）状态会随输入资产、参数及本机是否已安装 SDK CLI 而变化（在 `/tmp/my-agent` 安装依赖前显示 `unavailable` 属正常现象）。
+在这组内置样本输入下（4 个子代理、5 个 skill 含 4 个 `tstack` 依赖、1 个脚本存根），`cc-to-cursor-agent` 会生成 **28 个文件**，并在 `/tmp/my-agent/MIGRATION.zh-CN.md` 记录 **42 项迁移提醒**。具体文件数、提醒数与 `自检`（`Validation`）状态会随输入资产、参数及已安装依赖而变化（在 `/tmp/my-agent` 安装依赖前显示 `dependencies-missing` 属正常现象）。
 
 保持当前仓库目录不变，直接为生成项目安装依赖并运行结构校验与 `doctor`：
 
@@ -51,6 +52,8 @@ node dist/cli.js doctor --dir /tmp/my-agent
   1. **离线转换与结构校验**（`convert`、`inspect`、`doctor`、`agent-sdk validate`、`agent-sdk eval --list`）：无需登录 Cursor 账号或配置 API Key。
   2. **调用真实模型运行**（`agent-sdk dev`、`agent-sdk run`、实际执行 `agent-sdk eval`）：需先运行 `agent-sdk login` 登录，且账号具备对应模型访问权限。
   3. **云端托管部署**（`agent-sdk deploy`）：可选步骤，需账号所属团队已开通 hosting 权限并授权对应仓库。
+
+`convert` / `demo` 在工程已写出、但缺少声明的 SDK 或 `zod` 依赖时退出 0，`validation.status` 为 `dependencies-missing`，并列出缺失包名；这时尚未执行校验。安装依赖后运行 `cc-to-cursor-agent doctor --dir <project>`，`doctor` 在校验通过前仍返回非零。真实校验错误仍使转换退出 1；转换器不会自动安装依赖。
 
 ## 适用场景与官方方案对比
 
@@ -99,7 +102,7 @@ export default defineAgent({
 | --- | --- | --- | --- |
 | 子代理 `name` | `bot/subagents/<id>/` | `✅ 已映射` / `⚠️ 降级` | 已是合法目录 ID 时为 `✅`；发生字符规范化或缺失回退为文件名时为 `⚠️` |
 | 子代理 `description` | `bot/subagents/<id>/agent.ts` | `✅ 已映射` / `⚠️ 降级` | 非空有效时为 `✅`；缺失或空白时生成占位描述并标为 `⚠️` |
-| 子代理 Markdown 正文 | `bot/subagents/<id>/instructions.md` | `✅ 已映射` | 保留原正文（必要时在末尾追加共享技能加载提示）；扫描异构工具名并在报告中提示，不改写正文 |
+| 子代理 Markdown 正文 | `bot/subagents/<id>/instructions.md` | `✅ 已映射` / `⚠️ 降级` | 正文未变化时标为已映射；追加共享技能预加载提示时明确标为降级，并说明保留原文、末尾追加提示 |
 | 子代理 `model` | `bot/subagents/<id>/agent.ts` | `✅ 已映射` / `⚠️ 降级` | `inherit` 直接省略（`✅`）；`sonnet`、`opus`、`haiku` 等默认省略以继承父模型（`⚠️`），除非用 `--model-map` 显式映射（`✅`）或用 `--keep-model` 原样保留（`⚠️`） |
 | 子代理 `tools` / `disallowedTools` | `MIGRATION.*.md` + `TODO(cc-to-cursor-agent)` | `⚠️ 降级` | SDK `0.3.0` 不支持子代理级工具限制，`task` 子代理仍使用 harness `task` 工具集 |
 | 子代理 `skills` | `bot/instructions.md` + `instructions.md` | `⚠️ 降级` | 生成共享 skill 加载提示（无原生子代理独立预加载机制） |
@@ -140,6 +143,7 @@ export default defineAgent({
 
 下面的真实模型与 PR 签名回放结果记录于更名之前（原名 `cc2agent`）。[原始证据](docs/evidence/online-2026-10-27.json) 保留对应源码哈希；本次更名仅重新执行本地校验。
 
+- **工具名扫描范围：** 固定名单区分大小写检测正文和附属 Markdown 中的 `WebFetch`、`WebSearch`、`AskUserQuestion`、`request_user_input`、`delegate_task`、`orchestrator_capabilities`、`watch_pull_request`、`unwatch_pull_request`、`Monitor`。命中可能来自禁止调用的说明；未命中不代表工具兼容，不改写源提示词。
 - **根代理工具白名单不等于子代理隔离：** `--root-tools` 仅约束根代理。`@grok/agent-sdk@0.3.0` 的 `task` 子代理仍保有 harness 自身的 `task` 工具集，不能把根白名单当作子代理只读的证明；同时任何启用 `shell` 的配置都能写文件和执行任意命令，绝非只读。
 - **脚本工具默认是禁用存根：** 转换过程绝不执行输入脚本。生成的 `bot/tools/*.ts` 固定返回 `CC_TO_CURSOR_AGENT_STUB_DISABLED`，需操作员审查 `.cursor/skills/<id>/scripts/*` 中的原脚本、实现 JSON stdin/stdout 契约并开启 `shell` 后才能启用。
 - **输入与输出防护范围：** 转换器拒绝覆盖已有输出目录、拒绝符号链接、限制单次生成体积上限为 128 MiB，跳过或拒绝已知凭据路径（`.env`、`.npmrc`、私钥文件），并拒绝敏感 YAML frontmatter 键名（`token`、`apiKey`、`secret`）且不回显源值；它不会对任意正文段落或二进制附件做全量秘密扫描。
@@ -148,7 +152,7 @@ export default defineAgent({
 
 | 证据层级 | 状态 | 已验证范围与未覆盖边界 |
 | --- | --- | --- |
-| 离线单测与结构校验 | **PASS** | 52 项本地测试（`npm run check`）及生成项目的 SDK `validate` / `info` / `eval --list` / 严格 `tsc`（`npm run test:sdk`）通过。`eval --list` 仅证明发现用例 |
+| 离线单测与结构校验 | **PASS** | 58 项本地测试（`npm run check`）及生成项目的 SDK `validate` / `info` / `eval --list` / 严格 `tsc`（`npm run test:sdk`）通过。生成工程在独立临时目录中分别验收安装自身依赖前后的行为。`eval --list` 仅证明发现用例 |
 | 真实模型运行 | **PASS**（窄用例） | 已完成官方 `agent-sdk login`。`migration-smoke` 通过（**1 条用例 / 2 个断言**：`succeeded`、`loadedSkill`）；`pr-review` 内联 diff 评审通过（**1 条用例 / 9 个断言**，同模型 3 视角）；`full-send` 本地 `run` 完成 1 次 skill 读取，0 次写入/执行/合并 |
 | GitHub PR 回放 | **PASS**（本地回放） | [私有测试 PR #1](https://github.com/mreasonyang/cc-to-cursor-agent/pull/1) 经 HMAC 签名**本地回放**通过（有界快照 + 3 次子代理委派 + 中文评分表；0 工具错误、0 写入/执行、0 GitHub 评论/reaction/review；测试 PR 已关闭且未合并）。不等于线上托管 webhook 投递 |
 | 云端托管与 npm 发布 | **未运行 / 暂缓** | 测试账号未配置默认团队（`no default team`），`agent-sdk deploy --dry-run` 在前置条件处停止，未执行实际部署，无部署 URL。仓库保持私有，软件包设置 `private: true`，暂不发布 npm |

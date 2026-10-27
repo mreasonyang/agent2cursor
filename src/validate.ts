@@ -1,8 +1,9 @@
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { constants } from "node:fs";
+import { createRequire } from "node:module";
 import { delimiter, join, resolve } from "node:path";
 import { spawn } from "node:child_process";
-import type { ValidationResult } from "./ir.js";
+import type { Language, ValidationResult } from "./ir.js";
 
 export function supportedNode(version = process.versions.node): boolean {
   const [major = 0, minor = 0] = version.replace(/^v/, "").split(".").map(Number);
@@ -18,10 +19,42 @@ export async function findSdk(dir: string): Promise<string | undefined> {
   }
 }
 
+// Resolve only the converter's known dependencies. Resolution never imports or executes them.
+// Hoisted dependencies are valid; integration tests must use an independent directory.
+async function missingDependencies(dir: string): Promise<string[]> {
+  const manifestPath = join(resolve(dir), "package.json");
+  let source: string;
+  try { source = await readFile(manifestPath, "utf8"); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return []; throw error; }
+  const manifest: unknown = JSON.parse(source);
+  if (!manifest || typeof manifest !== "object" || Array.isArray(manifest)) throw new Error("Invalid package.json");
+  const dependencies = (manifest as Record<string, unknown>).dependencies;
+  if (!dependencies || typeof dependencies !== "object" || Array.isArray(dependencies)) return [];
+  const require = createRequire(manifestPath);
+  return ["@grok/agent-sdk", "zod"].filter(name => {
+    if (!Object.hasOwn(dependencies, name)) return false;
+    try { require.resolve(name); return false; }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "MODULE_NOT_FOUND") return true;
+      throw error; // Broken exports/configuration are validation failures, not missing installs.
+    }
+  });
+}
+
+export function validationMessage(result: ValidationResult, lang: Language): string {
+  if (lang !== "zh" || result.status !== "dependencies-missing" || !result.missingDependencies?.length) return result.message;
+  return `SDK 自检尚未执行：缺少项目依赖 ${result.missingDependencies.join(", ")}。请先在项目目录运行 npm install，再运行 cc-to-cursor-agent doctor --dir .。`;
+}
+
 // Never relay SDK stdout/stderr: source modules and runtime errors may contain credentials.
 // Only diagnostic counts and a closed set of status fields cross the process boundary.
 export async function validateProject(dir: string, sdk?: string): Promise<ValidationResult> {
   const command = `agent-sdk validate --dir ${JSON.stringify(resolve(dir))}`;
+  let missing: string[];
+  try { missing = await missingDependencies(dir); }
+  catch { return { status: "failed", command, message: "Could not resolve project dependencies. Check package.json and installed package configuration; raw details withheld." }; }
+  if (missing.length) return { status: "dependencies-missing", command, missingDependencies: missing,
+    message: `SDK validation has not run: missing project dependencies ${missing.join(", ")}. Run npm install in the project, then \`cc-to-cursor-agent doctor --dir .\`.` };
   const executable = sdk ?? await findSdk(dir);
   if (!executable) return { status: "unavailable", command,
     message: "Agent SDK CLI is not installed. Run npm install in the generated project, then cc-to-cursor-agent doctor --dir <project>." };

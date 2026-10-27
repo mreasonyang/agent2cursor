@@ -50,9 +50,10 @@ export interface ConvertOptions {
   rootTools?: string[];
 }
 export interface ValidationResult {
-  status: "passed" | "failed" | "unavailable" | "skipped";
+  status: "passed" | "failed" | "dependencies-missing" | "unavailable" | "skipped";
   command: string;
   message: string;
+  missingDependencies?: string[];
   diagnostics?: { severity: string; message: string }[];
 }
 export interface ProjectPlan {

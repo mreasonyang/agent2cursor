@@ -30,12 +30,13 @@ node dist/cli.js convert ./fixtures/claude ./fixtures/tstack/skills/full-send \
 ```
 
 ```text
+⚠️ Source subagent restrictions are not enforced (4 affected): tools / disallowedTools / permissionMode were not migrated. SDK validation does not establish read-only access; --root-tools sets only the root allowlist.
 cc-to-cursor-agent v0.1.0 → @grok/agent-sdk 0.3.0
 Scanned: 4 agents, 5 skills, 1 script stubs
 ...
 ```
 
-On this fixture input (4 subagents, 5 skills including 4 `tstack` dependencies, and 1 script stub), `cc-to-cursor-agent` writes **28 files** and flags **41 migration concerns** in `/tmp/my-agent/MIGRATION.en.md`. Exact counts and `Validation` status depend on your inputs, flags, and whether the SDK CLI is already installed (`unavailable` is expected before installing dependencies in `/tmp/my-agent`).
+On this fixture input (4 subagents, 5 skills including 4 `tstack` dependencies, and 1 script stub), `cc-to-cursor-agent` writes **28 files** and flags **42 migration concerns** in `/tmp/my-agent/MIGRATION.en.md`. Exact counts and `Validation` status depend on your inputs, flags, and installed dependencies (`dependencies-missing` is expected before installing dependencies in `/tmp/my-agent`).
 
 To install the SDK inside the generated project and run structural checks from this checkout:
 
@@ -51,6 +52,8 @@ If you want a global `cc-to-cursor-agent` command locally before npm publication
   1. **Offline conversion & structural checks** (`convert`, `inspect`, `doctor`, `agent-sdk validate`, `agent-sdk eval --list`) require **no** Cursor account or API key.
   2. **Live model execution** (`agent-sdk dev`, `agent-sdk run`, live `agent-sdk eval`) requires `agent-sdk login` and model access on your Cursor account.
   3. **Cloud hosting** (`agent-sdk deploy`) is optional and requires an account/team with hosting enabled and repository permissions.
+
+`convert` and `demo` exit 0 when files are written but declared SDK or `zod` dependencies are missing: `validation.status` is `dependencies-missing`, with the missing package names. Validation has not run. Install dependencies and run `cc-to-cursor-agent doctor --dir <project>`; `doctor` exits nonzero until validation passes. Actual validation errors still make conversion exit 1. Dependencies are never installed automatically.
 
 ## When to Use cc-to-cursor-agent
 
@@ -99,7 +102,7 @@ export default defineAgent({
 | --- | --- | --- | --- |
 | Subagent `name` | `bot/subagents/<id>/` | `✅ Mapped` / `⚠️ Degraded` | `✅` when already a valid slug; `⚠️` when normalized or derived from the filename |
 | Subagent `description` | `bot/subagents/<id>/agent.ts` | `✅ Mapped` / `⚠️ Degraded` | `✅` when non-empty; `⚠️` with a generated placeholder when missing or blank |
-| Subagent Markdown body | `bot/subagents/<id>/instructions.md` | `✅ Mapped` | Preserves body text (with shared-skill loading hints appended when applicable); scans for foreign tool names without rewriting prose |
+| Subagent Markdown body | `bot/subagents/<id>/instructions.md` | `✅ Mapped` / `⚠️ Degraded` | Unchanged bodies are mapped; appending a shared-skill preload hint is explicitly reported as degraded, with the original text retained |
 | Subagent `model` | `bot/subagents/<id>/agent.ts` | `✅ Mapped` / `⚠️ Degraded` | `inherit` is omitted (`✅`). Other IDs (`sonnet`, `opus`, `haiku`) are omitted by default (`⚠️`) to inherit the parent model unless mapped with `--model-map` (`✅`) or kept with `--keep-model` (`⚠️`) |
 | Subagent `tools` / `disallowedTools` | `MIGRATION.*.md` + `TODO(cc-to-cursor-agent)` | `⚠️ Degraded` | Per-subagent tool lists are unsupported in SDK `0.3.0`; `task` children retain the harness `task` toolset |
 | Subagent `skills` | `bot/instructions.md` + `instructions.md` | `⚠️ Degraded` | Emits shared-skill loading hints (no native per-subagent preloading) |
@@ -140,6 +143,7 @@ Both demos disable their GitHub channel until `bot/lib/settings.ts` replaces `"O
 
 The live model and signed PR replay results below were recorded before the rename from `cc2agent`. The [original evidence](docs/evidence/online-2026-10-27.json) keeps its source hashes; the rename reruns local checks only.
 
+- **Tool-name scan coverage:** a fixed, case-sensitive identifier list detects `WebFetch`, `WebSearch`, `AskUserQuestion`, `request_user_input`, `delegate_task`, `orchestrator_capabilities`, `watch_pull_request`, `unwatch_pull_request`, and `Monitor` in bodies and supporting Markdown. Matches may include instructions prohibiting a call; absence of a match does not establish compatibility. Source prompts are not rewritten.
 - **Root allowlists do not isolate subagents:** `--root-tools` restricts the root agent only. In `@grok/agent-sdk@0.3.0`, `task` subagents retain the harness `task` toolset. Never assume a root allowlist makes child agents read-only, and never treat `shell` as read-only (it can write files and run arbitrary commands).
 - **Script tools are disabled stubs:** conversion never executes source scripts. Generated `bot/tools/*.ts` wrappers return `CC_TO_CURSOR_AGENT_STUB_DISABLED` until an operator audits `.cursor/skills/<id>/scripts/*`, implements the JSON stdin/stdout contract, and enables `shell`.
 - **Scoped input/output guards:** conversion refuses to overwrite existing output directories, rejects symlinks, caps output at 128 MiB, skips or rejects known credential paths (`.env`, `.npmrc`, private key files), and rejects sensitive YAML frontmatter keys (`token`, `apiKey`, `secret`). It does not scan arbitrary prose or binary attachments for secrets.
@@ -148,7 +152,7 @@ The live model and signed PR replay results below were recorded before the renam
 
 | Evidence level | Status | What is and is not proven |
 | --- | --- | --- |
-| Offline tests & SDK structure | **PASS** | 52 local tests (`npm run check`) and SDK `validate` / `info` / `eval --list` / strict `tsc` (`npm run test:sdk`) pass. `eval --list` proves case discovery only |
+| Offline tests & SDK structure | **PASS** | 58 local tests (`npm run check`) and SDK `validate` / `info` / `eval --list` / strict `tsc` (`npm run test:sdk`) pass. Generated projects are checked in independent temporary directories before and after installing their own dependencies. `eval --list` proves case discovery only |
 | Live model runs | **PASS** (narrow cases) | Official `agent-sdk login` succeeded. `migration-smoke` passed (**1 case / 2 assertions**: `succeeded`, `loadedSkill`). `pr-review` council inline diff passed (**1 case / 9 assertions**, same model / 3 perspectives). `full-send` local `run` loaded the skill with 1 read call and 0 writes/execs/merges |
 | GitHub PR replay | **PASS** (local replay) | [Private test PR #1](https://github.com/mreasonyang/cc-to-cursor-agent/pull/1) passed via HMAC-signed **local replay** (bounded snapshot + 3 reviewer delegates + Chinese table; 0 tool errors, 0 writes/execs, 0 GitHub comments/reactions/reviews; PR closed unmerged). Not a live hosted webhook delivery |
 | Cloud hosting & npm release | **Not run / On hold** | `agent-sdk deploy --dry-run` stopped because the test account has no default team configured; no hosted deployment or URL exists. The repository is private, the package has `private: true`, and npm release is on hold |

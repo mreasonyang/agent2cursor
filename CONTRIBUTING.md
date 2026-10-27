@@ -11,7 +11,7 @@ Offline unit tests and fixture conversions do not require a Cursor account or ne
 
 ## Build and Unit Tests
 
-Run the TypeScript compiler and the 52 automated tests before delivering changes:
+Run the TypeScript compiler and the automated tests before delivering changes:
 
 ```bash
 npm ci --ignore-scripts
@@ -39,6 +39,8 @@ npm run test:sdk
 ```
 
 Never vendor SDK source code or bundled SDK documentation into the repository.
+
+Generated projects live in system temporary directories outside this checkout. The check verifies default conversion and a failing `doctor` before installing each project's own dependencies without lifecycle scripts, then runs validation, strict TypeScript and eval discovery. Do not generate these projects under `.validation/`: its dependencies would mask first-run failures. Sanitized evidence stays in `.validation/acceptance-*/`.
 
 ## Regenerating Demos
 

@@ -6,8 +6,9 @@ import { scanInputs } from "./scan/index.js";
 import { listSafeFiles, readSafeFile } from "./scan/safety.js";
 import { planProject } from "./emit/project.js";
 import { renderReport } from "./emit/report.js";
-import { SDK_VERSION, type ConvertOptions, type MigrationIR, type ValidationResult } from "./ir.js";
-import { validateProject, findSdk, supportedNode } from "./validate.js";
+import { SDK_VERSION, type ConvertOptions, type Language, type MigrationIR, type ValidationResult } from "./ir.js";
+import { validateProject, findSdk, supportedNode, validationMessage } from "./validate.js";
+import { permissionWarning } from "./mapping/permissions.js";
 import { updateProjectReport, writeProject } from "./write.js";
 
 const VERSION = "0.1.0";
@@ -40,8 +41,9 @@ function common(command: Command): Command {
     .option("--json", "Print a machine-readable summary");
 }
 
-function summary(ir: MigrationIR, extra: Record<string, unknown> = {}) {
+function summary(ir: MigrationIR, lang: Language, extra: Record<string, unknown> = {}) {
   return { version: VERSION, sdkVersion: SDK_VERSION,
+    permissionWarning: permissionWarning(ir, lang),
     counts: { agents: ir.agents.length, skills: ir.skills.length, dependencies: ir.skills.filter(s => s.dependency).length, scripts: ir.scripts.length },
     agents: ir.agents.map(a => a.id), skills: ir.skills.map(s => s.id), tools: ir.scripts.map(s => s.id),
     findings: ir.findings, ...extra };
@@ -65,19 +67,21 @@ common(program.command("convert").argument("<input...>", "Agent files, directori
       const report = opts.lang === "zh" ? "MIGRATION.zh-CN.md" : "MIGRATION.en.md";
       await updateProjectReport(written, report, renderReport(plan.ir, opts, validation));
     }
-    const result = summary(plan.ir, { out, dryRun: !!raw.dryRun, files: [...plan.files.keys()], validation });
+    const result = summary(plan.ir, opts.lang, { out, dryRun: !!raw.dryRun, files: [...plan.files.keys()], validation });
     if (raw.json) console.log(JSON.stringify(result, null, 2));
     else {
       const zh = opts.lang === "zh";
+      const warning = permissionWarning(plan.ir, opts.lang);
+      if (warning) console.log(warning);
       console.log(`cc-to-cursor-agent v${VERSION} → @grok/agent-sdk ${SDK_VERSION}`);
       console.log(`${zh ? "扫描" : "Scanned"}: ${ir.agents.length} agents, ${ir.skills.length} skills, ${ir.scripts.length} script stubs`);
       const concerns = plan.ir.findings.filter(f => f.status !== "mapped");
       console.log(`${concerns.length} ${zh ? "项迁移提醒；逐字段说明见报告。" : "migration concerns; see the field-by-field report."}`);
       console.log(`${raw.dryRun ? "DRY RUN" : out}: ${plan.files.size} files`);
-      console.log(`${zh ? "自检" : "Validation"}: ${validation.status} — ${validation.message}`);
+      console.log(`${zh ? "自检" : "Validation"}: ${validation.status} — ${validationMessage(validation, opts.lang)}`);
       if (!raw.dryRun) {
         console.log(`${out}/${zh ? "MIGRATION.zh-CN.md" : "MIGRATION.en.md"}`);
-        console.log(`${zh ? "下一步" : "Next"}: cd ${JSON.stringify(out)} && npm install && npx agent-sdk login && npm run dev`);
+        console.log(`${zh ? "下一步" : "Next"}: cd ${JSON.stringify(out)} && npm install && npm run validate && npx agent-sdk login && npm run dev`);
       }
     }
     if (validation.status === "failed") process.exitCode = 1;
@@ -87,8 +91,10 @@ common(program.command("inspect").argument("<input...>"))
   .action(async (inputs: string[], raw) => {
     const opts = options(raw);
     const ir = await scanInputs(inputs, opts);
-    if (raw.json) console.log(JSON.stringify(summary(ir), null, 2));
-    else console.log(renderReport(ir, opts, { status: "skipped", command: "", message: "Inspection only; no output written." }));
+    const validation: ValidationResult = { status: "skipped", command: "", message: "Inspection only; no output written." };
+    const plan = await planProject(ir, opts, validation);
+    if (raw.json) console.log(JSON.stringify(summary(plan.ir, opts.lang), null, 2));
+    else console.log(renderReport(plan.ir, opts, validation));
   });
 
 program.command("doctor").option("--dir <project>", "Agent SDK project", ".").option("--json")
@@ -111,9 +117,9 @@ program.command("demo").argument("<name>", "full-send | pr-review").option("--ou
     }
     const out = resolve(raw.out ?? `./${name}-agent`);
     await writeProject(out, files);
-    const validation = raw.validate ? await validateProject(out) : { status: "skipped" };
+    const validation: ValidationResult = raw.validate ? await validateProject(out) : { status: "skipped", command: "", message: "Validation not requested." };
     console.log(raw.json ? JSON.stringify({ demo: name, out, files: [...files.keys()], validation }, null, 2)
-      : `${basename(out)}: ${files.size} files\n${validation.status}\ncd ${JSON.stringify(out)} && npm install && npx agent-sdk validate`);
+      : `${basename(out)}: ${files.size} files\n${validation.status}: ${validationMessage(validation, "zh")}\ncd ${JSON.stringify(out)} && npm install && npx agent-sdk validate`);
     if (validation.status === "failed") process.exitCode = 1;
   });
 

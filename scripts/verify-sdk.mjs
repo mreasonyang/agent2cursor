@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
-import { mkdtemp, mkdir, readdir, writeFile } from "node:fs/promises";
-import { resolve, join } from "node:path";
+import { mkdtemp, mkdir, readdir, readFile, realpath, writeFile } from "node:fs/promises";
+import { resolve, join, dirname, delimiter } from "node:path";
+import { tmpdir } from "node:os";
 import assert from "node:assert/strict";
 
 // Uses only published CLIs. Never reads SDK internals or relays runtime output.
@@ -8,15 +9,33 @@ const root = resolve(import.meta.dirname, "..");
 const sdk = join(root, ".validation/node_modules/.bin/agent-sdk");
 await mkdir(join(root, ".validation"), { recursive: true });
 const evidenceDir = await mkdtemp(join(root, ".validation/acceptance-"));
-const evidence = { generatedAt: new Date().toISOString(), sdkVersion: "0.3.0", checks: [] };
-function command(executable, args) {
-  const run = spawnSync(executable, args, { cwd: root, encoding: "utf8", timeout: 60_000, maxBuffer: 4 * 1024 * 1024,
-    env: { ...process.env, AGENT_SERVE_NO_UPDATE_CHECK: "1", NO_UPDATE_NOTIFIER: "1" } });
+// Output must not inherit the SDK's node_modules, which used to mask missing zod.
+const projectRoot = await mkdtemp(join(await realpath(tmpdir()), "cc-to-cursor-agent-sdk-"));
+const cli = join(root, "dist/cli.js");
+const env = { ...process.env, PATH: `${dirname(sdk)}${delimiter}${process.env.PATH ?? ""}`,
+  AGENT_SERVE_NO_UPDATE_CHECK: "1", NO_UPDATE_NOTIFIER: "1" };
+const evidence = { generatedAt: new Date().toISOString(), sdkVersion: "0.3.0", projectRoot, checks: [] };
+function command(executable, args, expectedExit = 0) {
+  const run = spawnSync(executable, args, { cwd: root, encoding: "utf8", timeout: 60_000, maxBuffer: 4 * 1024 * 1024, env });
   let result;
   try { result = JSON.parse(run.stdout); } catch { /* no raw logs */ }
-  assert.equal(run.status, 0, `CLI failed: ${args[0]} (raw output withheld)`);
+  assert.equal(run.status, expectedExit, `Unexpected CLI exit: ${args[0]} (raw output withheld)`);
   assert.ok(result, `Expected structured output: ${args[0]}`);
   return result;
+}
+async function installAndCheck(directory, initial) {
+  assert.equal(initial.validation.status, "dependencies-missing", "Fresh output must not resolve ambient SDK dependencies");
+  assert.deepEqual(initial.validation.missingDependencies, ["@grok/agent-sdk", "zod"]);
+  const before = command(process.execPath, [cli, "doctor", "--dir", directory, "--json"], 1);
+  assert.equal(before.sdkInstalled, true, "This case must find the separately installed SDK on PATH");
+  assert.equal(before.validation.status, "dependencies-missing");
+  const install = spawnSync("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund", "--prefer-offline", "--fetch-timeout=30000", "--fetch-retries=1"],
+    { cwd: directory, env, stdio: "ignore", timeout: 180_000 });
+  assert.equal(install.status, 0, `Project dependency installation failed (${install.error?.code ?? install.signal ?? "nonzero exit"}); raw output withheld`);
+  const after = command(process.execPath, [cli, "doctor", "--dir", directory, "--json"]);
+  assert.equal(after.validation.status, "passed");
+  console.log(JSON.stringify({ project: directory, beforeInstall: initial.validation.status, afterInstall: after.validation.status }));
+  return { conversionExitCode: 0, beforeInstall: initial.validation, doctorBeforeInstallExitCode: 1, afterInstall: after.validation };
 }
 async function typecheck(directory) {
   const files = [];
@@ -34,8 +53,9 @@ async function typecheck(directory) {
   assert.equal(result.status, 0, `Generated TypeScript failed type checking (${directory}); diagnostics withheld.`);
 }
 for (const [name, source] of [["claude", "fixtures/claude"], ["tstack", "fixtures/tstack/skills"]]) {
-  const out = join(evidenceDir, name);
-  const converted = command(process.execPath, ["dist/cli.js", "convert", source, "--with-deps", "--out", out, "--no-validate", "--json"]);
+  const out = join(projectRoot, name);
+  const converted = command(process.execPath, [cli, "convert", source, "--with-deps", "--out", out, "--json"]);
+  const dependencyLifecycle = await installAndCheck(out, converted);
   const validation = command(sdk, ["validate", "--dir", out, "--json"]);
   const info = command(sdk, ["info", "--dir", out, "--json"]);
   const evals = command(sdk, ["eval", "--dir", out, "--list", "--json"]);
@@ -50,12 +70,23 @@ for (const [name, source] of [["claude", "fixtures/claude"], ["tstack", "fixture
     assert.ok(info.agents[0].tools.some(tool => tool.name === "pr_wait" && tool.execution === "agent"));
   } else assert.equal(info.agents[0].subagents.length, 4);
   // The only saved data comes from generated fixtures, not user credentials or runtime traces.
-  evidence.checks.push({ name, counts: converted.counts, skills: converted.skills, agents: converted.agents,
+  evidence.checks.push({ name, dependencyLifecycle, counts: converted.counts, skills: converted.skills, agents: converted.agents,
     tools: converted.tools, validation, info, evals });
+  if (name === "claude") {
+    const file = join(out, "bot/agent.ts");
+    const original = await readFile(file, "utf8");
+    try {
+      await writeFile(file, "export default ( ;\n");
+      const broken = command(process.execPath, [cli, "doctor", "--dir", out, "--json"], 1);
+      assert.equal(broken.validation.status, "failed", "Installed dependencies must not hide a real syntax error");
+      evidence.invalidConfigurationRejected = true;
+    } finally { await writeFile(file, original); }
+  }
 }
 for (const name of ["full-send", "pr-review"]) {
-  const out = join(evidenceDir, name);
-  command(process.execPath, ["dist/cli.js", "demo", name, "--out", out, "--no-validate", "--json"]);
+  const out = join(projectRoot, name);
+  const extracted = command(process.execPath, [cli, "demo", name, "--out", out, "--json"]);
+  const dependencyLifecycle = await installAndCheck(out, extracted);
   const validation = command(sdk, ["validate", "--dir", out, "--json"]);
   const evals = command(sdk, ["eval", "--dir", out, "--list", "--json"]);
   const localInfo = command(sdk, ["info", "--dir", out, "--json"]);
@@ -69,7 +100,7 @@ for (const name of ["full-send", "pr-review"]) {
   const configuredInfo = command(sdk, ["info", "--dir", out, "--json"]);
   assert.equal(configuredValidation.ok, true);
   assert.equal(configuredInfo.agents[0].channels.filter(channel => channel.id === "github").length, 1, "Configured demo must register its GitHub channel");
-  evidence.checks.push({ name, validation, evals, channelsDisabledByDefault: true, configuredChannelFound: true, configuredValidation });
+  evidence.checks.push({ name, dependencyLifecycle, validation, evals, channelsDisabledByDefault: true, configuredChannelFound: true, configuredValidation });
 }
 await writeFile(join(evidenceDir, "evidence.json"), JSON.stringify(evidence, null, 2) + "\n");
 console.log(JSON.stringify({ status: "passed", evidenceDir, checks: evidence.checks.map(c => ({ name: c.name, counts: c.counts, validated: true, evalsListed: true })),

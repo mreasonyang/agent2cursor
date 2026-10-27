@@ -1,6 +1,8 @@
 import type { ConvertOptions, Finding, MigrationIR, ValidationResult } from "../ir.js";
 import { SDK_VERSION } from "../ir.js";
 import { markdown } from "./common.js";
+import { permissionWarning } from "../mapping/permissions.js";
+import { validationMessage } from "../validate.js";
 
 const statusLabels = {
   zh: { mapped: "✅ 已映射", degraded: "⚠️ 降级", dropped: "❌ 丢弃" },
@@ -35,9 +37,11 @@ export function renderReport(ir: MigrationIR, options: ConvertOptions, validatio
   const rows = findings.map((finding) => `| ${markdown(finding.source)} | ${markdown(finding.field)} | ${statusLabels[options.lang][finding.status]} | ${markdown(finding.target ?? "—")} | ${markdown(zh ? finding.message : finding.messageEn)} |`);
   const defaultValidation: ValidationResult = { status: "skipped", command: "agent-sdk validate --dir <out>", message: zh ? "尚未执行。" : "Not run yet." };
   const result = validation ?? defaultValidation;
-  const labels = zh ? { passed: "通过", failed: "失败", unavailable: "不可用", skipped: "未执行" } : { passed: "Passed", failed: "Failed", unavailable: "Unavailable", skipped: "Skipped" };
+  const labels = zh ? { passed: "通过", failed: "失败", "dependencies-missing": "待安装依赖（未校验）", unavailable: "不可用", skipped: "未执行" } : { passed: "Passed", failed: "Failed", "dependencies-missing": "Dependencies missing (not validated)", unavailable: "Unavailable", skipped: "Skipped" };
+  const warning = permissionWarning(ir, options.lang);
   return [
     `# ${zh ? "迁移报告" : "Migration report"}: ${markdown(options.name)}`,
+    ...(warning ? ["", `**${markdown(warning)}**`] : []),
     "", `cc-to-cursor-agent → @grok/agent-sdk ${SDK_VERSION}`, "",
     zh
       ? `扫描结果：${ir.agents.length} 个子代理，${ir.skills.length} 个 skill（其中 ${ir.skills.filter((s) => s.dependency).length} 个依赖），${ir.scripts.length} 个禁用脚本工具存根。`
@@ -49,6 +53,9 @@ export function renderReport(ir: MigrationIR, options: ConvertOptions, validatio
     "", zh
       ? "原 skill 正文与辅助文件保留，可能仍包含其他平台的工具名或操作指令。迁移报告中的警告不会自动改写这些指令。scripts 文件只被复制，转换过程不会执行它们；生成的工具存根始终返回 TODO 错误。原脚本经审核并实现 JSON stdin/stdout 契约后才能启用。运行时 skill 路径是 .cursor/skills/<name>/，不是源码中的 bot/skills/<name>/。"
       : "Original skill bodies and supporting files are preserved and may still refer to another platform's tools or operational instructions. Report warnings do not rewrite those instructions automatically. Scripts are copied, never executed during conversion; generated tool stubs always return a TODO error. Review original scripts and implement the JSON stdin/stdout contract before enabling them. Runtime skill paths are .cursor/skills/<name>/, not the source paths bot/skills/<name>/.",
+    "", zh
+      ? "工具名扫描使用固定名单，区分大小写匹配正文和附属 Markdown 中的标识符。未命中不表示工具兼容；命中也可能来自禁止调用的说明。请人工复核实际调用需求。"
+      : "Tool-name scanning uses a fixed, case-sensitive identifier list in bodies and supporting Markdown. No match does not establish compatibility; a match may occur in an instruction prohibiting a call. Review actual tool requirements manually.",
     "", `## ${zh ? "逐文件、逐字段映射" : "Mapping by file and field"}`, "",
     zh ? "| 源文件 | 字段 / 内容 | 结论 | 输出位置 | 说明与补救 |" : "| Source | Field / content | Result | Destination | Explanation and remedy |",
     "| --- | --- | --- | --- | --- |", ...rows,
@@ -60,7 +67,7 @@ export function renderReport(ir: MigrationIR, options: ConvertOptions, validatio
     "", `## ${zh ? "SDK 自检" : "SDK validation"}`, "",
     `- ${zh ? "状态" : "Status"}: ${labels[result.status]}`,
     `- ${zh ? "命令" : "Command"}: ${markdown(result.command)}`,
-    `- ${zh ? "结果" : "Result"}: ${markdown(result.message)}`,
+    `- ${zh ? "结果" : "Result"}: ${markdown(validationMessage(result, options.lang))}`,
     ...(result.diagnostics ?? []).map((diagnostic) => `- ${markdown(diagnostic.severity)}: ${markdown(diagnostic.message)}`),
     "", zh
       ? "validate 只检查项目结构与配置；它不验证模型 ID 是否可用，也不证明真实模型执行、GitHub 触发或部署成功。"

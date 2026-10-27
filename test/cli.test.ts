@@ -120,3 +120,61 @@ test("CLI rejects malformed model maps and unknown root tool names", async () =>
     assert.equal(result.code, 1);
   }
 });
+
+test("default script conversion succeeds with a missing-dependency report while doctor stays nonzero", async (t) => {
+  const directory = await temp(t);
+  const source = path.join(directory, "skill");
+  await mkdir(path.join(source, "scripts"), { recursive: true });
+  await writeFile(path.join(source, "SKILL.md"), "---\nname: scripted\ndescription: Review the provided text.\n---\nUse the reference, never run scripts.\n");
+  const sentinel = path.join(directory, "source-executed");
+  await writeFile(path.join(source, "scripts/check.js"), `require('node:fs').writeFileSync(${JSON.stringify(sentinel)}, 'bad');`);
+  const out = path.join(directory, "converted");
+  const converted = await run(["convert", source, "--out", out, "--json"]);
+  assert.equal(converted.code, 0, converted.stderr);
+  const result = JSON.parse(converted.stdout);
+  assert.equal(result.validation.status, "dependencies-missing");
+  assert.deepEqual(result.validation.missingDependencies, ["@grok/agent-sdk", "zod"]);
+  const report = await readFile(path.join(out, "MIGRATION.zh-CN.md"), "utf8");
+  assert.match(report, /待安装依赖（未校验）/u);
+  assert.match(report, /缺少项目依赖 @grok\/agent-sdk, zod/u);
+  assert.doesNotMatch(report, /SDK validation failed|状态: 通过/u);
+  const doctor = await run(["doctor", "--dir", out, "--json"]);
+  assert.equal(doctor.code, 1);
+  assert.equal(JSON.parse(doctor.stdout).validation.status, "dependencies-missing");
+  await assert.rejects(lstat(sentinel), { code: "ENOENT" });
+  const demo = await run(["demo", "full-send", "--out", path.join(directory, "demo")]);
+  assert.equal(demo.code, 0);
+  assert.match(demo.stdout, /dependencies-missing.*zod/u);
+});
+
+test("permission loss leads the CLI and report without emitting ineffective child restrictions", async (t) => {
+  const directory = await temp(t);
+  const source = path.join(directory, "restricted.md");
+  for (const field of ["tools: [Read]", "disallowedTools: [Bash, Edit, Write]", "permissionMode: plan"]) {
+    await writeFile(source, `---\nname: restricted\ndescription: Review code\n${field}\n---\nDo not edit.\n`);
+    const out = path.join(directory, field.split(":")[0]!);
+    const converted = await run(["convert", source, "--out", out, "--no-validate"]);
+    assert.equal(converted.code, 0);
+    assert.match(converted.stdout.split("\n")[0]!, /子代理限制未生效.*不代表只读/u);
+    const report = await readFile(path.join(out, "MIGRATION.zh-CN.md"), "utf8");
+    assert.match(report.split("\n")[2]!, /子代理限制未生效/u);
+    const child = (await readFile(path.join(out, "bot/subagents/restricted/agent.ts"), "utf8"))
+      .split("\n").filter(line => !line.trim().startsWith("//")).join("\n");
+    assert.doesNotMatch(child, /tools:|disallowedTools:|permissionMode:/u);
+  }
+  const inspected = await run(["inspect", source, "--lang", "en", "--json"]);
+  assert.match(JSON.parse(inspected.stdout).permissionWarning, /restrictions are not enforced.*does not establish read-only/u);
+});
+
+test("inspect reports the same appended-body disposition as conversion", async (t) => {
+  const directory = await temp(t);
+  const source = path.join(directory, "preloaded.md");
+  await writeFile(source, "---\nname: preloaded\ndescription: Review code\nskills: [missing-skill]\n---\nKeep this body.\n");
+  const inspected = JSON.parse((await run(["inspect", source, "--json"])).stdout);
+  const converted = JSON.parse((await run(["convert", source, "--out", path.join(directory, "out"), "--no-validate", "--json"])).stdout);
+  const bodies = (data: typeof inspected) => data.findings.filter((f: { field: string }) => f.field === "$body");
+  assert.deepEqual(bodies(inspected), bodies(converted));
+  assert.equal(bodies(inspected).length, 1);
+  assert.equal(bodies(inspected)[0].status, "degraded");
+  assert.match(bodies(inspected)[0].message, /正文末尾追加/u);
+});

@@ -45,6 +45,36 @@ test("validator summarizes structured diagnostics without echoing untrusted outp
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
+test("validation distinguishes missing dependencies from broken configuration without loading packages", async () => {
+  const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-dependencies-"));
+  try {
+    const cli = join(root, "agent-sdk");
+    const called = join(root, "sdk-called");
+    const manifest = join(root, "package.json");
+    await writeFile(manifest, JSON.stringify({ dependencies: { zod: "^3.25.0" } }));
+    await writeFile(cli, `#!${process.execPath}\nrequire('node:fs').writeFileSync(${JSON.stringify(called)}, 'called');\nconsole.log(JSON.stringify({ok:true,agents:[{diagnostics:[]}]}));\n`);
+    await chmod(cli, 0o755);
+    const missing = await validateProject(root, cli);
+    assert.equal(missing.status, "dependencies-missing");
+    assert.deepEqual(missing.missingDependencies, ["zod"]);
+    assert.match(missing.message, /`cc-to-cursor-agent doctor --dir \.`/u);
+    await assert.rejects(readFile(called), { code: "ENOENT" });
+    // An installed module that throws must not execute during the resolution preflight.
+    await mkdir(join(root, "node_modules/zod"), { recursive: true });
+    await writeFile(join(root, "node_modules/zod/package.json"), '{"name":"zod","main":"index.js"}');
+    await writeFile(join(root, "node_modules/zod/index.js"), 'throw new Error("SYNTHETIC_MODULE_MUST_NOT_LOAD");');
+    assert.equal((await validateProject(root, cli)).status, "passed");
+    await writeFile(cli, `#!${process.execPath}\nconsole.log(JSON.stringify({ok:false,agents:[{diagnostics:[{severity:'error',message:'SYNTHETIC_PRIVATE_VALUE'}]}]}));\n`);
+    const invalid = await validateProject(root, cli);
+    assert.equal(invalid.status, "failed");
+    assert.equal(JSON.stringify(invalid).includes("SYNTHETIC_PRIVATE_VALUE"), false);
+    await writeFile(manifest, '{"SYNTHETIC_PRIVATE_VALUE":');
+    const broken = await validateProject(root, cli);
+    assert.equal(broken.status, "failed");
+    assert.equal(JSON.stringify(broken).includes("SYNTHETIC_PRIVATE_VALUE"), false);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
 test("parallel writers cannot replace an existing project", async () => {
   const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-race-"));
   try {

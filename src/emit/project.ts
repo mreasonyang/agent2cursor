@@ -91,8 +91,19 @@ export async function planProject(source: MigrationIR, options: ConvertOptions, 
     : "";
   add("bot/instructions.md", template.replaceAll("{{name}}", options.name) + delegation + preloadHints.root);
   for (const agent of ir.agents) {
+    const hint = preloadHints.agents.get(agent.id) ?? "";
+    if (hint) {
+      const bodyFinding: Finding = { source: agent.source, field: "$body", status: "degraded", target: `bot/subagents/${agent.id}/instructions.md`,
+        message: "保留原文，正文末尾追加共享 skill 预加载提示（`<!-- cc-to-cursor-agent migration hint -->`）；输出正文并非逐字不变。提示不实现自动预加载。",
+        messageEn: "Original text retained, with a shared-skill preload hint appended after `<!-- cc-to-cursor-agent migration hint -->`; the output body is not byte-for-byte unchanged. The hint does not implement automatic preloading." };
+      // Replace both inventories so the report cannot retain a contradictory scan-time conclusion.
+      ir.findings = ir.findings.filter(f => !(f.source === agent.source && f.field === "$body"));
+      agent.findings = agent.findings.filter(f => f.field !== "$body");
+      ir.findings.push(bodyFinding);
+      agent.findings.push(bodyFinding);
+    }
     add(`bot/subagents/${agent.id}/agent.ts`, renderSubagent(agent, options));
-    add(`bot/subagents/${agent.id}/instructions.md`, agent.body + (preloadHints.agents.get(agent.id) ?? ""));
+    add(`bot/subagents/${agent.id}/instructions.md`, agent.body + hint);
   }
   const tstackSources = new Map<string, { license: TstackLicense; skills: string[] }>();
   for (const skill of ir.skills) {

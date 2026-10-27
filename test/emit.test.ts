@@ -12,6 +12,7 @@ import { renderReport } from "../src/emit/report.js";
 import { renderSubagent } from "../src/emit/subagent.js";
 import { DISABLED_TOOL_SCRIPT } from "../src/emit/tool-stub.js";
 import { scanInputs } from "../src/scan/index.js";
+import { scanForeignTools } from "../src/mapping/foreign-tools.js";
 
 const options: ConvertOptions = { name: "Fixture Agent", lang: "zh", withDeps: false, keepModel: false, modelMap: {} };
 const empty = (): MigrationIR => ({ agents: [], skills: [], scripts: [], findings: [] });
@@ -167,5 +168,61 @@ test("preloaded skill requests become explicit root and subagent hints, with mis
     assert.match(String(plan.files.get("bot/instructions.md")), /子代理 skill 加载提示/u);
     assert.ok(plan.ir.findings.some((finding) => finding.field === "[skills preload hint]" && finding.status === "degraded"));
     assert.match(String(plan.files.get(".gitignore")), /\.agent-serve\//u);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test("body reports match emitted instructions for available, missing, empty and invalid preload requests", async () => {
+  const directory = await mkdtemp(join(await realpath(tmpdir()), "cc-to-cursor-agent-body-report-"));
+  try {
+    const skill = join(directory, "rules");
+    const source = join(directory, "reviewer.md");
+    await mkdir(skill);
+    await writeFile(join(skill, "SKILL.md"), "---\nname: rules\ndescription: Read the rules.\n---\nRule one.\n");
+    for (const lang of ["zh", "en"] as const) {
+      for (const [field, appended] of [["", false], ["skills: []\n", false], ["skills: invalid\n", false], ["skills: [rules]\n", true], ["skills: [absent]\n", true]] as const) {
+        await writeFile(source, `---\nname: reviewer\ndescription: Review\n${field}---\nPreserve these words.\n\nAnd this final line.\n`);
+        const opts = { ...options, lang };
+        const ir = await scanInputs([source, skill], opts);
+        const plan = await planProject(ir, opts);
+        const target = "bot/subagents/reviewer/instructions.md";
+        const emitted = String(plan.files.get(target));
+        assert.equal(emitted.startsWith(ir.agents[0]!.body), true);
+        assert.equal(emitted === ir.agents[0]!.body, !appended);
+        const body = plan.ir.findings.filter(f => f.source === source && f.field === "$body");
+        assert.equal(body.length, 1);
+        assert.equal(body[0]!.status, appended ? "degraded" : "mapped");
+        assert.deepEqual(plan.ir.agents[0]!.findings.filter(f => f.field === "$body"), body);
+        assert.equal(ir.agents[0]!.findings.find(f => f.field === "$body")!.status, "mapped", "planning must not mutate the scanned IR");
+        const rows = renderReport(plan.ir, opts).split("\n").filter(line => line.includes("| $body |") && line.includes(target));
+        assert.equal(rows.length, 1, "no contradictory scan-time body finding may survive");
+        if (appended) assert.match(rows[0]!, lang === "zh" ? /降级.*正文末尾追加/u : /Degraded.*hint appended/u);
+        else assert.match(rows[0]!, lang === "zh" ? /已映射.*正文原样/u : /Mapped.*Body preserved/u);
+      }
+    }
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test("foreign tool references receive individual findings without rewriting agent or skill bodies", async () => {
+  const directory = await mkdtemp(join(await realpath(tmpdir()), "cc-to-cursor-agent-foreign-tools-"));
+  try {
+    const skill = join(directory, "foreign");
+    const agent = join(directory, "foreign-agent.md");
+    await mkdir(skill);
+    const body = "Do not call WebFetch. Review WebSearch, AskUserQuestion and delegate_task. WebFetch stays written here.\n";
+    await writeFile(agent, `---\nname: foreign-agent\ndescription: Review the input.\n---\n${body}`);
+    await writeFile(join(skill, "SKILL.md"), `---\nname: foreign\ndescription: Review tool references.\n---\n${body}`);
+    const ir = await scanInputs([agent, skill], options);
+    const plan = await planProject(ir, options);
+    assert.equal(String(plan.files.get("bot/subagents/foreign-agent/instructions.md")), ir.agents[0]!.body);
+    assert.ok(String(plan.files.get("bot/skills/foreign/SKILL.md")).endsWith(ir.skills[0]!.body));
+    for (const source of [agent, join(skill, "SKILL.md")]) {
+      for (const tool of ["WebFetch", "WebSearch", "AskUserQuestion", "delegate_task"]) {
+        assert.equal(plan.ir.findings.filter(f => f.source === source && f.field === `$prompt.${tool}`).length, 1);
+      }
+    }
+    const report = renderReport(plan.ir, options);
+    assert.match(report, /固定名单，区分大小写/u);
+    assert.match(report, /\| \$prompt.WebFetch \| ⚠️ 降级/u);
+    assert.deepEqual(scanForeignTools("MyWebFetch WebSearchExtra pre_delegate_task askuserquestion webfetch", "test.md"), []);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });

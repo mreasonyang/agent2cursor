@@ -1,0 +1,184 @@
+{
+  "verifiedAt": "2026-10-27T13:09:33.255513+00:00",
+  "baselineCommit": "e63b66232ab92569466e90f6a8165066cca2e6ad",
+  "sdkVersion": "0.3.0",
+  "unitTests": {
+    "passed": 58,
+    "failed": 0
+  },
+  "focusedCases": [
+    {
+      "case": "N-SK-05",
+      "exitCode": 0,
+      "projectWritten": true,
+      "validation": "dependencies-missing",
+      "reportedToolNames": [],
+      "zodReportedByConverter": true,
+      "sdkAfterInstall": {
+        "exitCode": 0,
+        "ok": true,
+        "diagnosticCount": 0
+      }
+    },
+    {
+      "case": "N-MX-02",
+      "exitCode": 0,
+      "projectWritten": true,
+      "validation": "dependencies-missing",
+      "reportedToolNames": [],
+      "bodyExactlyEqual": false,
+      "bodyStartsWithOriginal": true,
+      "appendixCharacters": 141,
+      "bodyReport": [
+        {
+          "status": "degraded",
+          "message": "保留原文，正文末尾追加共享 skill 预加载提示（`<!-- cc-to-cursor-agent migration hint -->`）；输出正文并非逐字不变。提示不实现自动预加载。"
+        }
+      ]
+    },
+    {
+      "case": "N-AG-05",
+      "exitCode": 0,
+      "projectWritten": true,
+      "validation": "dependencies-missing",
+      "reportedToolNames": [
+        "WebFetch"
+      ],
+      "bodyPreservedExactly": true
+    },
+    {
+      "case": "B-12",
+      "exitCode": 0,
+      "projectWritten": true,
+      "validation": "dependencies-missing",
+      "reportedToolNames": [
+        "WebFetch",
+        "AskUserQuestion",
+        "delegate_task"
+      ],
+      "zodReportedByConverter": true,
+      "bodyPreservedExactly": true,
+      "sdkAfterInstall": {
+        "exitCode": 0,
+        "ok": true,
+        "diagnosticCount": 0
+      }
+    },
+    {
+      "case": "B-07",
+      "exitCode": 0,
+      "projectWritten": true,
+      "validation": "dependencies-missing",
+      "reportedToolNames": [],
+      "bodyExactlyEqual": false,
+      "bodyStartsWithOriginal": true,
+      "appendixCharacters": 152,
+      "bodyReport": [
+        {
+          "status": "degraded",
+          "message": "保留原文，正文末尾追加共享 skill 预加载提示（`<!-- cc-to-cursor-agent migration hint -->`）；输出正文并非逐字不变。提示不实现自动预加载。"
+        }
+      ]
+    },
+    {
+      "case": "N-AG-04",
+      "exitCode": 0,
+      "projectWritten": true,
+      "validation": "dependencies-missing",
+      "reportedToolNames": [],
+      "restrictionFieldsInEffectiveConfig": false,
+      "reportHasProminentPermissionWarning": true,
+      "cliExitCode": 0,
+      "cliExplicitPermissionWarning": true
+    },
+    {
+      "case": "B-11",
+      "exitCode": 1,
+      "projectWritten": false,
+      "validation": null,
+      "outputAbsent": true,
+      "sensitiveInputRejected": true
+    }
+  ],
+  "sourceScriptSentinelPresent": false,
+  "sdkAcceptance": {
+    "generatedOutsideCheckout": true,
+    "invalidConfigurationRejected": true,
+    "projects": [
+      {
+        "name": "claude",
+        "conversionExitCode": 0,
+        "beforeInstall": "dependencies-missing",
+        "missingDependencies": [
+          "@grok/agent-sdk",
+          "zod"
+        ],
+        "doctorBeforeInstallExitCode": 1,
+        "afterInstall": "passed",
+        "validationPassed": true,
+        "strictTypecheckPassed": true,
+        "evalCasesDiscovered": 4
+      },
+      {
+        "name": "tstack",
+        "conversionExitCode": 0,
+        "beforeInstall": "dependencies-missing",
+        "missingDependencies": [
+          "@grok/agent-sdk",
+          "zod"
+        ],
+        "doctorBeforeInstallExitCode": 1,
+        "afterInstall": "passed",
+        "validationPassed": true,
+        "strictTypecheckPassed": true,
+        "evalCasesDiscovered": 9
+      },
+      {
+        "name": "full-send",
+        "conversionExitCode": 0,
+        "beforeInstall": "dependencies-missing",
+        "missingDependencies": [
+          "@grok/agent-sdk",
+          "zod"
+        ],
+        "doctorBeforeInstallExitCode": 1,
+        "afterInstall": "passed",
+        "validationPassed": true,
+        "strictTypecheckPassed": true,
+        "evalCasesDiscovered": 6
+      },
+      {
+        "name": "pr-review",
+        "conversionExitCode": 0,
+        "beforeInstall": "dependencies-missing",
+        "missingDependencies": [
+          "@grok/agent-sdk",
+          "zod"
+        ],
+        "doctorBeforeInstallExitCode": 1,
+        "afterInstall": "passed",
+        "validationPassed": true,
+        "strictTypecheckPassed": true,
+        "evalCasesDiscovered": 3
+      }
+    ]
+  },
+  "sourceSha256": {
+    "src/validate.ts": "31ca5cfd6268a1fd50a2ce62ea10273b3be5768c2cfebe7bd94d0a8e1dad51ee",
+    "src/cli.ts": "08d427e213dcbb1152d2dbad0aa808bf01f69fd8fd2345e516ad7fa48d78001f",
+    "src/ir.ts": "0ea8bd1001e39bc3edbfe75ee378e0eaeb9513a805604e6757e48240ccaceeb4",
+    "src/emit/project.ts": "f3c6829bddf7a84dbffbf06b0be981960358f5c56c26d36f45c0d3be65569b06",
+    "src/emit/report.ts": "fa7e1916ae08d43fe064b4acd76cfee1f79a4a41d7bb10d0e9b1b1fe28184936",
+    "src/mapping/foreign-tools.ts": "f994a502f3a25b815af1701352e134c21eb757e3cff0775ad5a0196ee6d568d4",
+    "src/mapping/permissions.ts": "15b5aad7dfa7bcaec9d7dd96bc09bcd4f55954f24a5e0509068099b8ab88b528",
+    "scripts/verify-sdk.mjs": "744d6746aaad6674a9bd0314e4700ac24e308d5c858fb5cc8cd3a6d810ce96f6",
+    "test/cli.test.ts": "0f6569874c5b7cebdb3543d2d6e36b80480aa7bb8b34634e9293b1193ca9b148",
+    "test/emit.test.ts": "25521a443884f3f777f9f5a6d0d1070fc337165ddc0465fe25256db2201d41f8",
+    "test/write-validate.test.ts": "205df4d5ae74b2620dd37dcc63ef5225db7ffb2b2d1884fa5a8c4299f1aa6049"
+  },
+  "boundaries": {
+    "liveModelRun": "not-run",
+    "deployment": "not-run",
+    "npmPublication": "not-run"
+  }
+}
