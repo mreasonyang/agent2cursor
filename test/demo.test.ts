@@ -23,7 +23,7 @@ test('unconfigured demos disable GitHub channels while configured channels prese
       disableChannel: () => disabled,
       githubChannel: (value: unknown) => { factoryCalls += 1; return value; },
       defaultGitHubAuth: () => { authCalls += 1; return auth; },
-      reviewWorkspaceFiles: async () => { snapshotCalls += 1; return { '.cc2agent/pr-review.json': '{}' }; },
+      reviewWorkspaceFiles: async () => { snapshotCalls += 1; return { '.cc-to-cursor-agent/pr-review.json': '{}' }; },
     });
     const local = options('OWNER/REPO');
     assert.equal(local, disabled, path);

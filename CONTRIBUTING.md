@@ -1,6 +1,6 @@
 # Contributing and Maintainer Guide
 
-This document covers local development, verification workflows, demo regeneration, and repository safety rules for `cc2agent`. For user-facing usage and migration behavior, see [README.md](README.md) ([中文说明](README.zh-CN.md)).
+This document covers local development, verification workflows, demo regeneration, and repository safety rules for `cc-to-cursor-agent`. For user-facing usage and migration behavior, see [README.md](README.md) ([中文说明](README.zh-CN.md)).
 
 ## Prerequisites
 
@@ -54,7 +54,7 @@ After regenerating demos, run `npm run check` to verify that provenance hashes, 
 
 1. **Account for every frontmatter field.** Every input frontmatter field path must appear in `MIGRATION.zh-CN.md` / `MIGRATION.en.md` as `mapped`, `degraded`, or `dropped`.
 2. **Never silently expand permissions.** Do not claim a root `tools` allowlist isolates `task` subagents, and never describe an agent with `shell` enabled as read-only.
-3. **Keep script tools disabled by default.** Source scripts under `skills/*/scripts/*` are copied without execution bits, and generated `bot/tools/*.ts` wrappers must remain disabled stubs (`CC2AGENT_STUB_DISABLED`) until an operator implements a typed JSON stdin/stdout contract.
+3. **Keep script tools disabled by default.** Source scripts under `skills/*/scripts/*` are copied without execution bits, and generated `bot/tools/*.ts` wrappers must remain disabled stubs (`CC_TO_CURSOR_AGENT_STUB_DISABLED`) until an operator implements a typed JSON stdin/stdout contract.
 4. **Safe filesystem handling.** Conversion must never execute source scripts, overwrite existing output directories, traverse symlinks, or read/copy credential files (`.env`, `.npmrc`, private keys, or sensitive YAML keys).
 5. **Keep evidence levels separate.** Do not conflate unit tests or `agent-sdk validate` / `eval --list` with live model execution, real GitHub webhook delivery, hosted deployment, or npm publication. See [docs/acceptance.md](docs/acceptance.md) and [docs/upstream-verification.md](docs/upstream-verification.md).
 6. **Credential-safe diagnostics.** Never write raw process `argv`, environment dumps, authentication files, or unfiltered runtime logs into diagnostics, tests, or committed evidence files.

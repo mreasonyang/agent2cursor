@@ -20,7 +20,9 @@ Demo local validation against the installed SDK on this date:
 - `eval --list`: six cases for full-send and three for pr-review.
 - These are structural checks, separate from the authenticated model evals below. They do not establish real GitHub event delivery, tool-write behavior or deployment.
 
-Authenticated model evidence on this date:
+Authenticated model evidence on this date (before the rename from `cc2agent`):
+
+The immutable [online evidence](evidence/online-2026-10-27.json) retains its original names and source hashes. Inspect the pre-rename source at commit `f9fc7fe682252b82bce904f6df0d3da0f3d62de5`. Local rename checks do not constitute another authenticated model run.
 
 - Generated `migration-smoke`: **PASS**, 1 case and 2 assertions (`t.succeeded()` and `t.loadedSkill("migration-smoke")`). Sanitized local evidence: `.validation/live-evidence-smoke.json`; generated case: `.validation/live-smoke/evals/skills.eval.ts`.
 - [PR-review council case](../demos/pr-review/evals/pr-review.eval.ts): **PASS**, 1 case and 9 assertions (completion, three completed delegates, heading, downgrade marker and three scoring rows). The case supplies an inline PR example. Reviewers inherit the same model; this does not prove three-provider execution or child-agent isolation.

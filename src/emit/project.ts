@@ -38,7 +38,7 @@ function skillPreloadHints(ir: MigrationIR, options: ConvertOptions): { root: st
     const hint = options.lang === "zh"
       ? `Claude 的 skills 预加载没有原生等价行为。${available.length ? `需要时请根代理先加载共享 skill：${list}，再委派给本子代理。` : "没有找到对应的已迁移共享 skill。"}${missing.length ? ` 尚未一并迁移：${missing.map(markdown).join(", ")}；请先补充这些 skill。` : ""} 这只是提示，不是自动预加载或权限隔离。`
       : `Claude skill preloading has no native equivalent. ${available.length ? `When needed, ask the root agent to load shared skills ${list} before delegating to this subagent.` : "No corresponding migrated shared skill was found."}${missing.length ? ` Missing from this conversion: ${missing.map(markdown).join(", ")}; convert these skills first.` : ""} This is a hint, not automatic preloading or permission isolation.`;
-    agents.set(agent.id, `\n\n<!-- cc2agent migration hint -->\n${hint}\n`);
+    agents.set(agent.id, `\n\n<!-- cc-to-cursor-agent migration hint -->\n${hint}\n`);
     rootLines.push(`- \`${agent.id}\`: ${hint}`);
     addFinding(ir, { source: agent.source, field: "[skills preload hint]", status: "degraded", target: `bot/subagents/${agent.id}/instructions.md; bot/instructions.md`, message: `已添加共享 skill 加载提示；不是自动预加载。${missing.length ? " 部分引用 skill 未包含在本次输入中，请一并转换。" : ""}`, messageEn: `Added shared-skill load hints, not automatic preloading.${missing.length ? " Some referenced skills are absent; convert them as well." : ""}` });
   }

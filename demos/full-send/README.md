@@ -42,6 +42,6 @@ agent-sdk run --dir . --message "full send：只加载 skill 并解释默认权�
 
 ## 合并开关
 
-作者编写的 merge_pr 工具默认拒绝合并。同时要求操作员将 `CC2AGENT_ALLOW_MERGE` 设置为 `1`、人工批准本次调用、配置仓库对应的 GitHub PR 会话、精确当前 head SHA、非 draft 且 clean 的打开 PR。eval 直接拒绝，dry-run 返回 merged:false；不使用 admin、force-push 或保护绕过。这些检查不能证明整个 SDK 子代理运行环境不存在其他写入路径。
+作者编写的 merge_pr 工具默认拒绝合并。同时要求操作员将 `CC_TO_CURSOR_AGENT_ALLOW_MERGE` 设置为 `1`、人工批准本次调用、配置仓库对应的 GitHub PR 会话、精确当前 head SHA、非 draft 且 clean 的打开 PR。eval 直接拒绝，dry-run 返回 merged:false；不使用 admin、force-push 或保护绕过。这些检查不能证明整个 SDK 子代理运行环境不存在其他写入路径。
 
 决定开启前确认 squash 合并符合仓库策略。托管环境通过 SDK 的隐藏输入配置该开关；不从 PR 正文读取。开关打开不代表某个 PR 已获批准。完整审批 UI 与真实托管工具调用仍待实测。

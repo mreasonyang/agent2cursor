@@ -11,7 +11,7 @@ const agents = path.join(root, "fixtures/claude");
 const fullSend = path.join(root, "fixtures/tstack/skills/full-send");
 
 async function temp(t: { after: (fn: () => Promise<void>) => void }): Promise<string> {
-  const directory = await mkdtemp(path.join(await realpath(os.tmpdir()), "cc2agent-cli-"));
+  const directory = await mkdtemp(path.join(await realpath(os.tmpdir()), "cc-to-cursor-agent-cli-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
   return directory;
 }

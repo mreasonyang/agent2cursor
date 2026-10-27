@@ -38,7 +38,7 @@ export function renderReport(ir: MigrationIR, options: ConvertOptions, validatio
   const labels = zh ? { passed: "通过", failed: "失败", unavailable: "不可用", skipped: "未执行" } : { passed: "Passed", failed: "Failed", unavailable: "Unavailable", skipped: "Skipped" };
   return [
     `# ${zh ? "迁移报告" : "Migration report"}: ${markdown(options.name)}`,
-    "", `cc2agent → @grok/agent-sdk ${SDK_VERSION}`, "",
+    "", `cc-to-cursor-agent → @grok/agent-sdk ${SDK_VERSION}`, "",
     zh
       ? `扫描结果：${ir.agents.length} 个子代理，${ir.skills.length} 个 skill（其中 ${ir.skills.filter((s) => s.dependency).length} 个依赖），${ir.scripts.length} 个禁用脚本工具存根。`
       : `Inventory: ${ir.agents.length} subagents, ${ir.skills.length} skills (${ir.skills.filter((s) => s.dependency).length} dependencies), ${ir.scripts.length} disabled script-tool stubs.`,

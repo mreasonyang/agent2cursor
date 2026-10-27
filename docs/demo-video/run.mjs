@@ -29,7 +29,7 @@ function run(command, argv) {
 }
 
 const flags = action === 'render'
-  ? ['render', '--format', 'mp4', '--fps', '15', '--workers', '1', '--output', '.hyperframes/cc2agent-demo.mp4']
+  ? ['render', '--format', 'mp4', '--fps', '15', '--workers', '1', '--output', '.hyperframes/cc-to-cursor-agent-demo.mp4']
   : ['check', '--json'];
 const result = await run(cli, [...args, ...flags]);
 if (action === 'check') {
@@ -52,18 +52,18 @@ if (action === 'check') {
   process.exitCode = 1;
 } else {
   await mkdir(resolve(cwd, '../assets'), { recursive: true });
-  const gif = '../assets/cc2agent-demo.gif';
+  const gif = '../assets/cc-to-cursor-agent-demo.gif';
   const convert = await run('ffmpeg', [
-    '-v', 'error', '-i', '.hyperframes/cc2agent-demo.mp4', '-filter_complex',
+    '-v', 'error', '-i', '.hyperframes/cc-to-cursor-agent-demo.mp4', '-filter_complex',
     '[0:v]fps=10,scale=960:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle',
     '-gifflags', '+transdiff', '-loop', '0', '-y', gif,
   ]);
   const poster = convert.code === 0 ? await run('ffmpeg', [
-    '-v', 'error', '-i', gif, '-ss', '11', '-frames:v', '1', '-y', '../assets/cc2agent-demo-poster.png',
+    '-v', 'error', '-i', gif, '-ss', '11', '-frames:v', '1', '-y', '../assets/cc-to-cursor-agent-demo-poster.png',
   ]) : { code: 1 };
   const ok = convert.code === 0 && poster.code === 0;
   console.log(JSON.stringify({
-    ok, stage: 'gif-and-poster', output: 'docs/assets/cc2agent-demo.gif',
+    ok, stage: 'gif-and-poster', output: 'docs/assets/cc-to-cursor-agent-demo.gif',
     bytes: ok ? (await stat(resolve(cwd, gif))).size : undefined,
     summary: result.stdout.split('\n').filter(line => /capture ·|capture.*gpu.*compile/.test(line)).slice(-1),
   }));

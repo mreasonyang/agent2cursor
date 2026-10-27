@@ -17,7 +17,7 @@ const options: ConvertOptions = { name: "Fixture Agent", lang: "zh", withDeps: f
 const empty = (): MigrationIR => ({ agents: [], skills: [], scripts: [], findings: [] });
 
 async function fixture(): Promise<{ directory: string; skill: SkillAsset }> {
-  const directory = await mkdtemp(join(await realpath(tmpdir()), "cc2agent-emit-"));
+  const directory = await mkdtemp(join(await realpath(tmpdir()), "cc-to-cursor-agent-emit-"));
   await mkdir(join(directory, "scripts"));
   await mkdir(join(directory, "references"));
   await mkdir(join(directory, ".git"));
@@ -51,7 +51,7 @@ test("skill emission preserves extra frontmatter, body and supporting files with
     assert.match(tool, /execution: "agent"/u);
     assert.match(tool, /\.cursor\/skills\/fixture\/scripts\/work\.py/u);
     assert.doesNotMatch(tool, /raise Exception/u);
-    assert.match(tool, /CC2AGENT_STUB_DISABLED/u);
+    assert.match(tool, /CC_TO_CURSOR_AGENT_STUB_DISABLED/u);
     for (const field of Object.keys(skill.frontmatter)) assert.match(String(plan.files.get("MIGRATION.zh-CN.md")), new RegExp(`\\| ${field} \\|`));
     assert.match(String(plan.files.get("evals/skills.eval.ts")), /t\.loadedSkill\("fixture"\)/u);
   } finally { await rm(directory, { recursive: true, force: true }); }
@@ -61,7 +61,7 @@ test("a generated script stub consumes input and fails closed without touching i
   const result = spawnSync("/bin/sh", ["-c", DISABLED_TOOL_SCRIPT], { input: '{"args":["ignored"]}', encoding: "utf8", timeout: 3000 });
   assert.equal(result.status, 78);
   assert.equal(result.stderr, "");
-  assert.deepEqual(JSON.parse(result.stdout), { ok: false, error: "CC2AGENT_STUB_DISABLED", message: "TODO(cc2agent): review the original script and implement JSON stdin/stdout before enabling this tool." });
+  assert.deepEqual(JSON.parse(result.stdout), { ok: false, error: "CC_TO_CURSOR_AGENT_STUB_DISABLED", message: "TODO(cc-to-cursor-agent): review the original script and implement JSON stdin/stdout before enabling this tool." });
 });
 
 test("descriptions and multiline TODO findings cannot inject TypeScript statements", () => {
@@ -75,7 +75,7 @@ test("descriptions and multiline TODO findings cannot inject TypeScript statemen
   assert.equal(parsed.statements[1]!.kind, ts.SyntaxKind.ExportAssignment);
   const transpiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext }, reportDiagnostics: true });
   assert.equal(transpiled.diagnostics?.length, 0);
-  assert.match(source, /\/\/ TODO\(cc2agent\): throw new Error/u);
+  assert.match(source, /\/\/ TODO\(cc-to-cursor-agent\): throw new Error/u);
 });
 
 test("project generation locks the SDK and only emits explicit root allowlists", async () => {
@@ -133,7 +133,7 @@ test("tstack conversion preserves the verified root license and discloses unveri
 });
 
 test("recognized external tstack cannot omit or substitute its associated license", async () => {
-  const root = await mkdtemp(join(await realpath(tmpdir()), "cc2agent-tstack-"));
+  const root = await mkdtemp(join(await realpath(tmpdir()), "cc-to-cursor-agent-tstack-"));
   try {
     const directory = join(root, "skills", "fixture");
     await mkdir(directory, { recursive: true });

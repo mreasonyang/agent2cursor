@@ -4,7 +4,7 @@
 </style>
 <div data-hf-id="hf-vxm4" id="root" data-composition-id="demo" data-width="1440" data-height="810" data-duration="14">
 <div data-hf-id="hf-akm5" id="demo-scene" class="clip" data-start="0" data-duration="14" data-track-index="0">
-<div data-hf-id="hf-c21q" class="brand">cc2agent</div><div data-hf-id="hf-u0to" class="tag">Claude Code → Cursor Agent SDK</div>
+<div data-hf-id="hf-c21q" class="brand">cc-to-cursor-agent</div><div data-hf-id="hf-u0to" class="tag">Claude Code → Cursor Agent SDK</div>
 <h1 data-hf-id="hf-ud1o" id="demo-headline" data-var-text="title">Your agents. Editable source. Visible tradeoffs.</h1>
 <div data-hf-id="hf-dhx4" id="demo-terminal" class="terminal"><div data-hf-id="hf-ufsv" class="bar"><i data-hf-id="hf-6bgx" class="dot"></i><i data-hf-id="hf-0j5x" class="dot"></i><i data-hf-id="hf-1q30" class="dot"></i><span data-hf-id="hf-p2it" class="barlabel">local fixture · code-reviewer.md</span></div>
 <div data-hf-id="hf-ycor" class="command"><span data-hf-id="hf-99ip" class="prompt">$ </span><span data-hf-id="hf-92cj" id="demo-command"></span><span data-hf-id="hf-uw8v" id="demo-cursor" class="cursor"></span></div>
@@ -24,7 +24,7 @@ Do not edit files.</pre></div>
 </div></div>
 <script>
 const tl=gsap.timeline({paused:true});
-const command='cc2agent convert code-reviewer.md --out my-agent';
+const command='cc-to-cursor-agent convert code-reviewer.md --out my-agent';
 const driver={n:0};
 tl.fromTo('#demo-terminal',{scale:0.98,opacity:0},{scale:1,opacity:1,duration:0.45,ease:'power3.out'},0.12);
 tl.to(driver,{n:command.length,duration:2.1,ease:'none',onUpdate:()=>{document.getElementById('demo-command').textContent=command.slice(0,Math.floor(driver.n));}},0.6);

@@ -97,7 +97,7 @@ test('demo builder templates and deployed snapshot implementation remain identic
 });
 
 test('demo builder creates fresh channel directories and reproduces the tested source and provenance', async () => {
-  const out = await mkdtemp(join(tmpdir(), 'cc2agent-demo-builder-'));
+  const out = await mkdtemp(join(tmpdir(), 'cc-to-cursor-agent-demo-builder-'));
   try {
     await mkdir(join(out, 'scripts'), { recursive: true });
     await mkdir(join(out, 'fixtures'), { recursive: true });

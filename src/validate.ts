@@ -24,7 +24,7 @@ export async function validateProject(dir: string, sdk?: string): Promise<Valida
   const command = `agent-sdk validate --dir ${JSON.stringify(resolve(dir))}`;
   const executable = sdk ?? await findSdk(dir);
   if (!executable) return { status: "unavailable", command,
-    message: "Agent SDK CLI is not installed. Run npm install in the generated project, then cc2agent doctor --dir <project>." };
+    message: "Agent SDK CLI is not installed. Run npm install in the generated project, then cc-to-cursor-agent doctor --dir <project>." };
   return new Promise(resolveResult => {
     let stdout = "";
     let overflow = false;

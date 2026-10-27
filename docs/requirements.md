@@ -1,6 +1,6 @@
-# cc2agent MVP · 2026-10-27
+# cc-to-cursor-agent MVP · 2026-10-27
 
-Owner: Eason Yang (@mr_easonyang). Working name pending public release.
+Owner: Eason Yang (@mr_easonyang). The user selected `cc-to-cursor-agent` on 2026-10-27; the original brief used the tentative name `cc2agent`. Publication remains on hold.
 
 The source brief requests a Node >=22.13 / TypeScript CLI that ejects loose Claude subagents, Agent Skills and tstack into editable Agent SDK 0.3.0 projects. Its value is transparent loss reporting, editable source, generated evals and Chinese templates, in addition to official runtime plugin loading.
 

@@ -12,7 +12,7 @@ import { TSTACK_DEPENDENCIES, parseTstackDependencies } from "../src/scan/tstack
 const options: ConvertOptions = { name: "test-agent", lang: "zh", withDeps: false, keepModel: false, modelMap: {} };
 const fixtures = path.resolve("fixtures");
 async function temporary(t: { after: (fn: () => Promise<void>) => void }): Promise<string> {
-  const directory = await mkdtemp(path.join(await realpath(os.tmpdir()), "cc2agent-scan-"));
+  const directory = await mkdtemp(path.join(await realpath(os.tmpdir()), "cc-to-cursor-agent-scan-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
   return directory;
 }

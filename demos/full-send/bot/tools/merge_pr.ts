@@ -10,12 +10,12 @@ export default defineTool({
   needsApproval: true,
   dryRunResult: () => ({ merged: false, reason: "dry-run" }),
   async execute({ expectedHead }, ctx) {
-    if (ctx.session.purpose === "eval" || process.env.CC2AGENT_ALLOW_MERGE !== "1" || !ctx.approvedBy) return { merged: false, reason: "merge disabled or not approved" };
+    if (ctx.session.purpose === "eval" || process.env.CC_TO_CURSOR_AGENT_ALLOW_MERGE !== "1" || !ctx.approvedBy) return { merged: false, reason: "merge disabled or not approved" };
     const ref = parseGitHubPrContinuationKey(ctx.session.continuationKey ?? "");
     if (!ref || DEMO_REPOSITORY === "OWNER/REPO" || `${ref.owner}/${ref.repo}` !== DEMO_REPOSITORY) return { merged: false, reason: "configured GitHub session required" };
     const octokit = await ctx.host.github.getOctokit();
     const { data: pr } = await octokit.rest.pulls.get({ owner: ref.owner, repo: ref.repo, pull_number: ref.number });
-    const blocked = mergeBlockReason({ enabled: process.env.CC2AGENT_ALLOW_MERGE, approved: Boolean(ctx.approvedBy), purpose: ctx.session.purpose, configuredRepository: DEMO_REPOSITORY, sessionRepository: `${ref.owner}/${ref.repo}`, currentHead: pr.head.sha, expectedHead, state: pr.state, draft: Boolean(pr.draft), mergeableState: pr.mergeable_state });
+    const blocked = mergeBlockReason({ enabled: process.env.CC_TO_CURSOR_AGENT_ALLOW_MERGE, approved: Boolean(ctx.approvedBy), purpose: ctx.session.purpose, configuredRepository: DEMO_REPOSITORY, sessionRepository: `${ref.owner}/${ref.repo}`, currentHead: pr.head.sha, expectedHead, state: pr.state, draft: Boolean(pr.draft), mergeableState: pr.mergeable_state });
     if (blocked) return { merged: false, reason: blocked };
     const { data } = await octokit.rest.pulls.merge({ owner: ref.owner, repo: ref.repo, pull_number: ref.number, sha: expectedHead, merge_method: "squash" });
     return { merged: data.merged, sha: data.sha, reason: data.merged ? "merged" : "GitHub declined merge" };

@@ -62,7 +62,7 @@ export async function writeProject(out: string, files: Map<string, string | Buff
   const directories = await safeParents(dirname(destination));
   try { await lstat(destination); throw new Error(`Output already exists; choose a new directory: ${destination}`); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
-  const staging = await mkdtemp(join(dirname(destination), ".cc2agent-"));
+  const staging = await mkdtemp(join(dirname(destination), ".cc-to-cursor-agent-"));
   directories.set(destination, identity(await lstat(staging, { bigint: true })));
   const reports = new Map<string, ReportIdentity>();
   let reserved = false;

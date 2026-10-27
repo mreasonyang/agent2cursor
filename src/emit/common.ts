@@ -3,7 +3,7 @@ export function literal(value: unknown): string {
 }
 
 export function todo(message: string): string {
-  return message.split(/[\r\n\u2028\u2029]+/u).map((line) => `  // TODO(cc2agent): ${line}`).join("\n");
+  return message.split(/[\r\n\u2028\u2029]+/u).map((line) => `  // TODO(cc-to-cursor-agent): ${line}`).join("\n");
 }
 
 export function assertId(id: string, kind: string): void {

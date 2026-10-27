@@ -1,6 +1,6 @@
 import type { GitHubEventContext, GitHubPullRequestEvent, GitHubWorkspaceFiles } from "@grok/agent-sdk/channels/github";
 
-export const SNAPSHOT_PATH = ".cc2agent/pr-review.json";
+export const SNAPSHOT_PATH = ".cc-to-cursor-agent/pr-review.json";
 export const SNAPSHOT_LIMITS = { files: 100, patch: 12_000, characters: 120_000, timeoutMs: 20_000 } as const;
 type Context = Pick<GitHubEventContext, "repository" | "github">;
 type Event = Pick<GitHubPullRequestEvent, "number" | "headSha" | "baseSha">;

@@ -1,8 +1,8 @@
-# cc2agent 验收记录
+# cc-to-cursor-agent 验收记录
 
-日期：2026-10-27。目标 SDK：`@grok/agent-sdk@0.3.0`。工作名尚未定为公开品牌。
+日期：2026-10-27。目标 SDK：`@grok/agent-sdk@0.3.0`。用户已确定项目名为 `cc-to-cursor-agent`。
 
-用户决定：使用 `mreasonyang/cc2agent` **私有仓库**验收；暂不公开发布。根 package.json 保持 `private: true`。
+用户决定：使用 `mreasonyang/cc-to-cursor-agent` **私有仓库**验收；暂不公开发布。根 package.json 保持 `private: true`。
 
 ## 已验证
 
@@ -28,16 +28,18 @@ npm install --prefix .validation --ignore-scripts --no-audit --no-fund @grok/age
 npm run test:sdk
 ```
 
-本机最终结构和类型检查证据在忽略目录 `.validation/acceptance-3ORhd4/evidence.json`；不包含凭证或真实模型轨迹，不提交到仓库。官方原始示例生成在 `.validation/official-converted/`。首轮 [GitHub CI](https://github.com/mreasonyang/cc2agent/actions/runs/40473284090) 已通过；最终提交状态以 [check 工作流](https://github.com/mreasonyang/cc2agent/actions/workflows/check.yml) 为准。
+本机最终结构和类型检查证据在忽略目录 `.validation/acceptance-hGlYxD/evidence.json`；不包含凭证或真实模型轨迹，不提交到仓库。官方原始示例的历史产物保留在旧验收目录下的 `.validation/official-converted/`。首轮 [GitHub CI](https://github.com/mreasonyang/cc-to-cursor-agent/actions/runs/40473284090) 已通过；最终提交状态以 [check 工作流](https://github.com/mreasonyang/cc-to-cursor-agent/actions/workflows/check.yml) 为准。
 
 ## 线上验收
+
+以下结果来自更名前的 `cc2agent`。原始 [JSON 证据](evidence/online-2026-10-27.json) 中的仓库名和源码哈希保留不变；对应源码可在更名前提交 `f9fc7fe682252b82bce904f6df0d3da0f3d62de5` 中查验。本次更名重跑本地构建、测试、SDK 结构校验和打包验证，不把历史线上结果算作更名后重新运行。
 
 已通过官方远程浏览器登录流程完成 Cursor SDK 认证；用户不需要在运行电脑旁操作。认证信息仅由 SDK 管理，未写入代码或证据。
 
 - 真实模型 loadedSkill eval：PASS，转换生成的 migration-smoke，1 case / 2 assertions。
 - full-send 安全触发回合：PASS，配置私有仓库和默认未配置仓库各一次真实 `run`，均成功加载 full-send；每次 1 tool call、0 写入/执行调用、未调用 merge_pr。该场景仅检查 skill 加载与用途说明，不代表完整自动送 PR 流程。
 - 三视角 Council eval：PASS，1 case / 9 assertions（成功、三次完成委派、Council review 标题、降级声明、三行评分表）；默认同模型，不能声称三厂商或完整隔离已验证。
-- 测试 PR 事件：PASS，[私有验收 PR #1](https://github.com/mreasonyang/cc2agent/pull/1) 经 HMAC 签名回放进入本地会话并完成。服务端读取只读快照，模型在 sandbox 内完成三次委派及中文评分表：8 次工具调用、0 工具错误、0 写入/执行调用。GitHub 评论、reaction、review 均为零。测试 PR 已关闭且未合并。回放不是 GitHub 实际 webhook 投递或托管验收。
+- 测试 PR 事件：PASS，[私有验收 PR #1](https://github.com/mreasonyang/cc-to-cursor-agent/pull/1) 经 HMAC 签名回放进入本地会话并完成。服务端读取只读快照，模型在 sandbox 内完成三次委派及中文评分表：8 次工具调用、0 工具错误、0 写入/执行调用。GitHub 评论、reaction、review 均为零。测试 PR 已关闭且未合并。回放不是 GitHub 实际 webhook 投递或托管验收。
 - 托管部署与 URL：BLOCKED；SDK `deploy --dry-run` 明确返回账号没有默认团队。需要用户提供已开通 hosting 的团队 ID；未执行实际部署，没有 URL。
 - GitHub CI：已通过 Node 22.13 / 24 单测和 npm pack，以及 SDK 兼容性任务。
 - npm / 公开 GitHub / 社交发布：按用户要求暂不执行。

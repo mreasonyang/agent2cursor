@@ -1,10 +1,10 @@
 {
-  "name": "cc2agent",
+  "name": "cc-to-cursor-agent",
   "version": "0.1.0",
   "description": "Eject Claude agents and Agent Skills into editable Cursor Agent SDK projects, with explicit migration reports.",
   "type": "module",
   "bin": {
-    "cc2agent": "dist/cli.js"
+    "cc-to-cursor-agent": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -45,10 +45,10 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mreasonyang/cc2agent.git"
+    "url": "git+https://github.com/mreasonyang/cc-to-cursor-agent.git"
   },
-  "homepage": "https://github.com/mreasonyang/cc2agent",
+  "homepage": "https://github.com/mreasonyang/cc-to-cursor-agent",
   "bugs": {
-    "url": "https://github.com/mreasonyang/cc2agent/issues"
+    "url": "https://github.com/mreasonyang/cc-to-cursor-agent/issues"
   }
 }

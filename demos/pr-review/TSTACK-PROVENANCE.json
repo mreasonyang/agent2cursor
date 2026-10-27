@@ -27,7 +27,7 @@
       "skills/takeover/SKILL.md": "9f00a7c67bf82603af2e80f56e9ce63f1516a1b4339365b79cf786d9d9055465"
     }
   },
-  "hashScope": "upstreamSnapshot.sha256 describes the unmodified files in cc2agent/fixtures/tstack only. It is not a hash manifest of this adapted demo.",
+  "hashScope": "upstreamSnapshot.sha256 describes the unmodified files in cc-to-cursor-agent/fixtures/tstack only. It is not a hash manifest of this adapted demo.",
   "modifications": [
     "Selected skills rewritten in Chinese with bounded workflows and Agent SDK delegation; original copyright and MIT license retained.",
     "Automatic publishing, force-push and merge instructions removed; added explicit permission boundaries and honest same-model fallback.",
