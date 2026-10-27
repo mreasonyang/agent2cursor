@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { Command, Option } from "commander";
-import { writeFile } from "node:fs/promises";
-import { basename, join, relative, resolve, sep } from "node:path";
+import { basename, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { scanInputs } from "./scan/index.js";
 import { listSafeFiles, readSafeFile } from "./scan/safety.js";
@@ -9,7 +8,7 @@ import { planProject } from "./emit/project.js";
 import { renderReport } from "./emit/report.js";
 import { SDK_VERSION, type ConvertOptions, type MigrationIR, type ValidationResult } from "./ir.js";
 import { validateProject, findSdk, supportedNode } from "./validate.js";
-import { writeProject } from "./write.js";
+import { updateProjectReport, writeProject } from "./write.js";
 
 const VERSION = "0.1.0";
 const program = new Command().name("cc2agent").description("Claude agents / Agent Skills → editable Agent SDK projects with migration reports").version(VERSION);
@@ -61,10 +60,10 @@ common(program.command("convert").argument("<input...>", "Agent files, directori
     const plan = await planProject(ir, opts, initial);
     let validation = initial;
     if (!raw.dryRun) {
-      await writeProject(out, plan.files);
+      const written = await writeProject(out, plan.files);
       if (raw.validate) validation = await validateProject(out);
       const report = opts.lang === "zh" ? "MIGRATION.zh-CN.md" : "MIGRATION.en.md";
-      await writeFile(join(out, report), renderReport(plan.ir, opts, validation));
+      await updateProjectReport(written, report, renderReport(plan.ir, opts, validation));
     }
     const result = summary(plan.ir, { out, dryRun: !!raw.dryRun, files: [...plan.files.keys()], validation });
     if (raw.json) console.log(JSON.stringify(result, null, 2));

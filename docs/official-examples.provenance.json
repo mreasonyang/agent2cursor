@@ -1,0 +1,26 @@
+{
+  "url": "https://code.claude.com/docs/en/sub-agents",
+  "date": "2026-10-27",
+  "examples": [
+    {
+      "example": "code-reviewer",
+      "bytes": 865,
+      "sha256": "61b4954af1d017a0cb3af010a554e8a0b9568d377b5b2565051f3daa17b29110"
+    },
+    {
+      "example": "debugger",
+      "bytes": 802,
+      "sha256": "717228684bc15d2f333beb2ca4821a4fd99f67080a94b4d03088cf74836d0dbe"
+    },
+    {
+      "example": "data-scientist",
+      "bytes": 904,
+      "sha256": "e913164943cc9f742004e6f26b5abeda72439033b09b1275a80a17e75844170b"
+    },
+    {
+      "example": "db-reader",
+      "bytes": 678,
+      "sha256": "6e2a9278bd538f64138c1bdff9c7a4c951271b2a5a401f0d9d3a1d78da1e5682"
+    }
+  ]
+}

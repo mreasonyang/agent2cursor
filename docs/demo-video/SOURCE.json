@@ -1,0 +1,39 @@
+{
+  "recordedAt": "2026-10-27",
+  "source": "fixtures/claude/agents/code-reviewer.md",
+  "converter": "cc2agent 0.1.0",
+  "sdk": "@grok/agent-sdk 0.3.0",
+  "command": "node dist/cli.js convert fixtures/claude/agents/code-reviewer.md --out .validation/gif-conversion --no-validate --json",
+  "independentValidation": {
+    "command": ".validation/node_modules/.bin/agent-sdk validate --dir .validation/gif-conversion",
+    "exitCode": 0,
+    "summary": "no diagnostics"
+  },
+  "frontmatterFields": {
+    "name": "mapped",
+    "description": "mapped",
+    "tools": "degraded",
+    "model": "degraded"
+  },
+  "authoredPresentation": {
+    "paths": "shortened for readability",
+    "body": "excerpts; description ends with ellipsis",
+    "animationTiming": "illustrative, not a performance measurement",
+    "claimBoundary": "structural validation only; no live model, deployment or publication"
+  },
+  "sha256": {
+    "fixtures/claude/agents/code-reviewer.md": "9308769ecd7f80149826f614be03eb91ea044baa9c6dd2b5cee7110a4ceb4ec8",
+    ".validation/gif-conversion/bot/subagents/code-reviewer/agent.ts": "7f80dbce0fd015ba24e88191f80c3c1f783c844110e823a59d7171339d200203",
+    ".validation/gif-conversion/MIGRATION.zh-CN.md": "43f4a1f35ef7084809f5a8b5730c46c90fdf07668891b4c2caa1c1488299113f"
+  },
+  "artifact": {
+    "path": "docs/assets/cc2agent-demo.gif",
+    "width": 960,
+    "height": 540,
+    "fps": 10,
+    "durationSeconds": 14,
+    "frames": 140,
+    "bytes": 361494,
+    "sha256": "f721564dc8f4940ee79684251982eb2caf7c7de000ee548f6c3419e4ee1269e7"
+  }
+}

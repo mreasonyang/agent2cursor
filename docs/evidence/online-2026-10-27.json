@@ -1,0 +1,112 @@
+{
+  "verifiedAt": "2026-10-27T09:00:37.587Z",
+  "sdk": "@grok/agent-sdk@0.3.0",
+  "repository": "https://github.com/mreasonyang/cc2agent",
+  "visibility": "private",
+  "smoke": {
+    "ok": true,
+    "passed": 1,
+    "failed": 0,
+    "scored": 0,
+    "skipped": 0,
+    "assertions": 2,
+    "allAssertionsPassed": true
+  },
+  "council": {
+    "ok": true,
+    "passed": 1,
+    "failed": 0,
+    "scored": 0,
+    "skipped": 0,
+    "assertions": 9,
+    "allAssertionsPassed": true,
+    "providers": "same-model inheritance; three perspectives"
+  },
+  "fullSendLocal": {
+    "ok": true,
+    "turns": 1,
+    "turnsFailed": 0,
+    "toolCallCount": 1,
+    "loadedFullSend": true,
+    "calledMerge": false,
+    "writeOrExecCalls": 0,
+    "onlySkillReadCalls": true,
+    "toolCategories": [
+      "other"
+    ]
+  },
+  "github": {
+    "pr": "https://github.com/mreasonyang/cc2agent/pull/1",
+    "mode": "signed-local-replay",
+    "startedAt": "2026-10-27T08:56:18.586Z",
+    "finishedAt": "2026-10-27T08:57:05.850Z",
+    "deliveries": [
+      {
+        "status": 202,
+        "ok": true
+      }
+    ],
+    "ok": true,
+    "terminal": true,
+    "turnsFailed": 0,
+    "toolCallCount": 8,
+    "delegates": [
+      {
+        "name": "reviewer-a",
+        "called": true,
+        "tableRow": true
+      },
+      {
+        "name": "reviewer-b",
+        "called": true,
+        "tableRow": true
+      },
+      {
+        "name": "reviewer-c",
+        "called": true,
+        "tableRow": true
+      }
+    ],
+    "councilHeading": true,
+    "tableDivider": true,
+    "degradation": true,
+    "chinese": true,
+    "mentionsFixture": true,
+    "toolErrorCount": 0,
+    "writeOrExecCalls": 0,
+    "comments": 0,
+    "reactions": 0,
+    "reviews": 0,
+    "testPrState": "closed",
+    "merged": false
+  },
+  "hosting": {
+    "attempt": "deploy --dry-run",
+    "exitCode": 1,
+    "blocker": "no default team",
+    "actualDeploy": false,
+    "url": null
+  },
+  "publication": {
+    "npm": false,
+    "publicRepository": false,
+    "social": false
+  },
+  "sourceSha256": {
+    "demos/full-send/bot/agent.ts": "8580641f1047150ba7f940b6c359dae1097aefe0b7e58e7d570a3f2cfd833175",
+    "demos/full-send/bot/channels/github.ts": "73d5473ab17bd51be7f4ffbb2fd2e4e5d28c6d1217707b5bb2eea964707cf09b",
+    "demos/full-send/bot/skills/full-send/SKILL.md": "235b91709e8895485530e54ea13bcf514a19d438cb2434300683851ce435b5c6",
+    "demos/pr-review/bot/channels/github.ts": "8156691f1abb5cbaf6916abcd18a8a035820c9cd13026e7e895e79b9325f2d13",
+    "demos/pr-review/bot/lib/pr-snapshot.ts": "4f41b3fc75cfc767f1b5b362887a62b1b9c2bca95a33bb89dc87880e47f780e5",
+    "demos/pr-review/evals/pr-review.eval.ts": "b2180bf6b558f938827e45cfb32e06608492047a8e5ba909f7a4c9fe352e6d6d",
+    "deployments/pr-review/bot/lib/settings.ts": "d645b8e6f71e419cd94c6916cc18fd89837a8a095260e67514d2e4854b95f205",
+    "deployments/pr-review/bot/channels/github.ts": "8156691f1abb5cbaf6916abcd18a8a035820c9cd13026e7e895e79b9325f2d13",
+    "deployments/pr-review/bot/lib/pr-snapshot.ts": "4f41b3fc75cfc767f1b5b362887a62b1b9c2bca95a33bb89dc87880e47f780e5"
+  },
+  "boundaries": [
+    "No credentials, session tokens, raw model text, reasoning, tool arguments or provider logs are included.",
+    "Signed local replay is not a real hosted webhook delivery.",
+    "One successful case does not prove isolation or arbitrary-prompt safety.",
+    "Full-send automatic testing, push and PR creation are not implemented."
+  ]
+}

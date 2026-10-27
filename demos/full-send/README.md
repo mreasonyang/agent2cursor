@@ -10,11 +10,15 @@ agent-sdk login
 agent-sdk dev --dir .
 ```
 
-先把 `bot/lib/settings.ts` 里的 `OWNER/REPO` 改成自己的测试仓库，并在 Cursor 中连接 GitHub。默认 channel 对占位仓库不启动回合。非 draft PR 的 opened/reopened/ready_for_review 事件会启动会话；结果保留在会话里，未实现自动发评论。
+本地加载 skill、解释流程或使用离线输入时，可以保留 `bot/lib/settings.ts` 的 `OWNER/REPO`。这时使用 SDK 的 `disableChannel()` 完全禁用 GitHub channel，不为占位仓库请求凭据，也不响应 PR 事件；模型运行本身仍需要 Cursor 登录。`pr_wait` 会提示先配置仓库。
+
+需要 GitHub 事件或远程读取时，再将 `OWNER/REPO` 改成自己的测试仓库，并在 Cursor 中连接和授权该仓库。配置后仅为此仓库启用账户授权，仍使用 SDK 默认 channel 鉴权和 `defaultGitHubAuth(ctx)`。非 draft PR 的 opened/reopened/ready_for_review 事件会启动会话；结果保留在会话里，未实现自动发评论。
 
 根代理允许本地 edit，排除 shell。子代理保留 SDK harness task 工具自己的工具集，不能仅凭根配置声称它们只读。保留 `local.sandbox: true`，用隔离测试仓库与最小 GitHub 权限验证真实行为。本地 sandbox 可能阻止 MCP server tools；不要为了演示自动关闭它。
 
 `pr_wait` 是只读单次 GitHub GET 快照，注明 diff/检查截断与未读取讨论。它不是持续 watcher。原版 Python watcher 保留，但 `pr_wait_script` 是禁用的适配存根，所以 validate 会有一条“缺少 shell”警告。
+
+GitHub channel 显式关闭自动回复评论和 reaction；评论 mention 不启动回合。配置仓库后的账户权限显式为 `pr-write`，用于保留受控写工具的授权路径；这不代表已授权任何具体写入，也不保证该权限足以合并。`merge_pr` 的操作员开关、逐次人工批准与 SHA 检查仍然适用。
 
 ## 真实验收
 

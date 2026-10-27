@@ -4,6 +4,8 @@ Turn loose Claude Code subagents and Agent Skills into editable Cursor Agent SDK
 
 [中文说明](README.zh-CN.md) · MIT · Node **22.13+** · targets **@grok/agent-sdk 0.3.0**
 
+![A real fixture conversion and its field-by-field migration report](docs/assets/cc2agent-demo.gif)
+
 ```bash
 # From this checkout; cc2agent has not been published to npm yet.
 npm install
@@ -86,7 +88,7 @@ Both are adapted from a pinned [tstack](https://github.com/t3dotgg/tstack) MIT s
 - **full-send:** five skills, a reviewer, Chinese PR preparation, a bounded read-only `pr_wait` server tool, and a gated `merge_pr`. The root has no shell; its authored workflow cannot run tests, git push or create a PR automatically. This is not a verified guarantee about the separate harness toolset used by child agents. It prepares local edits and a PR draft, then stops. The original Python watcher is retained with a disabled agent adapter. The authored merge tool requires `CC2AGENT_ALLOW_MERGE=1`, human tool approval, a configured GitHub-session repository, the exact current head SHA and a clean PR. It declares `effect: "write"` and a non-merging `dryRunResult`; eval sessions cannot merge.
 - **pr-review:** council and comment-format skills, three reviewer perspectives, a Chinese `Council review` table, and an explicit same-model fallback statement. Its root excludes shell/edit/delete and its authored tools do not post reviews, comments or modify PR descriptions. Root settings do not prove child-agent isolation.
 
-Set `bot/lib/settings.ts` to the intended `owner/repo`. GitHub channels accept non-draft `opened`, `reopened` and `ready_for_review` events. Event handling alone does not post a comment; the reply remains in the agent session. Keep upstream/repository instructions and MCP configuration in mind when choosing a local workspace. The SDK's local sandbox may block MCP server tools, so a successful validate does not prove `pr_wait` works during a model turn.
+Unconfigured demos disable their GitHub channel, so local runs do not request credentials for `OWNER/REPO`. Set `bot/lib/settings.ts` to the intended `owner/repo` to enable non-draft `opened`, `reopened` and `ready_for_review` events. Both channels explicitly disable reply posting, reactions and mention handling. PR review requests read-only GitHub permission and seeds a bounded, revision-checked diff snapshot before the model turn. This works with sandbox enabled; `pr_wait` access from a sandboxed model remains unverified.
 
 [Full-send operation guide](demos/full-send/README.md) · [PR-review operation guide](demos/pr-review/README.md)
 
@@ -94,9 +96,14 @@ Set `bot/lib/settings.ts` to the intended `owner/repo`. GitHub channels accept n
 
 The acceptance repository is private; npm and public launch are on hold at the owner's request. The root package has `private: true`.
 
-The checked-in tests exercise migration contracts, no-overwrite behavior, source safety, provenance and merge gate denial. The SDK integration validates generated fixtures and lists eval cases without a live model. See [acceptance results](docs/acceptance.md) for exact evidence. Recognized tstack sources must include the verified MIT license. One conversion is limited to 128 MiB of generated content.
+The checked-in tests exercise migration contracts, no-overwrite behavior, source safety, provenance and merge gate denial. Structural SDK checks validate generated fixtures and list eval cases. Official SDK login has also succeeded, and two authenticated model evals have passed:
 
-As of this implementation: **no live Cursor eval, live PR event acceptance, remote deployment URL, npm publication or social launch is claimed.** Those require authenticated runtime checks and explicit release decisions. `eval --list` only proves discovery; three subagents do not prove three providers.
+- Generated `migration-smoke`: **1 case, 2 assertions passed** (`succeeded` and `loadedSkill`).
+- PR-review council against an inline PR example: **1 case, 9 assertions passed** (completion, three completed reviewer delegations, `Council review`, the downgrade marker and three table rows). The reviewers inherit the same model; this does not establish three-provider execution or child-agent isolation.
+
+Full-send's direct `agent-sdk run` passed a skill-loading check; the final default demo made one successful skill read, with no write/exec or merge call. A signed local replay of [private test PR #1](https://github.com/mreasonyang/cc2agent/pull/1) completed three reviewer delegations and a Chinese scoring table, with no tool errors, comments, reactions or reviews. The test PR was closed without merging. Replay is not a real hosted webhook delivery. Hosted `deploy --dry-run` reports no default team; no actual deployment ran and no deployment URL exists. npm publication, public release and social launch remain on hold.
+
+See [acceptance results](docs/acceptance.md) for exact evidence. `eval --list` only proves discovery; the live eval results above cover their named assertions. Recognized tstack sources must include the verified MIT license. One conversion is limited to 128 MiB of generated content.
 
 ```bash
 npm run check

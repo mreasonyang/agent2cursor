@@ -1,0 +1,38 @@
+<template>
+<style>
+*{box-sizing:border-box}#root{position:absolute;inset:0;background:#080d16;color:#e6edf7;font-family:"JetBrains Mono",monospace}.brand{position:absolute;left:84px;top:60px;font-family:Montserrat,sans-serif;font-size:28px;font-weight:700;color:#76e5b6}.tag{position:absolute;right:84px;top:64px;font-size:21px;color:#b8c8dc}h1{position:absolute;left:84px;top:109px;margin:0;font-family:Montserrat,sans-serif;font-weight:700;font-size:40px;letter-spacing:-1px}.terminal{position:absolute;left:84px;top:196px;width:1272px;height:522px;border:1px solid #354154;border-radius:12px;background:#111a28;overflow:hidden}.bar{height:52px;border-bottom:1px solid #354154;display:flex;align-items:center;padding:0 24px;gap:9px;color:#b8c8dc;font-size:21px}.dot{display:block;width:10px;height:10px;border-radius:50%;background:#536178}.barlabel{margin-left:12px}.command{position:absolute;left:28px;top:80px;font-size:23px;white-space:nowrap}.prompt{color:#76e5b6}.cursor{display:inline-block;width:12px;height:24px;background:#76e5b6;vertical-align:middle;margin-left:5px}.input{position:absolute;left:28px;top:153px;width:555px;height:315px;border-right:1px solid #354154}.output{position:absolute;left:621px;top:153px;width:610px;height:315px}.label{font-size:21px;color:#b8c8dc;letter-spacing:1px;margin:0 0 22px}.code{font-size:24px;line-height:1.5;margin:0;white-space:pre-wrap}.key{color:#9dc6ff}.warn{color:#ffc56e}.ok{color:#76e5b6}.report{position:absolute;left:0;top:65px;width:610px;background:#111a28}.report-row{display:flex;align-items:center;border-bottom:1px solid #354154;height:41px;font-size:22px}.field{width:185px}.status{width:125px}.note{font-size:21px;color:#b8c8dc}.result{position:absolute;left:28px;bottom:24px;font-size:23px;color:#76e5b6}.footer{position:absolute;left:84px;bottom:41px;font-size:21px;color:#b8c8dc}.footer-right{position:absolute;right:84px;bottom:41px;font-size:21px;color:#b8c8dc}
+</style>
+<div data-hf-id="hf-vxm4" id="root" data-composition-id="demo" data-width="1440" data-height="810" data-duration="14">
+<div data-hf-id="hf-akm5" id="demo-scene" class="clip" data-start="0" data-duration="14" data-track-index="0">
+<div data-hf-id="hf-c21q" class="brand">cc2agent</div><div data-hf-id="hf-u0to" class="tag">Claude Code → Cursor Agent SDK</div>
+<h1 data-hf-id="hf-ud1o" id="demo-headline" data-var-text="title">Your agents. Editable source. Visible tradeoffs.</h1>
+<div data-hf-id="hf-dhx4" id="demo-terminal" class="terminal"><div data-hf-id="hf-ufsv" class="bar"><i data-hf-id="hf-6bgx" class="dot"></i><i data-hf-id="hf-0j5x" class="dot"></i><i data-hf-id="hf-1q30" class="dot"></i><span data-hf-id="hf-p2it" class="barlabel">local fixture · code-reviewer.md</span></div>
+<div data-hf-id="hf-ycor" class="command"><span data-hf-id="hf-99ip" class="prompt">$ </span><span data-hf-id="hf-92cj" id="demo-command"></span><span data-hf-id="hf-uw8v" id="demo-cursor" class="cursor"></span></div>
+<div data-hf-id="hf-sc8k" class="input"><p data-hf-id="hf-cd5k" class="label">BEFORE · CLAUDE SUBAGENT</p><pre data-hf-id="hf-97np" class="code"><span data-hf-id="hf-t3zl" class="key">name:</span> code-reviewer
+<span data-hf-id="hf-91j6" class="key">description:</span> Review changed code…
+<span data-hf-id="hf-hge5" class="key">tools:</span> Read, Grep, Glob
+<span data-hf-id="hf-5lon" class="key">model:</span> sonnet
+
+Review the changed code.
+Do not edit files.</pre></div>
+<div data-hf-id="hf-z5l2" id="demo-output" class="output"><p data-hf-id="hf-mx73" class="label">AFTER · EDITABLE PROJECT</p><pre data-hf-id="hf-sbu8" id="demo-tree" class="code" data-hold>bot/subagents/code-reviewer/
+  <span data-hf-id="hf-e4z6" class="ok">agent.ts + instructions.md</span>
+<span data-hf-id="hf-5lp2" class="ok">evals/subagents.eval.ts</span></pre>
+<div data-hf-id="hf-nphk" id="demo-report" class="report"><p data-hf-id="hf-efdh" class="label">MIGRATION.zh-CN.md · ALL 4 FIELDS</p><div data-hf-id="hf-89wh" class="report-row"><span data-hf-id="hf-ogcw" class="field">name</span><span data-hf-id="hf-227o" class="status ok">mapped</span><span data-hf-id="hf-vn85" class="note">directory ID</span></div><div data-hf-id="hf-clrp" class="report-row"><span data-hf-id="hf-ihxr" class="field">description</span><span data-hf-id="hf-pxvw" class="status ok">mapped</span><span data-hf-id="hf-sibz" class="note">delegation</span></div><div data-hf-id="hf-dsos" class="report-row"><span data-hf-id="hf-e4dk" class="field">model</span><span data-hf-id="hf-qir3" class="status warn">degraded</span><span data-hf-id="hf-gp3k" class="note">inherit parent</span></div><div data-hf-id="hf-dedr" class="report-row"><span data-hf-id="hf-ucpu" class="field">tools</span><span data-hf-id="hf-pv9r" class="status warn">degraded</span><span data-hf-id="hf-dsim" class="note">limits not enforced</span></div></div></div>
+<div data-hf-id="hf-s8oi" id="demo-result" class="result">SDK 0.3.0 validate: no diagnostics</div></div>
+<div data-hf-id="hf-7wg9" class="footer">Actual fixture conversion · display paths shortened</div><div data-hf-id="hf-ffbb" class="footer-right">Structural check ≠ live model run</div>
+</div></div>
+<script>
+const tl=gsap.timeline({paused:true});
+const command='cc2agent convert code-reviewer.md --out my-agent';
+const driver={n:0};
+tl.fromTo('#demo-terminal',{scale:0.98,opacity:0},{scale:1,opacity:1,duration:0.45,ease:'power3.out'},0.12);
+tl.to(driver,{n:command.length,duration:2.1,ease:'none',onUpdate:()=>{document.getElementById('demo-command').textContent=command.slice(0,Math.floor(driver.n));}},0.6);
+tl.fromTo('#demo-cursor',{opacity:1},{opacity:0,duration:0.01},2.9);
+tl.fromTo('#demo-output',{opacity:0,x:18},{opacity:1,x:0,duration:0.4,ease:'power3.out'},3.3);
+tl.fromTo('#demo-tree',{opacity:1},{opacity:0,duration:0.2,ease:'none',immediateRender:false},7.6);
+tl.fromTo('#demo-report',{opacity:0,y:10},{opacity:1,y:0,duration:0.4,ease:'power3.out'},7.9);
+tl.fromTo('#demo-result',{opacity:0},{opacity:1,duration:0.25,ease:'none'},9.6);
+window.__timelines['demo']=tl;
+</script>
+</template>

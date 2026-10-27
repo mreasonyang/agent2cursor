@@ -1,0 +1,9 @@
+{
+  "name": "demo-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node run.mjs check",
+    "render": "node run.mjs render"
+  }
+}

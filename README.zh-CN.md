@@ -1,5 +1,7 @@
 # cc2agent
 
+![真实子代理转换与逐字段迁移报告](docs/assets/cc2agent-demo.gif)
+
 当前在私有仓库验收，暂不公开发布。根 package.json 保持 `private: true`。见 [验收记录](docs/acceptance.md)。已知 tstack 源必须保留可核实的 MIT 许可证；单次生成内容上限为 128 MiB。
 
 把散装 Claude Code 子代理和 Agent Skills 转成可编辑的 Cursor Agent SDK 源码、eval 骨架和逐字段中文迁移报告。
@@ -80,14 +82,14 @@ cc2agent doctor [--dir <project>]
 
 ## 两个 tstack demo
 
-两者都来自固定 MIT 快照，附完整 `LICENSE-tstack`、来源提交与改动说明。当前是可生成、可结构验证的项目模板，真实执行和部署尚未验收。
+两者都来自固定 MIT 快照，附完整 `LICENSE-tstack`、来源提交与改动说明。council 真实 eval、full-send 本地加载及真实 PR 的签名回放已通过；托管部署尚未完成，详见下方状态。
 
 - **full-send**：5 个 skill、一个 reviewer、中文本地修改/PR 草稿流程；`pr_wait` 是单次 GitHub GET 快照。根代理没有 shell，因此本项目编写的流程不会运行测试、git push 或创建 PR。保留原 Python watcher，但 `pr_wait_script` 适配存根默认禁用。`merge_pr` 是服务端写工具，只有操作员开启环境开关、人工批准本次调用、GitHub 会话仓库匹配、head SHA 未变且 PR clean 时才尝试合并；eval 禁止合并，dry-run 返回未合并。
 - **pr-review**：council + leaving-pr-comments，3 个 reviewer 分别关注正确性、安全、测试和维护。默认继承同一模型，明确输出降级声明和中文 `Council review` 评分表。根代理无 shell/edit/delete；作者提供的工具只有读取，不提供发评论或改 PR 描述功能。
 
 这些是本项目代码与 prompt 的默认边界，**不是经过真实 harness 验证的全体子代理隔离保证**。两个 demo 都开 `local.sandbox`；SDK 文档指出它会阻止本地 MCP 调用，因此 `pr_wait` 在真实本地模型回合中的可用性也未通过验收。不能为了演示方便自动关闭 sandbox。远程账户权限和子代理运行时工具仍需独立检查。
 
-先把 `bot/lib/settings.ts` 的 `OWNER/REPO` 改成自己的仓库。GitHub channel 接收非 draft 的 opened/reopened/ready_for_review 事件；回复保留在 agent 会话里，不会因为收到事件就自动发评论。
+未配置仓库时 GitHub channel 完全禁用，本地试跑不会申请占位仓库凭据。把 `bot/lib/settings.ts` 的 `OWNER/REPO` 改成自己的仓库后，接收非 draft 的 opened/reopened/ready_for_review 事件。两个 channel 显式关闭自动评论、reaction 和 mention 触发。pr-review 只申请只读 GitHub 权限，由服务端核对事件 SHA 并准备有界 diff 快照供 sandbox 内模型读取，截断或失败会明确标记。
 
 [full-send 操作说明](demos/full-send/README.md) · [pr-review 操作说明](demos/pr-review/README.md)
 
@@ -98,8 +100,13 @@ npm run check
 node scripts/build-demos.mjs
 ```
 
-本地测试覆盖转换契约、输入与覆盖边界、tstack 来源字节、合并开关拒绝路径。SDK `validate` 和 `eval --list` 不需要真实模型运行；`--list` 只能证明发现了用例。具体交付证据见 `docs/ACCEPTANCE.md`。
+本地测试覆盖转换契约、输入与覆盖边界、tstack 来源字节、合并开关拒绝路径。SDK `validate` 和 `eval --list` 不需要真实模型运行；`--list` 只能证明发现了用例。官方 SDK 登录已经成功，另有两项真实模型 eval 通过：
 
-当前**未声称真实 Cursor eval 通过、真实 PR 事件验收通过、已取得部署 URL、npm 已发布或已发推**。三名 reviewer 也不代表三家模型。仍需模型权限、真实运行、托管权限和发布决策。
+- 转换生成的 `migration-smoke`：**1 条用例、2 个断言通过**，验证运行成功与 `loadedSkill`。
+- pr-review council 的内联 PR 示例：**1 条用例、9 个断言通过**，验证运行成功、3 次 reviewer 完成委派、`Council review`、降级标记和三行评分表。三名 reviewer 继承同一模型，不能据此声称三家厂商模型运行或子代理权限隔离已经验证。
+
+full-send 真实 `agent-sdk run` 已通过加载检查；最终默认模板只执行一次成功的 skill 读取，没有写入、命令执行或合并调用。[私有测试 PR #1](https://github.com/mreasonyang/cc2agent/pull/1) 的本地签名回放完成三次委派和中文评分表，工具零错误，GitHub 评论、reaction、review 均为零；测试 PR 已关闭且未合并。回放不等于托管 webhook 投递。托管 `deploy --dry-run` 返回账户没有默认 team；没有执行实际部署，也没有部署 URL。仓库保持私有，根 package.json 保持 `private: true`，不发布 npm、不公开发布、不进行社交发布。
+
+具体证据见[验收记录](docs/acceptance.md)。上述真实 eval 只覆盖列出的断言，不代表整套迁移或托管流程均已通过。
 
 基于 [t3dotgg/tstack](https://github.com/t3dotgg/tstack)（MIT）改编，与 Theo / T3 无官方关联或背书。SDK 是专有依赖，本项目不复制它的源码或文档。见[第三方声明](THIRD_PARTY_NOTICES.md)。
