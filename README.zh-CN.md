@@ -16,68 +16,86 @@ skills/*/scripts/*              → bot/tools/*.ts（默认禁用的 JSON 适配
 源配置字段 + 路由检查             → MIGRATION.zh-CN.md（或 .en.md）+ evals/*.eval.ts
 ```
 
-## 快速试用
+## 安装与使用
 
-npm 包名为 **`@kyun.si/agent2cursor`**，安装后的命令为 **`agent2cursor`**。
+需要 **Node.js >=22.13** 和 npm。npm 包名为 **`@kyun.si/agent2cursor`**，命令为 **`agent2cursor`**。**0.1.0** 已[发布到 npm](https://www.npmjs.com/package/@kyun.si/agent2cursor)，[发布回执](https://github.com/mreasonyang/agent2cursor/blob/main/npm-publication.json)记录了归档校验与独立安装结果。
 
-**0.1.0** 已[发布到 npm](https://www.npmjs.com/package/@kyun.si/agent2cursor)。[发布回执](npm-publication.json)记录了源提交、registry 归档哈希与独立安装验证结果。
+请在存放子代理或 skill 的项目目录运行输入命令。下面的全局安装和一次性 `npx` 用法任选一种，两种方式生成相同的 SDK 项目。
+
+### 全局安装
 
 ```bash
-npx --yes @kyun.si/agent2cursor@0.1.0 --help
 npm install --global @kyun.si/agent2cursor@0.1.0
-agent2cursor inspect .claude/agents
-agent2cursor convert .claude/agents --out ./my-agent
+agent2cursor --help
+agent2cursor inspect .claude/agents --lang zh
+agent2cursor convert .claude/agents --out ./my-agent --lang zh
 ```
 
-只传机器上实际存在的路径。Codex 输入可以使用 `.codex/agents` 和 `.agents/skills`，也可混合 Claude 与 Codex 输入。转换在本地执行，不需要 Cursor 账号。
-
-若要试用仓库内置的 [`fixtures/`](fixtures/claude) 样本，请从源码目录编译：
+### 不全局安装
 
 ```bash
+npx --yes @kyun.si/agent2cursor@0.1.0 inspect .claude/agents --lang zh
+npx --yes @kyun.si/agent2cursor@0.1.0 convert .claude/agents --out ./my-agent --lang zh
+```
+
+只传实际存在的路径。Claude Code skills 可传 `.claude/skills`，也可传包含 `SKILL.md` 的单个目录。单个代理文件、代理目录或 skill 目录都可单独使用，也可组合多个输入；Codex 用法见下文的[转换 Codex 资产](#转换-codex-资产)。报告语言默认中文，这里的示例显式使用 `--lang zh`；原始指令保留原文，不会翻译。
+
+`inspect` 不写文件。`convert` 创建**新的输出目录**，已有路径会被拒绝覆盖。先检查 `my-agent/MIGRATION.zh-CN.md` 和生成的 `bot/` 源码。转换不会安装目标 SDK，也不会启动模型。全新输出在安装自身依赖前通常显示 `dependencies-missing`；这不代表 SDK 校验成功。
+
+### 校验和运行生成项目
+
+从刚才创建 `my-agent` 的目录继续：
+
+```bash
+cd my-agent
+npm install
+npm run validate
+npx agent-sdk eval --dir . --list
+npx --yes @kyun.si/agent2cursor@0.1.0 doctor --dir .
+```
+
+这些步骤只做结构校验和 eval 发现，不执行模型 eval。转换器和生成的 SDK 项目分别管理依赖，因此全局安装 `agent2cursor` 不能替代在 `my-agent` 内运行 `npm install`。
+
+检查迁移报告、权限、模型选择和默认禁用的脚本存根后，可以在**生成项目目录**中选择运行真实模型：
+
+```bash
+npx agent-sdk login
+npm run dev -- --web
+```
+
+`npm run dev -- --web` 启动 SDK 开发服务器并打开 playground，在其中发送请求才会调用模型。真实运行需要 Cursor 账号及对应模型访问权限。`--lang` 只选择生成的说明、报告和 eval 提示词语言，不会翻译原有代理或 skill。
+
+- **SDK 真实包名：** [Cursor Agent SDK 官方文档](https://cursor.com/docs/agent-sdk)指定的包名为 **`@grok/agent-sdk`**（旧称 `@cursor/bdk`）。生成的 `package.json` 将其锁定为 `0.3.0`，并声明 `zod` 为 `^3.25.0`；详见[上游核实说明](docs/upstream-verification.md)。
+- **账号要求：** 转换及安装依赖后的结构检查（`inspect`、`convert`、`doctor`、`agent-sdk validate`、`agent-sdk eval --list`）无需 Cursor 登录。`agent-sdk dev`、`agent-sdk run` 和实际模型 eval 需要登录及模型权限。可选的 `agent-sdk deploy` 还需要已开通 hosting 的账号／团队与仓库权限。
+
+`convert` / `demo` 在依赖缺失、但输出已写入时退出 0，`validation.status` 为 `dependencies-missing`，此时尚未执行校验。安装输出项目的依赖后，`doctor` 仅在校验通过时退出 0。实际校验失败会使 `convert` / `demo` 退出 1，但输出文件已经写入。转换器不会自动安装依赖。
+
+## 试用仓库样本（可选）
+
+npm 包包含两个 demo，**不包含 `fixtures/`、转换器的 `src/` 目录或其开发工具链**。要运行仓库样本，请单独克隆源码：
+
+```bash
+git clone https://github.com/mreasonyang/agent2cursor.git
+cd agent2cursor
 npm ci --ignore-scripts
 npm run build
 
-# 预览或转换仓库自带的 Claude 子代理 + tstack full-send 技能闭包（默认生成中文报告）
-node dist/cli.js inspect ./fixtures/claude ./fixtures/tstack/skills/full-send --with-deps
+node dist/cli.js inspect ./fixtures/claude ./fixtures/tstack/skills/full-send --with-deps --lang zh
 node dist/cli.js convert ./fixtures/claude ./fixtures/tstack/skills/full-send \
-  --with-deps --out /tmp/my-agent
+  --with-deps --lang zh --out ../agent2cursor-fixture
 ```
 
-```text
-⚠️ 子代理限制未生效（4 个）：源 tools / disallowedTools / permissionMode 未迁移。SDK 校验通过不代表只读；--root-tools 只设置根代理白名单。
-agent2cursor v0.1.0 → @grok/agent-sdk 0.3.0
-扫描: 4 agents, 5 skills, 1 script stubs
-...
-```
-
-在这组内置样本输入下（4 个子代理、5 个 skill 含 4 个 `tstack` 依赖、1 个脚本存根），`agent2cursor` 会生成 **28 个文件**，并在 `/tmp/my-agent/MIGRATION.zh-CN.md` 逐项记录迁移提醒。具体提醒数与 `自检`（`Validation`）状态会随输入资产、参数及已安装依赖而变化（在 `/tmp/my-agent` 安装依赖前显示 `dependencies-missing` 属正常现象）。
-
-保持当前仓库目录不变，直接为生成项目安装依赖并运行结构校验与 `doctor`：
-
-```bash
-(cd /tmp/my-agent && npm install && npx agent-sdk validate --dir . && npx agent-sdk eval --dir . --list)
-node dist/cli.js doctor --dir /tmp/my-agent
-```
-
-维护者用 `npm run pack:local` 构建公开归档，再用 `npm run publish:npm` 发布已经验证的同一归档；见 [CONTRIBUTING.md](CONTRIBUTING.md#npm-release)。源码工程保留 `private: true`，公开归档不包含这个字段。
-
-- **SDK 真实包名：** [Cursor Agent SDK 官方文档](https://cursor.com/docs/agent-sdk)指定的包名为 **`@grok/agent-sdk`**（旧称 `@cursor/bdk`），请勿使用早期公告中的 `@cursor/agent-sdk`；详见[上游核实说明](docs/upstream-verification.md)。生成的 `package.json` 将 `@grok/agent-sdk` 锁定为 `0.3.0`，并声明 `zod` 为 `^3.25.0`。
-- **不同步骤的账号与权限要求：**
-  1. **离线转换与结构校验**（`convert`、`inspect`、`doctor`、`agent-sdk validate`、`agent-sdk eval --list`）：无需登录 Cursor 账号或配置 API Key。
-  2. **调用真实模型运行**（`agent-sdk dev`、`agent-sdk run`、实际执行 `agent-sdk eval`）：需先运行 `agent-sdk login` 登录，且账号具备对应模型访问权限。
-  3. **云端托管部署**（`agent-sdk deploy`）：可选步骤，需账号所属团队已开通 hosting 权限并授权对应仓库。
-
-`convert` / `demo` 在工程已写出、但缺少声明的 SDK 或 `zod` 依赖时退出 0，`validation.status` 为 `dependencies-missing`，并列出缺失包名；这时尚未执行校验。安装依赖后运行 `agent2cursor doctor --dir <project>`，`doctor` 在校验通过前仍返回非零。真实校验错误仍使转换退出 1；转换器不会自动安装依赖。
+这组样本生成 **28 个文件**：4 个子代理、5 个 skill（含 4 个 `tstack` 依赖）和 1 个禁用脚本工具存根，报告位于 `../agent2cursor-fixture/MIGRATION.zh-CN.md`。输出目录必须尚不存在；重跑时请选择其他 `--out` 路径。审查报告后，可在 `agent2cursor-fixture` 中执行上文的校验步骤。这些样本只演示转换与结构检查，不证明运行时权限保留或真实模型行为等价。
 
 ## 转换 Codex 资产
 
-完成本地构建后，可以传入项目或个人子代理目录、单个 TOML 文件，以及 skill 目录；也可以与 Claude 输入一起转换：
+使用已安装的命令（也可把 `agent2cursor` 替换为 `npx --yes @kyun.si/agent2cursor@0.1.0`），传入项目或个人子代理目录、单个 TOML 文件及 skill 目录。混合输入是另一种用法；只传实际存在的路径：
 
 ```bash
-node dist/cli.js inspect .codex/agents .agents/skills
-node dist/cli.js convert .codex/agents .agents/skills --out ./my-codex-agent
-# 仓库内的合成示例，无需安装 Codex 或登录账号
-node dist/cli.js convert fixtures/codex/project --out /tmp/codex-example
+agent2cursor inspect .codex/agents .agents/skills --lang zh
+agent2cursor convert .codex/agents .agents/skills --out ./my-codex-agent --lang zh
+# 可选：混合 Claude、Codex 与 skills
+agent2cursor convert .claude/agents .codex/agents .agents/skills --out ./mixed-agent --lang zh
 ```
 
 只传实际存在的路径，子代理和 skill 可以单独转换。个人独立子代理目录 `~/.codex/agents` 也支持。传入项目根目录时会发现这些子代理树和 skill 目录，无关 TOML 文件不会被当作子代理。
@@ -161,7 +179,7 @@ export default defineAgent({
 | `doctor [--dir <project>]` | 检查 Node `>=22.13` 并调用 `agent-sdk validate` 输出脱敏诊断摘要 |
 | `--out <dir>` | `convert` 的新输出目录（默认 `./my-agent`；路径已存在时拒绝覆盖） |
 | `--name <name>` | 生成的代理名称（`1–64` 位小写字母、数字、`-` 或 `_`，以字母或数字开头，默认 `converted-agent`） |
-| `--lang <zh\|en>` | 生成的说明书、eval 提示词与 `MIGRATION.zh-CN.md` / `MIGRATION.en.md` 语言（默认 `zh`） |
+| `--lang <zh\|en>` | `convert` / `inspect` 输出语言（默认 `zh`），选择生成的说明、eval 提示词和报告文件名；不翻译源文本或内置示例 |
 | `--with-deps` | 按 `tstack` 依赖图自动补齐同级目录中被依赖的关联技能 |
 | `--model-map <map>` | 显式映射模型 ID，如 `--model-map sonnet=<已核实模型ID>`（需用自己的账号核实可用性） |
 | `--keep-model` | 原样保留未验证的源模型 ID，而不是省略以继承父模型 |
@@ -170,7 +188,14 @@ export default defineAgent({
 
 ## 内置示例（Demos）
 
-两个示例均基于 [t3dotgg/tstack](https://github.com/t3dotgg/tstack) 固定 MIT 快照（`7de017b3fc9d50c03cf3ecb98fb71e0ca65a78bd`）改编为中文工作流，附带 `LICENSE-tstack` 与 `TSTACK-PROVENANCE.json`。可通过 `node dist/cli.js demo <full-send|pr-review> --out <dir>` 导出：
+两个示例均基于 [t3dotgg/tstack](https://github.com/t3dotgg/tstack) 固定 MIT 快照（`7de017b3fc9d50c03cf3ecb98fb71e0ca65a78bd`）改编为中文工作流，附带 `LICENSE-tstack` 与 `TSTACK-PROVENANCE.json`。npm 包已包含这两个示例，无需克隆源码。分别导出到新目录：
+
+```bash
+agent2cursor demo full-send --out ./full-send-agent
+agent2cursor demo pr-review --out ./pr-review-agent
+```
+
+使用一次性方式时，把命令前缀换成 `npx --yes @kyun.si/agent2cursor@0.1.0`。示例固定为中文工作流，`demo` 不接受 `--lang`。导出后进入所选示例目录，运行 `npm install` 和 `npm run validate`。
 
 - **`full-send`（[操作说明](demos/full-send/README.md)）：** 含 5 个技能（`full-send`、`sol-loop`、`file-pr`、`babysit-pr`、`leaving-pr-comments`）、1 个 `reviewer` 子代理、做一次只读快照且不轮询的 `pr_wait` 工具、默认禁用的 `pr_wait_script` 存根（保留原版 Python `pr-wait` 供审阅），以及带门禁的 `merge_pr` 工具。根代理不含 `shell`，因此**默认只完成本地代码修改、评审并输出 PR 草稿，在发布和合并前停止**——未实现自动跑测试、`git push` 和创建 PR。`merge_pr` 默认关闭，必须同时满足 `AGENT2CURSOR_ALLOW_MERGE=1`、人工批准本次调用、匹配已配置 GitHub 仓库会话、PR 处于 open/非 draft/clean 状态且 `expectedHead` 精确匹配当前 head SHA（eval 会话禁止合并）。
 - **`pr-review`（[操作说明](demos/pr-review/README.md)）：** 含 `council` 与 `leaving-pr-comments` 技能及 3 个评审子代理（`reviewer-a`、`reviewer-b`、`reviewer-c`）。三个子代理继承同一父模型，输出中文 `Council review` 评分表，并明确声明当前是同一模型的三种视角而非三家模型厂商。根代理仅保留只读搜索与委派工具，不提供发评论或改 PR 描述的工具。
@@ -183,23 +208,24 @@ export default defineAgent({
 
 - **工具名扫描范围：** 固定名单区分大小写检测正文和附属 Markdown 中的 `WebFetch`、`WebSearch`、`AskUserQuestion`、`request_user_input`、`delegate_task`、`orchestrator_capabilities`、`watch_pull_request`、`unwatch_pull_request`、`Monitor`。命中可能来自禁止调用的说明；未命中不代表工具兼容，不改写源提示词。
 - **根代理工具白名单不等于子代理隔离：** `--root-tools` 仅约束根代理。`@grok/agent-sdk@0.3.0` 的 `task` 子代理仍保有 harness 自身的 `task` 工具集，不能把根白名单当作子代理只读的证明；同时任何启用 `shell` 的配置都能写文件和执行任意命令，绝非只读。
-- **脚本工具默认是禁用存根：** 转换过程绝不执行输入脚本。生成的 `bot/tools/*.ts` 固定返回 `AGENT2CURSOR_STUB_DISABLED`，需操作员审查 `.cursor/skills/<id>/scripts/*` 中的原脚本、实现 JSON stdin/stdout 契约并开启 `shell` 后才能启用。
+- **脚本工具默认是禁用存根：** 转换过程绝不执行输入脚本。生成的 `bot/tools/*.ts` 固定返回 `AGENT2CURSOR_STUB_DISABLED`，需操作员审查复制到 `bot/skills/<id>/scripts/*` 的原脚本、实现 JSON stdin/stdout 契约并开启 `shell` 后才能启用。
 - **输入与输出防护范围：** 转换器拒绝覆盖已有输出目录、拒绝符号链接、限制单次生成体积上限为 128 MiB，跳过或拒绝已知凭据路径（`.env`、`.npmrc`、私钥文件），并拒绝敏感 YAML/TOML 键名（`token`、`apiKey`、`secret`），解析错误不回显源值；它不会对任意正文段落或二进制附件做全量秘密扫描。
 
 **当前验收状态摘要（各证据层级严格区分）：**
 
 | 证据层级 | 状态 | 已验证范围与未覆盖边界 |
 | --- | --- | --- |
-| 离线单测与结构校验 | **PASS**（已有证据） | 仓库清理前 59 项本地测试通过。生成项目在独立临时目录中安装自身依赖，通过 SDK `validate` / `info` / `eval --list` 及严格 `tsc`。`eval --list` 仅证明发现用例；本次清理未重跑这些测试 |
+| npm 发布与安装 | **PASS — 0.1.0** | 公开 registry 归档与已测试候选字节一致。匿名干净安装、固定版本／默认 `npx`、混合转换、两个 demo 导出，以及安装输出依赖前后的 doctor 检查均通过。[发布回执](https://github.com/mreasonyang/agent2cursor/blob/main/npm-publication.json) |
+| 离线单测与结构校验 | **PASS — 74 项测试** | Node 22.13 / 24 CI 通过。Claude、Codex、tstack、full-send 和 pr-review 五类生成项目安装独立依赖后，通过 SDK 结构检查、严格 TypeScript 和 eval 发现；`eval --list` 不代表真实执行通过。[CI](https://github.com/mreasonyang/agent2cursor/actions/workflows/check.yml) |
 | 独立转换与路由评测 | **PASS**（限定数据集） | 正常转换及安装后校验 24/24；新版自动路由 eval 在 30 个项目中 41/41 通过。3 个真实任务各重复 3 次，与直接复制/插件对照打平。[计数与源码哈希](docs/evidence/independent-evaluation.json) |
-| 真实模型运行 | **PASS**（窄用例） | 已完成官方 `agent-sdk login`。`migration-smoke` 通过（**1 条用例 / 2 个断言**：`succeeded`、`loadedSkill`）；`pr-review` 内联 diff 评审通过（**1 条用例 / 9 个断言**，同模型 3 视角）；`full-send` 本地 `run` 完成 1 次 skill 读取，0 次写入/执行/合并 |
-| GitHub PR 回放 | **PASS**（本地回放） | [私有测试 PR #1](https://github.com/mreasonyang/agent2cursor/pull/1) 经 HMAC 签名**本地回放**通过（有界快照 + 3 次子代理委派 + 中文评分表；0 工具错误、0 写入/执行、0 GitHub 评论/reaction/review；测试 PR 已关闭且未合并）。不等于线上托管 webhook 投递 |
-| 云端托管 | **未运行 / 暂缓** | 测试账号未配置默认团队（`no default team`），`agent-sdk deploy --dry-run` 在前置条件处停止，未执行实际部署，无部署 URL |
+| 真实模型运行 | **历史 PASS**（窄用例） | 已完成官方 `agent-sdk login`。`migration-smoke` 通过（**1 条用例 / 2 个断言**：`succeeded`、`loadedSkill`）；`pr-review` 内联 diff 评审通过（**1 条用例 / 9 个断言**，同模型 3 视角）；`full-send` 本地 `run` 完成 1 次 skill 读取，0 次写入/执行/合并 |
+| GitHub PR 回放 | **历史 PASS**（本地回放） | [历史测试 PR #1](https://github.com/mreasonyang/agent2cursor/pull/1) 经 HMAC 签名**本地回放**通过（有界快照 + 3 次子代理委派 + 中文评分表；0 工具错误、0 写入/执行、0 GitHub 评论/reaction/review；测试 PR 已关闭且未合并）。不等于线上托管 webhook 投递 |
+| 云端托管 | **未运行 / 暂缓** | 最近一轮记录中，测试账号缺少默认团队（`no default team`），`agent-sdk deploy --dry-run` 在前置条件处停止。托管部署尚未完成，没有经过验证的部署 URL |
 
-上述单点结果不证明任意输入下的平均模型质量、多厂商路由或子代理运行时隔离。完整记录见：[验收记录](docs/acceptance.md) · [上游核实说明](docs/upstream-verification.md) · [脱敏线上证据](docs/evidence/online-2026-10-27.json) · [官方示例来源记录](docs/official-examples.provenance.json)。
+历史模型运行与 PR 回放没有因 Codex 适配、npm 发布或本次文档核对而重跑。上述单点结果不证明任意输入下的平均模型质量、多厂商路由或子代理运行时隔离。完整记录见：[验收记录](docs/acceptance.md) · [上游核实说明](docs/upstream-verification.md) · [脱敏线上证据](docs/evidence/online-2026-10-27.json) · [官方示例来源记录](docs/official-examples.provenance.json)。
 
 ## 开发维护与许可证
 
-维护者自检命令（`npm run check`、`npm run test:sdk`、`node scripts/build-demos.mjs`）与仓库安全守则见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+维护者自检命令（`npm run check`、`npm run test:sdk`、`node scripts/build-demos.mjs`）与仓库安全守则见 [CONTRIBUTING.md](CONTRIBUTING.md)。源码工程保留面向 npm 的 `private: true`，`pack:local` 另行生成公开归档；GitHub 仓库已公开。npm `0.1.0` 不可变归档内的两份 README 是发布时快照，GitHub 当前版本包含最新文档修正。
 
 `agent2cursor` 采用 [MIT 许可证](LICENSE)（`Copyright (c) 2026 Eason Yang`）。[`fixtures/tstack`](fixtures/tstack)（[`PROVENANCE.json`](fixtures/tstack/PROVENANCE.json)）中的固定快照与两个改编示例源自 [t3dotgg/tstack](https://github.com/t3dotgg/tstack)，`Copyright (c) 2026 Theo Browne`，采用 MIT 许可（保存在 [`fixtures/tstack/LICENSE`](fixtures/tstack/LICENSE) 与 `LICENSE-tstack` 中）；被识别的 `tstack` 输入源必须保留该 MIT 声明。`@grok/agent-sdk@0.3.0` 是专有依赖（本仓库不内置或再分发其源码与文档）。本项目与 Theo Browne、T3、Anthropic、Cursor、Anysphere 或 xAI 无官方关联或背书。详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

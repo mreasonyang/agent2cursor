@@ -26,12 +26,18 @@
 
 GitHub 仓库已改为 public，并通过无认证 API 请求确认匿名访问返回 200。
 
+## 双语 README 核对（2026-10-28）
+
+按公开 `@kyun.si/agent2cursor@0.1.0` 实测两份 README 的安装和使用路径，40 次命令检查通过。使用空的用户／全局 npm 配置、独立缓存和隔离全局 prefix，完成中英文的全局安装与 npx、Claude / Codex / 混合转换、两个 demo 导出，以及生成工程自身的 `npm install`、结构校验、eval 发现和 doctor。克隆公开仓库后执行 `npm ci`、构建和样本转换，每种语言均生成 28 个文件。7 个 shell 代码块除语言参数外完全一致，本地 Markdown 链接均有效。
+
+已修正安装后与源码命令混用、npx 仅展示帮助、SDK 校验及启动步骤不完整、旧测试数量、历史模型／PR 回放标签和脚本审查目录。`npm run dev -- --web` 经 SDK 0.3.0 的公开 CLI 帮助核对；本轮没有登录 Cursor 或运行真实模型、eval、部署。74 项项目测试通过，证据及最终 README 哈希见 [文档核对回执](evidence/readme-audit-2026-10-28.json)。npm 0.1.0 归档内文档保留发布快照，本轮不改写已发布归档。
+
 ## 已验证
 
 | 项目 | 结果 | 证据边界 |
 | --- | --- | --- |
 | TypeScript 构建 | PASS | 本次本机 Node 26.11.0 与生成项目严格类型检查通过；历史私有 CI Node 22.13 / 24 已通过，当前提交 CI 见工作流 |
-| 自动测试 | PASS，73 项 | 2026-10-28 重跑 npm run check；新增 Codex TOML、混合输入、逐字段元数据、权限提示、敏感字段拒绝、解析错误不回显及打包前 CLI 回归 |
+| 自动测试 | PASS，74 项 | 2026-10-28 发布源码和后续 CI 通过；包含 Codex TOML、混合输入、逐字段元数据、权限提示、引用 skill 不加载、敏感字段拒绝、解析错误不回显及 CLI 回归。下文 Codex 初轮的 73 项保留为历史记录 |
 | Codex 转换 | PASS，2 个子代理、1 个 skill | 合成 TOML 与 openai.yaml 样例；配置发现、类型检查与 SDK 结构校验通过，未跑真实模型 |
 | 四类 Claude 示例 | PASS，4 个子代理 | 独立编写的官方示例模式 fixture；不是官方示例逐字副本 |
 | 官方原始示例 | PASS，4 个子代理，零诊断 | 从官方 Markdown 下载并提取 code-reviewer/debugger/data-scientist/db-reader，在忽略目录转换；不把官方原文作为 fixture 再分发，哈希见 official-examples.provenance.json |

@@ -1,0 +1,248 @@
+{
+  "verifiedAt": "2026-10-28T07:29:04.620950+00:00",
+  "package": "@kyun.si/agent2cursor@0.1.0",
+  "npmConfiguration": "empty user/global configuration; isolated global prefix and cache",
+  "scenarios": [
+    {
+      "language": "en",
+      "globalAndNpx": "passed",
+      "codexAndMixedInputs": "passed",
+      "generatedInstallValidateEvalDiscoveryDoctor": "passed",
+      "demosExported": 2
+    },
+    {
+      "language": "zh",
+      "globalAndNpx": "passed",
+      "codexAndMixedInputs": "passed",
+      "generatedInstallValidateEvalDiscoveryDoctor": "passed",
+      "demosExported": 2
+    }
+  ],
+  "sourceFixtureFilesPerLanguage": 28,
+  "sourceFixtureCounts": {
+    "agents": 4,
+    "skills": 5,
+    "dependencies": 4,
+    "scripts": 1
+  },
+  "bilingualBashBlockParity": true,
+  "localMarkdownLinks": "passed",
+  "liveModelExecution": "not-run; login/dev syntax checked with --help only",
+  "cloudDeployment": "not-run",
+  "checks": [
+    {
+      "check": "isolated-global-install",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "global-help",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "global-version",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "global-inspect-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "global-convert-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "doctor-before-install-en",
+      "exitCode": 1,
+      "expectedExitCode": 1
+    },
+    {
+      "check": "generated-npm-install-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "generated-validate-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "generated-eval-list-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "npx-doctor-after-install-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "sdk-login-help-only-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "sdk-dev-help-only-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "codex-convert-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "mixed-convert-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "demo-export-full-send-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "demo-export-pr-review-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "npx-inspect-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "npx-convert-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "global-inspect-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "global-convert-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "doctor-before-install-zh",
+      "exitCode": 1,
+      "expectedExitCode": 1
+    },
+    {
+      "check": "generated-npm-install-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "generated-validate-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "generated-eval-list-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "npx-doctor-after-install-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "sdk-login-help-only-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "sdk-dev-help-only-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "codex-convert-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "mixed-convert-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "demo-export-full-send-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "demo-export-pr-review-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "npx-inspect-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "npx-convert-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "public-source-clone",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "source-npm-ci",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "source-build",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "source-inspect-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "source-fixture-convert-en",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "source-inspect-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    {
+      "check": "source-fixture-convert-zh",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    }
+  ],
+  "readmeSha256": {
+    "README.md": "cc6504f9b04496e5b0ab973baa6bfea241242a9d74a1785185a1e1fa13aee723",
+    "README.zh-CN.md": "b12e203c116366cf840a7ab9599f417bfd565d5d53da34af3af9bf91e8bae132"
+  },
+  "sourceRevisionBase": "02999e9ec55ee27bfb02cad35f7e2da2e3cbcd71",
+  "publishedPackageSourceRevision": "b0e30fa5eb85d479e3ab64ee8ebd022061160a4a",
+  "unitTests": {
+    "command": "npm run check",
+    "passed": 74,
+    "failed": 0
+  },
+  "sdkDevWebFlagVerified": true,
+  "publishedArchiveReadmes": "immutable 0.1.0 release snapshots; current GitHub READMEs are corrected",
+  "productRuntimeCodeChanged": false
+}
