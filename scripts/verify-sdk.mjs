@@ -10,7 +10,7 @@ const sdk = join(root, ".validation/node_modules/.bin/agent-sdk");
 await mkdir(join(root, ".validation"), { recursive: true });
 const evidenceDir = await mkdtemp(join(root, ".validation/acceptance-"));
 // Output must not inherit the SDK's node_modules, which used to mask missing zod.
-const projectRoot = await mkdtemp(join(await realpath(tmpdir()), "cc-to-cursor-agent-sdk-"));
+const projectRoot = await mkdtemp(join(await realpath(tmpdir()), "agent2cursor-sdk-"));
 const cli = join(root, "dist/cli.js");
 const env = { ...process.env, PATH: `${dirname(sdk)}${delimiter}${process.env.PATH ?? ""}`,
   AGENT_SERVE_NO_UPDATE_CHECK: "1", NO_UPDATE_NOTIFIER: "1" };

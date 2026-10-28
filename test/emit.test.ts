@@ -18,7 +18,7 @@ const options: ConvertOptions = { name: "Fixture Agent", lang: "zh", withDeps: f
 const empty = (): MigrationIR => ({ agents: [], skills: [], scripts: [], findings: [] });
 
 async function fixture(): Promise<{ directory: string; skill: SkillAsset }> {
-  const directory = await mkdtemp(join(await realpath(tmpdir()), "cc-to-cursor-agent-emit-"));
+  const directory = await mkdtemp(join(await realpath(tmpdir()), "agent2cursor-emit-"));
   await mkdir(join(directory, "scripts"));
   await mkdir(join(directory, "references"));
   await mkdir(join(directory, ".git"));
@@ -52,7 +52,7 @@ test("skill emission preserves extra frontmatter, body and supporting files with
     assert.match(tool, /execution: "agent"/u);
     assert.match(tool, /\.cursor\/skills\/fixture\/scripts\/work\.py/u);
     assert.doesNotMatch(tool, /raise Exception/u);
-    assert.match(tool, /CC_TO_CURSOR_AGENT_STUB_DISABLED/u);
+    assert.match(tool, /AGENT2CURSOR_STUB_DISABLED/u);
     for (const field of Object.keys(skill.frontmatter)) assert.match(String(plan.files.get("MIGRATION.zh-CN.md")), new RegExp(`\\| ${field} \\|`));
     const skillEval = String(plan.files.get("evals/skills.eval.ts"));
     assert.match(skillEval, /t\.loadedSkill\("fixture"\)/u);
@@ -78,7 +78,7 @@ test("a generated script stub consumes input and fails closed without touching i
   const result = spawnSync("/bin/sh", ["-c", DISABLED_TOOL_SCRIPT], { input: '{"args":["ignored"]}', encoding: "utf8", timeout: 3000 });
   assert.equal(result.status, 78);
   assert.equal(result.stderr, "");
-  assert.deepEqual(JSON.parse(result.stdout), { ok: false, error: "CC_TO_CURSOR_AGENT_STUB_DISABLED", message: "TODO(cc-to-cursor-agent): review the original script and implement JSON stdin/stdout before enabling this tool." });
+  assert.deepEqual(JSON.parse(result.stdout), { ok: false, error: "AGENT2CURSOR_STUB_DISABLED", message: "TODO(agent2cursor): review the original script and implement JSON stdin/stdout before enabling this tool." });
 });
 
 test("descriptions and multiline TODO findings cannot inject TypeScript statements", () => {
@@ -92,7 +92,7 @@ test("descriptions and multiline TODO findings cannot inject TypeScript statemen
   assert.equal(parsed.statements[1]!.kind, ts.SyntaxKind.ExportAssignment);
   const transpiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext }, reportDiagnostics: true });
   assert.equal(transpiled.diagnostics?.length, 0);
-  assert.match(source, /\/\/ TODO\(cc-to-cursor-agent\): throw new Error/u);
+  assert.match(source, /\/\/ TODO\(agent2cursor\): throw new Error/u);
 });
 
 test("project generation locks the SDK and only emits explicit root allowlists", async () => {
@@ -150,7 +150,7 @@ test("tstack conversion preserves the verified root license and discloses unveri
 });
 
 test("recognized external tstack cannot omit or substitute its associated license", async () => {
-  const root = await mkdtemp(join(await realpath(tmpdir()), "cc-to-cursor-agent-tstack-"));
+  const root = await mkdtemp(join(await realpath(tmpdir()), "agent2cursor-tstack-"));
   try {
     const directory = join(root, "skills", "fixture");
     await mkdir(directory, { recursive: true });
@@ -188,7 +188,7 @@ test("preloaded skill requests become explicit root and subagent hints, with mis
 });
 
 test("body reports match emitted instructions for available, missing, empty and invalid preload requests", async () => {
-  const directory = await mkdtemp(join(await realpath(tmpdir()), "cc-to-cursor-agent-body-report-"));
+  const directory = await mkdtemp(join(await realpath(tmpdir()), "agent2cursor-body-report-"));
   try {
     const skill = join(directory, "rules");
     const source = join(directory, "reviewer.md");
@@ -219,7 +219,7 @@ test("body reports match emitted instructions for available, missing, empty and 
 });
 
 test("foreign tool references receive individual findings without rewriting agent or skill bodies", async () => {
-  const directory = await mkdtemp(join(await realpath(tmpdir()), "cc-to-cursor-agent-foreign-tools-"));
+  const directory = await mkdtemp(join(await realpath(tmpdir()), "agent2cursor-foreign-tools-"));
   try {
     const skill = join(directory, "foreign");
     const agent = join(directory, "foreign-agent.md");

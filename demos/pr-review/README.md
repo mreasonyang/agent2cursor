@@ -1,6 +1,6 @@
 # pr-review demo
 
-基于 tstack council + leaving-pr-comments 改编；见 LICENSE-tstack、TSTACK-PROVENANCE.json 和各 SKILL.md 的改动说明。结构校验、真实模型三视角评审及本地 PR 签名回放已通过，完整范围见[验收记录](https://github.com/mreasonyang/cc-to-cursor-agent/blob/main/docs/acceptance.md)。托管部署尚未完成。
+基于 tstack council + leaving-pr-comments 改编；见 LICENSE-tstack、TSTACK-PROVENANCE.json 和各 SKILL.md 的改动说明。结构校验、真实模型三视角评审及本地 PR 签名回放已通过，完整范围见[验收记录](https://github.com/mreasonyang/agent2cursor/blob/main/docs/acceptance.md)。托管部署尚未完成。
 
 ```bash
 npm install
@@ -18,7 +18,7 @@ reviewer-a/b/c 分别关注正确性、安全、测试与维护；都省略 mode
 
 根代理排除 shell/edit/delete；子代理保留 SDK harness task 工具自己的工具集，不能仅凭根配置声称它们只读。保留 `local.sandbox: true`，用隔离测试仓库与最小 GitHub 权限验证真实行为。本地 sandbox 可能阻止 MCP server tools；不要为了演示自动关闭它。
 
-GitHub channel 显式关闭自动回复评论和 reaction，并将 Cursor 仓库权限限制为 `read`。评论 mention 不启动回合。PR 事件通过鉴权后，channel 使用延迟 `workspaceFiles` 在服务端读取 PR，写入固定的 `.cc-to-cursor-agent/pr-review.json`；webhook 先确认，读取总时限 20 秒。模型只读该快照并委派三位 reviewer，无须通过 sandbox 中的 MCP 访问 GitHub。
+GitHub channel 显式关闭自动回复评论和 reaction，并将 Cursor 仓库权限限制为 `read`。评论 mention 不启动回合。PR 事件通过鉴权后，channel 使用延迟 `workspaceFiles` 在服务端读取 PR，写入固定的 `.agent2cursor/pr-review.json`；webhook 先确认，读取总时限 20 秒。模型只读该快照并委派三位 reviewer，无须通过 sandbox 中的 MCP 访问 GitHub。
 
 快照仅调用 GET：读取 PR、取首批最多 100 个文件、再读 PR。前后 head 必须匹配事件，base 必须保持一致；每个 patch 最多 12,000 字符，整个序列化 JSON 最多 120,000 字符。失败或版本漂移返回 `blocked`，缺失 patch 或截断返回 `partial`，最终回复必须声明范围。限制针对交给模型的文本；GitHub 单页 JSON 在裁剪前由 Octokit 解析。快照不包含 CI、完整讨论或测试执行证据。
 

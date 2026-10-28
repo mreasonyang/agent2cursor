@@ -1,10 +1,10 @@
 {
-  "name": "cc-to-cursor-agent",
+  "name": "agent2cursor",
   "version": "0.1.0",
-  "description": "Eject Claude and Codex agents and Agent Skills into editable Cursor Agent SDK projects, with explicit migration reports.",
+  "description": "Convert Claude Code and Codex agents and skills into editable Cursor Agent SDK projects, with field-by-field migration reports.",
   "type": "module",
   "bin": {
-    "cc-to-cursor-agent": "dist/cli.js"
+    "agent2cursor": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -49,10 +49,10 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mreasonyang/cc-to-cursor-agent.git"
+    "url": "git+https://github.com/mreasonyang/agent2cursor.git"
   },
-  "homepage": "https://github.com/mreasonyang/cc-to-cursor-agent",
+  "homepage": "https://github.com/mreasonyang/agent2cursor",
   "bugs": {
-    "url": "https://github.com/mreasonyang/cc-to-cursor-agent/issues"
+    "url": "https://github.com/mreasonyang/agent2cursor/issues"
   }
 }

@@ -39,7 +39,7 @@ function skillPreloadHints(ir: MigrationIR, options: ConvertOptions): { root: st
     const hint = options.lang === "zh"
       ? `Claude 的 skills 预加载没有原生等价行为。${available.length ? `需要时请根代理先加载共享 skill：${list}，再委派给本子代理。` : "没有找到对应的已迁移共享 skill。"}${missing.length ? ` 尚未一并迁移：${missing.map(markdown).join(", ")}；请先补充这些 skill。` : ""} 这只是提示，不是自动预加载或权限隔离。`
       : `Claude skill preloading has no native equivalent. ${available.length ? `When needed, ask the root agent to load shared skills ${list} before delegating to this subagent.` : "No corresponding migrated shared skill was found."}${missing.length ? ` Missing from this conversion: ${missing.map(markdown).join(", ")}; convert these skills first.` : ""} This is a hint, not automatic preloading or permission isolation.`;
-    agents.set(agent.id, `\n\n<!-- cc-to-cursor-agent migration hint -->\n${hint}\n`);
+    agents.set(agent.id, `\n\n<!-- agent2cursor migration hint -->\n${hint}\n`);
     rootLines.push(`- \`${agent.id}\`: ${hint}`);
     addFinding(ir, { source: agent.source, field: "[skills preload hint]", status: "degraded", target: `bot/subagents/${agent.id}/instructions.md; bot/instructions.md`, message: `已添加共享 skill 加载提示；不是自动预加载。${missing.length ? " 部分引用 skill 未包含在本次输入中，请一并转换。" : ""}`, messageEn: `Added shared-skill load hints, not automatic preloading.${missing.length ? " Some referenced skills are absent; convert them as well." : ""}` });
   }
@@ -95,8 +95,8 @@ export async function planProject(source: MigrationIR, options: ConvertOptions, 
     const hint = preloadHints.agents.get(agent.id) ?? "";
     if (hint) {
       const bodyFinding: Finding = { source: agent.source, field: "$body", status: "degraded", target: `bot/subagents/${agent.id}/instructions.md`,
-        message: "保留原文，正文末尾追加共享 skill 预加载提示（`<!-- cc-to-cursor-agent migration hint -->`）；输出正文并非逐字不变。提示不实现自动预加载。",
-        messageEn: "Original text retained, with a shared-skill preload hint appended after `<!-- cc-to-cursor-agent migration hint -->`; the output body is not byte-for-byte unchanged. The hint does not implement automatic preloading." };
+        message: "保留原文，正文末尾追加共享 skill 预加载提示（`<!-- agent2cursor migration hint -->`）；输出正文并非逐字不变。提示不实现自动预加载。",
+        messageEn: "Original text retained, with a shared-skill preload hint appended after `<!-- agent2cursor migration hint -->`; the output body is not byte-for-byte unchanged. The hint does not implement automatic preloading." };
       // Replace both inventories so the report cannot retain a contradictory scan-time conclusion.
       ir.findings = ir.findings.filter(f => !(f.source === agent.source && f.field === "$body"));
       agent.findings = agent.findings.filter(f => f.field !== "$body");

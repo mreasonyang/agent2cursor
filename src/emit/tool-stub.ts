@@ -4,9 +4,9 @@ import { assertId, literal, todo } from "./common.js";
 // Constant shell source: no original file contents or source-controlled paths are executable.
 export const DISABLED_TOOL_SCRIPT = [
   "#!/usr/bin/env sh",
-  "# Disabled by cc-to-cursor-agent. Review the original script and implement the JSON contract first.",
+  "# Disabled by agent2cursor. Review the original script and implement the JSON contract first.",
   "cat >/dev/null",
-  "printf '%s\\n' '{\"ok\":false,\"error\":\"CC_TO_CURSOR_AGENT_STUB_DISABLED\",\"message\":\"TODO(cc-to-cursor-agent): review the original script and implement JSON stdin/stdout before enabling this tool.\"}'",
+  "printf '%s\\n' '{\"ok\":false,\"error\":\"AGENT2CURSOR_STUB_DISABLED\",\"message\":\"TODO(agent2cursor): review the original script and implement JSON stdin/stdout before enabling this tool.\"}'",
   "exit 78",
   "",
 ].join("\n");
@@ -15,8 +15,8 @@ export function renderToolStub(script: ScriptAsset, options: ConvertOptions): st
   assertId(script.id, "tool");
   assertId(script.skillId, "skill");
   const description = options.lang === "zh"
-    ? `禁用的迁移存根 ${script.id}。调用始终返回 CC_TO_CURSOR_AGENT_STUB_DISABLED，绝不执行原脚本。请操作者先审查 .cursor/skills/${script.skillId}/${script.relativePath} 并实现 JSON 输入输出契约。`
-    : `Disabled migration stub ${script.id}. Always returns CC_TO_CURSOR_AGENT_STUB_DISABLED and never runs the original script. An operator must review .cursor/skills/${script.skillId}/${script.relativePath} and implement the JSON input/output contract first.`;
+    ? `禁用的迁移存根 ${script.id}。调用始终返回 AGENT2CURSOR_STUB_DISABLED，绝不执行原脚本。请操作者先审查 .cursor/skills/${script.skillId}/${script.relativePath} 并实现 JSON 输入输出契约。`
+    : `Disabled migration stub ${script.id}. Always returns AGENT2CURSOR_STUB_DISABLED and never runs the original script. An operator must review .cursor/skills/${script.skillId}/${script.relativePath} and implement the JSON input/output contract first.`;
   return [
     'import { defineTool } from "@grok/agent-sdk/tools";',
     'import { z } from "zod";', "",

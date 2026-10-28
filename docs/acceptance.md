@@ -1,8 +1,20 @@
-# cc-to-cursor-agent 验收记录
+# agent2cursor 验收记录
 
-更新日期：2026-10-28。版本：`0.1.0`。目标 SDK：`@grok/agent-sdk@0.3.0`。用户已确定项目名为 `cc-to-cursor-agent`。
+更新日期：2026-10-28。版本：`0.1.0`。目标 SDK：`@grok/agent-sdk@0.3.0`。用户已确定项目名为 `agent2cursor`。
 
-用户决定：使用 `mreasonyang/cc-to-cursor-agent` **私有仓库**验收；暂不公开发布。根 package.json 保持 `private: true`。
+用户决定：使用 `mreasonyang/agent2cursor` **私有仓库**验收；暂不公开发布。根 package.json 保持 `private: true`。
+
+## agent2cursor 更名（2026-10-28）
+
+项目由 `cc-to-cursor-agent` 更名为 `agent2cursor`，覆盖包名与锁文件、CLI、生成源码及报告、两个 demo 与生成模板、测试、双语文档、GitHub 仓库链接，以及 README 动图、海报和可编辑源文件。版本保持 `0.1.0`。
+
+新命令为 `agent2cursor`；示例快照路径为 `.agent2cursor/pr-review.json`，禁用存根错误码为 `AGENT2CURSOR_STUB_DISABLED`，可选合并开关为 `AGENT2CURSOR_ALLOW_MERGE`。旧命令不安装别名，旧开关不作为回退读取；合并仍默认关闭。
+
+更名前的独立评测原文、`docs/evidence/` 中既有 JSON 和固定 tstack 上游快照保留原始名称、路径与哈希；本次检查另行记录，不把历史真实模型结果算作更名后重跑。
+
+本次 `npm run check` 通过 74 项测试（含工作区原有的 Codex 引用 skill 不加载测试）。`npm run test:sdk` 的 Claude、Codex、tstack、full-send、pr-review 五类工程通过独立安装前后检查、SDK 结构校验、严格 TypeScript 和 eval 发现，证据位于 `.validation/acceptance-XieMEy/evidence.json`。本轮未执行真实模型或部署。
+
+`npm pack` 产物为 `agent2cursor-0.1.0.tgz`，在仓库外的干净 consumer 安装后验证了真实 `agent2cursor` bin 的帮助、版本、混合 Claude/Codex/skill 转换、两个 demo 和缺依赖时的 doctor 状态；运行源码与输出不再含旧项目标识。README 动图重新渲染为 960×540、10 fps、14 秒（140 帧），并核对海报画面和 [SOURCE.json](demo-video/SOURCE.json) 的新哈希。GitHub 仓库与 origin、本地目录均已更名，私有属性不变；没有发布到 npm。
 
 ## 已验证
 
@@ -29,7 +41,7 @@ npm install --prefix .validation --ignore-scripts --no-audit --no-fund @grok/age
 npm run test:sdk
 ```
 
-本机最终结构和类型检查证据在忽略目录 `.validation/acceptance-JjGsx6/evidence.json`；生成工程位于仓库外的系统临时目录，分别安装自身依赖，不再借用 `.validation` 的依赖。不包含凭证或真实模型轨迹。官方原始示例的历史产物保留在旧验收目录下的 `.validation/official-converted/`。首轮 [GitHub CI](https://github.com/mreasonyang/cc-to-cursor-agent/actions/runs/40473284090) 已通过；最终提交状态以 [check 工作流](https://github.com/mreasonyang/cc-to-cursor-agent/actions/workflows/check.yml) 为准。
+本机最终结构和类型检查证据在忽略目录 `.validation/acceptance-JjGsx6/evidence.json`；生成工程位于仓库外的系统临时目录，分别安装自身依赖，不再借用 `.validation` 的依赖。不包含凭证或真实模型轨迹。官方原始示例的历史产物保留在旧验收目录下的 `.validation/official-converted/`。首轮 [GitHub CI](https://github.com/mreasonyang/agent2cursor/actions/runs/40473284090) 已通过；最终提交状态以 [check 工作流](https://github.com/mreasonyang/agent2cursor/actions/workflows/check.yml) 为准。
 
 ## Codex 适配验收（2026-10-28）
 
@@ -62,7 +74,7 @@ npm run test:sdk
 - 真实模型 loadedSkill eval：PASS，转换生成的 migration-smoke，1 case / 2 assertions。
 - full-send 安全触发回合：PASS，配置私有仓库和默认未配置仓库各一次真实 `run`，均成功加载 full-send；每次 1 tool call、0 写入/执行调用、未调用 merge_pr。该场景仅检查 skill 加载与用途说明，不代表完整自动送 PR 流程。
 - 三视角 Council eval：PASS，1 case / 9 assertions（成功、三次完成委派、Council review 标题、降级声明、三行评分表）；默认同模型，不能声称三厂商或完整隔离已验证。
-- 测试 PR 事件：PASS，[私有验收 PR #1](https://github.com/mreasonyang/cc-to-cursor-agent/pull/1) 经 HMAC 签名回放进入本地会话并完成。服务端读取只读快照，模型在 sandbox 内完成三次委派及中文评分表：8 次工具调用、0 工具错误、0 写入/执行调用。GitHub 评论、reaction、review 均为零。测试 PR 已关闭且未合并。回放不是 GitHub 实际 webhook 投递或托管验收。
+- 测试 PR 事件：PASS，[私有验收 PR #1](https://github.com/mreasonyang/agent2cursor/pull/1) 经 HMAC 签名回放进入本地会话并完成。服务端读取只读快照，模型在 sandbox 内完成三次委派及中文评分表：8 次工具调用、0 工具错误、0 写入/执行调用。GitHub 评论、reaction、review 均为零。测试 PR 已关闭且未合并。回放不是 GitHub 实际 webhook 投递或托管验收。
 - 托管部署与 URL：BLOCKED；SDK `deploy --dry-run` 明确返回账号没有默认团队。需要用户提供已开通 hosting 的团队 ID；未执行实际部署，没有 URL。
 - GitHub CI：已通过 Node 22.13 / 24 单测和 npm pack，以及 SDK 兼容性任务。
 - npm / 公开 GitHub / 社交发布：按用户要求暂不执行。

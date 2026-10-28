@@ -1,4 +1,4 @@
-# cc-to-cursor-agent README animation source
+# agent2cursor README animation source
 
 14-second, silent terminal demonstration from an actual local fixture conversion. `SOURCE.json` records commands, field outcomes and hashes. Paths and source excerpts are shortened for readability; animation timing is illustrative. Only structural SDK validation is claimed.
 
@@ -13,6 +13,6 @@ npm run render
 
 The helper uses the installed Brave executable and disables HyperFrames orphan cleanup to avoid process-argument inspection. It prints bounded validation metadata. Rendering is local and uses no model, paid generation or publishing service. A first compile may fetch the declared fonts.
 
-Final output is `../assets/cc-to-cursor-agent-demo.gif`; `cc-to-cursor-agent-demo-poster.png` is a decoded final frame. Work files and renderer caches stay in ignored `.hyperframes/`.
+Final output is `../assets/agent2cursor-demo.gif`; `agent2cursor-demo-poster.png` is a decoded final frame. Work files and renderer caches stay in ignored `.hyperframes/`.
 
 The HTML remains editable in the HyperFrames desktop app or a text editor. A running preview is not required for the committed GIF. `SOURCE.json` retains the delivered asset's checksum and conversion provenance.

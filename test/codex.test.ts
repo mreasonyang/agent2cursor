@@ -18,7 +18,7 @@ const metadata = path.join(fixture, ".agents/skills/codex-check/agents/openai.ya
 const basic = 'name = "custom"\ndescription = "Explain input"\ndeveloper_instructions = "Read only the supplied input."\n';
 
 async function temp(t: { after: (fn: () => Promise<void>) => void }): Promise<string> {
-  const dir = await mkdtemp(path.join(await realpath(tmpdir()), "cc-to-cursor-agent-codex-"));
+  const dir = await mkdtemp(path.join(await realpath(tmpdir()), "agent2cursor-codex-"));
   t.after(() => rm(dir, { recursive: true, force: true }));
   return dir;
 }
@@ -62,7 +62,7 @@ test("Codex source models use explicit mappings and never inherit Claude preload
     assert.ok(!plan.ir.findings.some(f => f.field === "[skills preload hint]"));
     const ts = String(plan.files.get("bot/subagents/codex-reviewer/agent.ts"));
     assert.doesNotMatch(ts, /^\s*(?:features|skills|sandbox_mode|approval_policy|model_reasoning_effort):/m);
-    assert.match(ts, /TODO\(cc-to-cursor-agent\).*features.shell_tool/);
+    assert.match(ts, /TODO\(agent2cursor\).*features.shell_tool/);
     assert.match(String(plan.files.get("evals/subagents.eval.ts")), /t\.calledSubagent\("codex-reviewer"\)/);
   }
 });

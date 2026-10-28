@@ -42,7 +42,7 @@ export function renderReport(ir: MigrationIR, options: ConvertOptions, validatio
   return [
     `# ${zh ? "迁移报告" : "Migration report"}: ${markdown(options.name)}`,
     ...(warning ? ["", `**${markdown(warning)}**`] : []),
-    "", `cc-to-cursor-agent → @grok/agent-sdk ${SDK_VERSION}`, "",
+    "", `agent2cursor → @grok/agent-sdk ${SDK_VERSION}`, "",
     zh
       ? `扫描结果：${ir.agents.length} 个子代理，${ir.skills.length} 个 skill（其中 ${ir.skills.filter((s) => s.dependency).length} 个依赖），${ir.scripts.length} 个禁用脚本工具存根。`
       : `Inventory: ${ir.agents.length} subagents, ${ir.skills.length} skills (${ir.skills.filter((s) => s.dependency).length} dependencies), ${ir.scripts.length} disabled script-tool stubs.`,

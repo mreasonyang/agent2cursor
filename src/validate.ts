@@ -43,7 +43,7 @@ async function missingDependencies(dir: string): Promise<string[]> {
 
 export function validationMessage(result: ValidationResult, lang: Language): string {
   if (lang !== "zh" || result.status !== "dependencies-missing" || !result.missingDependencies?.length) return result.message;
-  return `SDK 自检尚未执行：缺少项目依赖 ${result.missingDependencies.join(", ")}。请先在项目目录运行 npm install，再运行 cc-to-cursor-agent doctor --dir .。`;
+  return `SDK 自检尚未执行：缺少项目依赖 ${result.missingDependencies.join(", ")}。请先在项目目录运行 npm install，再运行 agent2cursor doctor --dir .。`;
 }
 
 // Never relay SDK stdout/stderr: source modules and runtime errors may contain credentials.
@@ -54,10 +54,10 @@ export async function validateProject(dir: string, sdk?: string): Promise<Valida
   try { missing = await missingDependencies(dir); }
   catch { return { status: "failed", command, message: "Could not resolve project dependencies. Check package.json and installed package configuration; raw details withheld." }; }
   if (missing.length) return { status: "dependencies-missing", command, missingDependencies: missing,
-    message: `SDK validation has not run: missing project dependencies ${missing.join(", ")}. Run npm install in the project, then \`cc-to-cursor-agent doctor --dir .\`.` };
+    message: `SDK validation has not run: missing project dependencies ${missing.join(", ")}. Run npm install in the project, then \`agent2cursor doctor --dir .\`.` };
   const executable = sdk ?? await findSdk(dir);
   if (!executable) return { status: "unavailable", command,
-    message: "Agent SDK CLI is not installed. Run npm install in the generated project, then cc-to-cursor-agent doctor --dir <project>." };
+    message: "Agent SDK CLI is not installed. Run npm install in the generated project, then agent2cursor doctor --dir <project>." };
   return new Promise(resolveResult => {
     let stdout = "";
     let overflow = false;

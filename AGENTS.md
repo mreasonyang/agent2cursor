@@ -1,4 +1,4 @@
-# cc-to-cursor-agent
+# agent2cursor
 
 Use Node >=22.13. Run `npm run check` before delivery. SDK integration uses @grok/agent-sdk 0.3.0 in the ignored `.validation/` directory; never vendor SDK source or documentation.
 

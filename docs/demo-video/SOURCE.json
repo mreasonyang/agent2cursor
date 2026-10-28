@@ -1,11 +1,11 @@
 {
-  "recordedAt": "2026-10-27",
+  "recordedAt": "2026-10-28",
   "source": "fixtures/claude/agents/code-reviewer.md",
-  "converter": "cc-to-cursor-agent 0.1.0",
+  "converter": "agent2cursor 0.1.0",
   "sdk": "@grok/agent-sdk 0.3.0",
-  "command": "node dist/cli.js convert fixtures/claude/agents/code-reviewer.md --out .validation/gif-conversion --no-validate --json",
+  "command": "node dist/cli.js convert fixtures/claude/agents/code-reviewer.md --out .validation/rename-agent2cursor-20261028/gif-conversion-final --no-validate --json",
   "independentValidation": {
-    "command": ".validation/node_modules/.bin/agent-sdk validate --dir .validation/gif-conversion",
+    "command": ".validation/node_modules/.bin/agent-sdk validate --dir .validation/rename-agent2cursor-20261028/gif-conversion-final --json",
     "exitCode": 0,
     "summary": "no diagnostics"
   },
@@ -23,18 +23,23 @@
   },
   "sha256": {
     "fixtures/claude/agents/code-reviewer.md": "9308769ecd7f80149826f614be03eb91ea044baa9c6dd2b5cee7110a4ceb4ec8",
-    ".validation/gif-conversion/bot/subagents/code-reviewer/agent.ts": "35d4c312046a1e12c60b2122f0169cbe22ee5d9762520a1a2cc2793f1e81f1d0",
-    ".validation/gif-conversion/MIGRATION.zh-CN.md": "dd76884588cd8312e17e5c6c66e27f859e504f79ce5a12aafb6c15d02bbcb825"
+    ".validation/rename-agent2cursor-20261028/gif-conversion-final/bot/subagents/code-reviewer/agent.ts": "bea49b8acefc26241c777ca0b4142dce0377e3451702e2abbc5d5b55f79bb5de",
+    ".validation/rename-agent2cursor-20261028/gif-conversion-final/MIGRATION.zh-CN.md": "02ff0a05bd3e828fa8d6ca8efeff5ed8c89b3c7bc615ecd9feeace804803657c"
   },
   "artifact": {
-    "path": "docs/assets/cc-to-cursor-agent-demo.gif",
+    "path": "docs/assets/agent2cursor-demo.gif",
     "width": 960,
     "height": 540,
     "fps": 10,
     "durationSeconds": 14,
     "frames": 140,
-    "bytes": 360551,
-    "sha256": "09ce8dfe58cc83e063ce3affbaf477e850381357840d6c8b60e67e5f556d44a2"
+    "bytes": 365549,
+    "sha256": "4f83fb58b5f395e63e37b8facc69e73829b7002a4f4e71fd03143c00099f9427"
   },
-  "reverifiedAt": "2026-10-27T12:03:49.474539+00:00"
+  "poster": {
+    "path": "docs/assets/agent2cursor-demo-poster.png",
+    "atSeconds": 11,
+    "sha256": "b634f9394b7fe021fcb25be9a2e34be98a64f7a3b37295fd64ab575f66de6e74"
+  },
+  "reverifiedAt": "2026-10-28"
 }

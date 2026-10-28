@@ -13,7 +13,7 @@ test("Node requirement rejects 22.12 and accepts 22.13 or newer", () => {
 });
 
 test("output refuses existing files, traversal and symlink ancestors", async () => {
-  const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-write-"));
+  const root = await mkdtemp(join(tmpdir(), "agent2cursor-write-"));
   try {
     const out = join(root, "output");
     await writeProject(out, new Map([["bot/instructions.md", "original"]]));
@@ -22,12 +22,12 @@ test("output refuses existing files, traversal and symlink ancestors", async () 
     await assert.rejects(writeProject(join(root, "bad"), new Map([["../escape", "x"]])), /Unsafe/);
     await symlink(out, join(root, "link"));
     await assert.rejects(writeProject(join(root, "link", "nested"), new Map([["ok", "x"]])), /symlinks/);
-    assert.equal((await readdir(root)).some(s => s.startsWith(".cc-to-cursor-agent-")), false);
+    assert.equal((await readdir(root)).some(s => s.startsWith(".agent2cursor-")), false);
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
 test("validator summarizes structured diagnostics without echoing untrusted output", async () => {
-  const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-validation-"));
+  const root = await mkdtemp(join(tmpdir(), "agent2cursor-validation-"));
   try {
     const cli = join(root, "agent-sdk");
     await writeFile(cli, `#!/usr/bin/env node\nconsole.log(JSON.stringify({version:1,ok:true,agents:[{slug:"test",diagnostics:[{severity:"warning",message:"SYNTHETIC_PRIVATE_VALUE"}]}]}));\n`);
@@ -46,7 +46,7 @@ test("validator summarizes structured diagnostics without echoing untrusted outp
 });
 
 test("validation distinguishes missing dependencies from broken configuration without loading packages", async () => {
-  const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-dependencies-"));
+  const root = await mkdtemp(join(tmpdir(), "agent2cursor-dependencies-"));
   try {
     const cli = join(root, "agent-sdk");
     const called = join(root, "sdk-called");
@@ -57,7 +57,7 @@ test("validation distinguishes missing dependencies from broken configuration wi
     const missing = await validateProject(root, cli);
     assert.equal(missing.status, "dependencies-missing");
     assert.deepEqual(missing.missingDependencies, ["zod"]);
-    assert.match(missing.message, /`cc-to-cursor-agent doctor --dir \.`/u);
+    assert.match(missing.message, /`agent2cursor doctor --dir \.`/u);
     await assert.rejects(readFile(called), { code: "ENOENT" });
     // An installed module that throws must not execute during the resolution preflight.
     await mkdir(join(root, "node_modules/zod"), { recursive: true });
@@ -76,7 +76,7 @@ test("validation distinguishes missing dependencies from broken configuration wi
 });
 
 test("parallel writers cannot replace an existing project", async () => {
-  const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-race-"));
+  const root = await mkdtemp(join(tmpdir(), "agent2cursor-race-"));
   try {
     const out = join(root, "out");
     const results = await Promise.allSettled([
@@ -90,7 +90,7 @@ test("parallel writers cannot replace an existing project", async () => {
 });
 
 test("report updates change only the generated report and truncate older contents", async () => {
-  const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-report-"));
+  const root = await mkdtemp(join(tmpdir(), "agent2cursor-report-"));
   try {
     const written = await writeProject(join(root, "out"), new Map([
       ["MIGRATION.zh-CN.md", "initial report with a longer trailing message"],
@@ -104,7 +104,7 @@ test("report updates change only the generated report and truncate older content
 });
 
 test("report replacement by a symlink cannot overwrite an external file", async () => {
-  const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-report-link-"));
+  const root = await mkdtemp(join(tmpdir(), "agent2cursor-report-link-"));
   try {
     const written = await writeProject(join(root, "out"), new Map([["MIGRATION.en.md", "generated"]]));
     const external = join(root, "outside.md");
@@ -117,7 +117,7 @@ test("report replacement by a symlink cannot overwrite an external file", async 
 });
 
 test("replacement of the output directory cannot redirect a report update", async () => {
-  const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-report-dir-"));
+  const root = await mkdtemp(join(tmpdir(), "agent2cursor-report-dir-"));
   try {
     const out = join(root, "out");
     const written = await writeProject(out, new Map([["MIGRATION.en.md", "generated"]]));
@@ -133,7 +133,7 @@ test("replacement of the output directory cannot redirect a report update", asyn
 });
 
 test("replacement of an output ancestor cannot redirect a report update", async () => {
-  const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-report-parent-"));
+  const root = await mkdtemp(join(tmpdir(), "agent2cursor-report-parent-"));
   try {
     const parent = join(root, "parent");
     const written = await writeProject(join(parent, "out"), new Map([["MIGRATION.en.md", "generated"]]));
@@ -149,7 +149,7 @@ test("replacement of an output ancestor cannot redirect a report update", async 
 });
 
 test("same-path replacement files and directories are rejected even without symlinks", async () => {
-  const root = await mkdtemp(join(tmpdir(), "cc-to-cursor-agent-report-replaced-"));
+  const root = await mkdtemp(join(tmpdir(), "agent2cursor-report-replaced-"));
   try {
     const out = join(root, "out");
     const written = await writeProject(out, new Map([["MIGRATION.en.md", "generated"]]));

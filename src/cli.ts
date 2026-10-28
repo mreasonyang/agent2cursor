@@ -12,7 +12,7 @@ import { permissionWarning } from "./mapping/permissions.js";
 import { updateProjectReport, writeProject } from "./write.js";
 
 const VERSION = "0.1.0";
-const program = new Command().name("cc-to-cursor-agent").description("Claude / Codex agents / Agent Skills → editable Agent SDK projects with migration reports").version(VERSION);
+const program = new Command().name("agent2cursor").description("Claude Code / Codex agents / Agent Skills → editable Cursor Agent SDK projects with migration reports").version(VERSION);
 const legalTools = new Set(["read", "grep", "glob", "ls", "shell", "edit", "task", "delete"]);
 
 function options(raw: Record<string, unknown>): ConvertOptions {
@@ -73,7 +73,7 @@ common(program.command("convert").argument("<input...>", "Claude .md / Codex .to
       const zh = opts.lang === "zh";
       const warning = permissionWarning(plan.ir, opts.lang);
       if (warning) console.log(warning);
-      console.log(`cc-to-cursor-agent v${VERSION} → @grok/agent-sdk ${SDK_VERSION}`);
+      console.log(`agent2cursor v${VERSION} → @grok/agent-sdk ${SDK_VERSION}`);
       console.log(`${zh ? "扫描" : "Scanned"}: ${ir.agents.length} agents, ${ir.skills.length} skills, ${ir.scripts.length} script stubs`);
       const concerns = plan.ir.findings.filter(f => f.status !== "mapped");
       console.log(`${concerns.length} ${zh ? "项迁移提醒；逐字段说明见报告。" : "migration concerns; see the field-by-field report."}`);
@@ -124,11 +124,11 @@ program.command("demo").argument("<name>", "full-send | pr-review").option("--ou
   });
 
 try {
-  if (!supportedNode()) throw new Error("cc-to-cursor-agent requires Node >=22.13.");
+  if (!supportedNode()) throw new Error("agent2cursor requires Node >=22.13.");
   await program.parseAsync();
 } catch (error) {
   const message = error instanceof Error ? error.message : "Unexpected conversion error.";
   if (process.argv.includes("--json")) console.error(JSON.stringify({ error: message }));
-  else console.error(`cc-to-cursor-agent: ${message}`);
+  else console.error(`agent2cursor: ${message}`);
   process.exitCode = 1;
 }

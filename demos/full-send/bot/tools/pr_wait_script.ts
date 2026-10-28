@@ -1,6 +1,6 @@
 import { defineTool } from "@grok/agent-sdk/tools";
 import { z } from "zod";
-// TODO(cc-to-cursor-agent): implement a bounded JSON stdin/stdout adapter before allowing shell.
+// TODO(agent2cursor): implement a bounded JSON stdin/stdout adapter before allowing shell.
 export default defineTool({
   description: "Disabled pr-wait script adapter. Use the read-only server tool pr_wait instead.",
   execution: "agent",

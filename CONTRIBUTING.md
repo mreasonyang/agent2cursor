@@ -1,6 +1,6 @@
 # Contributing and Maintainer Guide
 
-This document covers local development, verification workflows, demo regeneration, and repository safety rules for `cc-to-cursor-agent`. For user-facing usage and migration behavior, see [README.md](README.md) ([中文说明](README.zh-CN.md)).
+This document covers local development, verification workflows, demo regeneration, and repository safety rules for `agent2cursor`. For user-facing usage and migration behavior, see [README.md](README.md) ([中文说明](README.zh-CN.md)).
 
 ## Prerequisites
 
@@ -8,6 +8,12 @@ This document covers local development, verification workflows, demo regeneratio
 - **npm** (used with `package-lock.json`).
 
 Offline unit tests and fixture conversions do not require a Cursor account or network access.
+
+## Project Naming
+
+Use `agent2cursor` for the package, executable, generated-code notices, demo names, and repository links. The package is private and unpublished; the old executable name is not installed as an alias. Demo workspace snapshots use `.agent2cursor/pr-review.json`, disabled script stubs return `AGENT2CURSOR_STUB_DISABLED`, and the optional merge gate uses `AGENT2CURSOR_ALLOW_MERGE` (disabled by default).
+
+Historical evaluation reports and hash-bound evidence retain the names and paths used by those runs. Do not rewrite them to imply the current sources were evaluated.
 
 ## Build and Unit Tests
 
@@ -62,7 +68,7 @@ The maintained demo projects live only in `demos/`. Create personal deployment c
 
 1. **Account for every source field.** Every YAML frontmatter, Codex agent TOML, and `agents/openai.yaml` field path must appear in `MIGRATION.zh-CN.md` / `MIGRATION.en.md` as `mapped`, `degraded`, or `dropped`.
 2. **Never silently expand permissions.** Do not claim a root `tools` allowlist isolates `task` subagents, and never describe an agent with `shell` enabled as read-only.
-3. **Keep script tools disabled by default.** Source scripts under `skills/*/scripts/*` are copied without execution bits, and generated `bot/tools/*.ts` wrappers must remain disabled stubs (`CC_TO_CURSOR_AGENT_STUB_DISABLED`) until an operator implements a typed JSON stdin/stdout contract.
+3. **Keep script tools disabled by default.** Source scripts under `skills/*/scripts/*` are copied without execution bits, and generated `bot/tools/*.ts` wrappers must remain disabled stubs (`AGENT2CURSOR_STUB_DISABLED`) until an operator implements a typed JSON stdin/stdout contract.
 4. **Safe filesystem handling.** Conversion must never execute source scripts, overwrite existing output directories, traverse symlinks, or read/copy credential files (`.env`, `.npmrc`, private keys, or sensitive YAML keys).
 5. **Keep evidence levels separate.** Do not conflate unit tests or `agent-sdk validate` / `eval --list` with live model execution, real GitHub webhook delivery, hosted deployment, or npm publication. See [docs/acceptance.md](docs/acceptance.md) and [docs/upstream-verification.md](docs/upstream-verification.md).
 6. **Credential-safe diagnostics.** Never write raw process `argv`, environment dumps, authentication files, or unfiltered runtime logs into diagnostics, tests, or committed evidence files.

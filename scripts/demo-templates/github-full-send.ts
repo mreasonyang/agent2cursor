@@ -4,7 +4,7 @@ import { DEMO_REPOSITORY } from "../lib/settings.js";
 const actions = new Set(["opened", "reopened", "ready_for_review"]);
 // Local runs do not register a GitHub channel or request repository credentials.
 export default DEMO_REPOSITORY === "OWNER/REPO" ? disableChannel() : githubChannel({
-  botName: "cc-to-cursor-agent-full-send",
+  botName: "agent2cursor-full-send",
   cursorAccount: { repos: [DEMO_REPOSITORY], permissions: "pr-write" },
   deliverReplies: false,
   progress: { reactions: false },
