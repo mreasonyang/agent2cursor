@@ -7,6 +7,8 @@ dist/
 !.env.example
 .DS_Store
 coverage/
+site/dist/
+site/evidence/
 .agent-serve/
 .agent-sdk/
 .cursor/

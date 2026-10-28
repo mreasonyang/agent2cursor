@@ -36,7 +36,9 @@
     "pack:local": "npm run build && node scripts/npm-release.mjs pack",
     "verify:package": "node scripts/npm-release.mjs verify",
     "publish:npm": "node scripts/npm-release.mjs publish",
-    "test:sdk": "node scripts/verify-sdk.mjs"
+    "test:sdk": "node scripts/verify-sdk.mjs",
+    "site:build": "node site/build.mjs",
+    "site:check": "node site/build.mjs && node site/check.mjs"
   },
   "author": "Eason Yang (@mr_easonyang)",
   "license": "MIT",
@@ -59,7 +61,7 @@
     "type": "git",
     "url": "git+https://github.com/mreasonyang/agent2cursor.git"
   },
-  "homepage": "https://github.com/mreasonyang/agent2cursor",
+  "homepage": "https://agent2cursor.kyun.si",
   "bugs": {
     "url": "https://github.com/mreasonyang/agent2cursor/issues"
   }

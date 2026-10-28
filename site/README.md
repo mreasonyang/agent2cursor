@@ -1,0 +1,15 @@
+# agent2cursor website
+
+The bilingual static website lives at https://agent2cursor.kyun.si. English and Chinese have separate rendered pages at `/en/` and `/zh/`; `/` chooses the saved language or browser language. All essential content is present without JavaScript. Language links, FAQ disclosures and GitHub links work without JavaScript. Interactive examples only update displayed commands; they never execute a conversion in the browser.
+
+```sh
+node site/build.mjs
+node site/check.mjs
+python3 -m http.server 18773 --bind 127.0.0.1 --directory site/dist
+```
+
+Edit translations in `content.mjs`, structure in `build.mjs`, presentation in `style.css`, and progressive interactions in `client.js`. Update `release.json` only after verifying that version is publicly available on npm; repository release preparation must not publish unavailable installation commands. The build uses Node built-ins only. CSS and JavaScript filenames include content hashes. The demo is copied from the repository's existing public assets and plays only after an explicit click.
+
+Cloudflare Pages uses the GitHub repository `mreasonyang/agent2cursor`, production branch `main`, build command `node site/build.mjs && node site/check.mjs`, and output directory `site/dist`. Use Node 22.13 or newer. Bind the custom domain `agent2cursor.kyun.si` in Pages before pointing its CNAME to the project's `pages.dev` hostname. Website hosting is separate from deploying a generated Cursor agent.
+
+No analytics, cookies, third-party fonts, or external browser scripts. A local language preference is the only stored browser state. GitHub links open the public repository; users choose whether to star it themselves.
