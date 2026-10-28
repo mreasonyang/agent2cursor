@@ -26,6 +26,14 @@
 
 GitHub 仓库已改为 public，并通过无认证 API 请求确认匿名访问返回 200。
 
+## npm 0.1.1 双语文档同步（2026-10-28）
+
+`@kyun.si/agent2cursor@0.1.1` 已将修订后的中英文 README 与 CHANGELOG 发布到 npm；CLI 版本同步为 0.1.1，迁移算法及目标 SDK 0.3.0 保持不变。发布绑定源码 `06d5907667631b2c68eee7f7741f9a131c2f229f`；74 项测试及该提交的 Node 22.13 / 24、归档验证与 SDK 集成 CI 全部通过。
+
+匿名下载 registry tarball，与候选核对字节数、SHA-256 和 SHA-512 integrity；两份包内 README 与发布源码逐字节一致。在空 npm 用户／全局配置和独立全局 prefix 下从 registry 安装，安装目录的两份 README 也与源码一致。固定版本 npx 帮助、默认 latest npx 版本、双语混合转换和两个 demo 导出均通过，实际版本为 0.1.1。生成项目安装依赖后的 doctor 也通过。npm 页面当前选用的中文版 README 与发布源码相符。
+
+本次发布回执见 [0.1.1 回执](evidence/npm-publication-0.1.1.json)，0.1.0 回执独立保留。发布过程使用隔离检出，其他正在进行的站点修改不属于此 npm 归档。
+
 ## 双语 README 核对（2026-10-28）
 
 按公开 `@kyun.si/agent2cursor@0.1.0` 实测两份 README 的安装和使用路径，40 次命令检查通过。使用空的用户／全局 npm 配置、独立缓存和隔离全局 prefix，完成中英文的全局安装与 npx、Claude / Codex / 混合转换、两个 demo 导出，以及生成工程自身的 `npm install`、结构校验、eval 发现和 doctor。克隆公开仓库后执行 `npm ci`、构建和样本转换，每种语言均生成 28 个文件。7 个 shell 代码块除语言参数外完全一致，本地 Markdown 链接均有效。

@@ -1,26 +1,34 @@
 {
-  "verifiedAt": "2026-10-28T07:08:02.624501+00:00",
+  "verifiedAt": "2026-10-28T07:52:10.116956+00:00",
   "name": "@kyun.si/agent2cursor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "registry": "https://registry.npmjs.org/",
-  "sourceRevision": "b0e30fa5eb85d479e3ab64ee8ebd022061160a4a",
+  "sourceRevision": "06d5907667631b2c68eee7f7741f9a131c2f229f",
   "publicationExitCode": 0,
   "distTag": "latest",
-  "latestVersionVerifiedBy": "npx @kyun.si/agent2cursor --version in an empty directory and fresh cache",
-  "tarball": "https://registry.npmjs.org/@kyun.si/agent2cursor/-/agent2cursor-0.1.0.tgz",
-  "integrity": "sha512-vYcNz181tue/3szNeKjarOjU8ah9aEo2zODqnwEQtyiUlvMHWkNz4Uo3sDFhSrQNWgeizYJbzuLtNQbElH8jmA==",
-  "shasum": "e907056c24f7ec2b0290fc6c67b0468c36f62e8d",
-  "bytes": 573541,
-  "sha256": "caaf9f021033b47c664bb940ee36dfb2d7dce4fc8fcbf5f762dc98d13e00a94b",
+  "latestVersionVerifiedBy": "npx @kyun.si/agent2cursor --version with isolated configuration and cache",
+  "tarball": "https://registry.npmjs.org/@kyun.si/agent2cursor/-/agent2cursor-0.1.1.tgz",
+  "integrity": "sha512-0bAJIluBRr+YXotaQ6FPEPoDRHRBQZ55nBkctWA+dsjTz04oXPn2/cv21uJR6PpsaBSmCtThLTkB/QWdFQsRHA==",
+  "shasum": "758d6c038674a52fd70e01c3ca95291e6ab42cf7",
+  "bytes": 578033,
+  "sha256": "af79cc40de3b4382a64102728fc09ec822371e051564c139e27d447bc8da2dfd",
   "registryBytesMatchCandidate": true,
   "anonymousRegistryReadback": true,
+  "bundledReadmeSha256": {
+    "README.md": "fd85c061ce66bd72963a2d6e2188aa7ec9c629ebd4a801154c630e8da1f777d2",
+    "README.zh-CN.md": "0a7df1a09d4a9e77c1336b1659c2522654ad8a58439dc2b41a5781a4edfe17db"
+  },
+  "bundledReadmesMatchReleaseSource": true,
+  "installedReadmesMatchReleaseSource": true,
+  "registryReadmeAvailable": true,
+  "registryReadmeMatchesReleaseSource": true,
   "verification": {
-    "cleanRegistryInstall": true,
+    "cleanGlobalRegistryInstall": true,
     "emptyUserAndGlobalConfig": true,
     "cliHelpAndVersion": true,
     "npxPinnedHelp": true,
-    "npxLatestVersion": "0.1.0",
-    "mixedInspectAndConvert": {
+    "npxLatestVersion": "0.1.1",
+    "mixedInspectAndConvertBothLanguages": {
       "agents": 6,
       "skills": 6,
       "dependencies": 4,
@@ -31,16 +39,32 @@
       "pr-review"
     ],
     "doctorBeforeInstall": "dependencies-missing",
+    "cleanRegistryInstall": true,
+    "cliVersion": "0.1.1",
+    "mixedInspectAndConvert": {
+      "agents": 6,
+      "skills": 6,
+      "dependencies": 4,
+      "scripts": 1
+    },
     "doctorAfterInstall": "passed"
   },
+  "candidateVerification": {
+    "doctorAfterInstall": "passed",
+    "bilingualCommandBlocksEqual": true,
+    "globalArchiveInstall": true
+  },
   "ci": {
-    "url": "https://github.com/mreasonyang/agent2cursor/actions/runs/40645554908",
+    "url": "https://github.com/mreasonyang/agent2cursor/actions/runs/40651336592",
     "conclusion": "success"
   },
   "github": {
     "url": "https://github.com/mreasonyang/agent2cursor",
     "visibility": "public"
   },
+  "previousVersionReceipt": "docs/evidence/npm-publication-0.1.0.json",
   "liveModelRun": "not-run-for-publication",
-  "deployment": "not-run"
+  "deployment": "not-run",
+  "registryReadmeFile": "README.zh-CN.md",
+  "registryReadmeLanguage": "zh-CN"
 }
