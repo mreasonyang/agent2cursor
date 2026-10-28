@@ -69,7 +69,7 @@ function page(key, entry = false) {
   return `<!doctype html>
 <html lang="${t.lang}" data-locale="${key}"${entry ? ' data-entry="true"' : ""}>
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f5f4ed">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#fafafa">
 <title>${t.title}</title><meta name="description" content="${escape(t.description)}">
 <link rel="canonical" href="${origin}/${key}/"><link rel="alternate" hreflang="en" href="${origin}/en/"><link rel="alternate" hreflang="zh-CN" href="${origin}/zh/"><link rel="alternate" hreflang="x-default" href="${origin}/">
 <meta property="og:type" content="website"><meta property="og:site_name" content="agent2cursor"><meta property="og:locale" content="${t.locale}"><meta property="og:title" content="${t.title}"><meta property="og:description" content="${escape(t.description)}"><meta property="og:url" content="${origin}/${key}/"><meta property="og:image" content="${origin}/assets/agent2cursor-demo-poster.png"><meta property="og:image:width" content="960"><meta property="og:image:height" content="540"><meta property="og:image:alt" content="${t.diagram}">
@@ -89,10 +89,10 @@ function page(key, entry = false) {
 <div class="report-card"><div class="report-heading"><span class="report-icon">≡</span><strong>${t.reportTitle}</strong><span class="report-check">✓</span></div><div class="report-line"><code>instructions</code><span class="status mapped">${t.mapped}</span></div><div class="report-line"><code>model</code><span class="status review">${t.inherit}</span></div><div class="report-line"><code>tools</code><span class="status review">${t.tools}</span></div><div class="report-bottom">${t.report}<span>↗</span></div></div><p class="visual-caption mono">${t.illustration}</p></div></section>
 <div class="compatibility"><div class="wrap"><span class="mono">${t.strip}</span><div><b>Claude Code</b><span>+</span><b>Codex</b><span>+</span><b>Agent Skills</b><span>→</span><b class="strip-output">Cursor Agent SDK</b></div></div></div>
 <section class="section wrap" id="how"><div class="section-heading"><p class="eyebrow">${t.howKicker}</p><h2>${t.howTitle}</h2><p>${t.howIntro}</p></div><div class="how-grid"><div class="feature-list">${t.features.map((f) => `<article class="feature"><span class="feature-number mono">${f[0]}</span><div><h3>${f[1]}</h3><p>${f[2]}</p></div></article>`).join("")}</div><div class="code-window"><div class="window-bar"><span class="window-dots" aria-hidden="true">● ● ●</span><span>${t.sample}</span></div><pre><code><span class="code-muted">my-agent/</span>
-<span class="code-muted">├─</span> <span class="code-green">bot/</span>
+<span class="code-muted">├─</span> <span class="code-accent">bot/</span>
 <span class="code-muted">│  ├─</span> agent.ts
 <span class="code-muted">│  ├─</span> instructions.md
-<span class="code-muted">│  ├─</span> <span class="code-green">subagents/</span>
+<span class="code-muted">│  ├─</span> <span class="code-accent">subagents/</span>
 <span class="code-muted">│  │  └─</span> code-reviewer/
 <span class="code-muted">│  │     ├─</span> agent.ts
 <span class="code-muted">│  │     └─</span> instructions.md
