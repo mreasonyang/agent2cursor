@@ -44,6 +44,7 @@ for (const name of ["style.css", "client.js"]) {
 for (const name of ["agent2cursor-demo.gif", "agent2cursor-demo-poster.png"]) {
   await copyFile(`${root}../docs/assets/${name}`, `${out}/assets/${name}`);
 }
+await copyFile(`${root}media/agent2cursor-demo.mp4`, `${out}/assets/agent2cursor-demo.mp4`);
 const favicon = await readFile(`${root}favicon.svg`);
 await writeFile(`${out}/favicon.svg`, favicon);
 assets["favicon.svg"] = `/favicon.svg?v=${createHash("sha256").update(favicon).digest("hex").slice(0, 10)}`;

@@ -15,3 +15,5 @@ Edit translations in `content.mjs`, structure in `build.mjs`, presentation in `s
 Cloudflare Pages uses the GitHub repository `mreasonyang/agent2cursor`, production branch `main`, build command `node site/build.mjs && node site/check.mjs`, and output directory `site/dist`. Use Node 22.13 or newer. Bind the custom domain `agent2cursor.kyun.si` in Pages before pointing its CNAME to the project's `pages.dev` hostname. Website hosting is separate from deploying a generated Cursor agent.
 
 No analytics, cookies, third-party fonts, or external browser scripts. A local language preference is the only stored browser state. GitHub links open the public repository; users choose whether to star it themselves.
+
+The original 14-second silent H.264 demo is also kept in `media/agent2cursor-demo.mp4` and served at `/assets/agent2cursor-demo.mp4` for direct playback on phones. Its animation source and conversion provenance remain in `../docs/demo-video/`.
