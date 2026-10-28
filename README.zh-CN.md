@@ -18,7 +18,18 @@ skills/*/scripts/*              → bot/tools/*.ts（默认禁用的 JSON 适配
 
 ## 快速试用
 
-`agent2cursor`（`0.1.0`，[`package.json`](package.json) 保持 `"private": true`）尚未发布到 npm，请勿运行 `npx agent2cursor`。直接在当前仓库编译，并用内置的 [`fixtures/`](fixtures/claude) 样本运行：
+npm 包名为 **`@kyun.si/agent2cursor`**，安装后的命令为 **`agent2cursor`**：
+
+```bash
+npx --yes @kyun.si/agent2cursor@0.1.0 --help
+npm install --global @kyun.si/agent2cursor@0.1.0
+agent2cursor inspect .claude/agents
+agent2cursor convert .claude/agents --out ./my-agent
+```
+
+只传机器上实际存在的路径。Codex 输入可以使用 `.codex/agents` 和 `.agents/skills`，也可混合 Claude 与 Codex 输入。转换在本地执行，不需要 Cursor 账号。
+
+若要试用仓库内置的 [`fixtures/`](fixtures/claude) 样本，请从源码目录编译：
 
 ```bash
 npm ci --ignore-scripts
@@ -46,7 +57,7 @@ agent2cursor v0.1.0 → @grok/agent-sdk 0.3.0
 node dist/cli.js doctor --dir /tmp/my-agent
 ```
 
-若希望在本地全局直接使用 `agent2cursor` 命令，可执行 `npm pack && npm install --global ./agent2cursor-0.1.0.tgz`。
+维护者用 `npm run pack:local` 构建公开归档，再用 `npm run publish:npm` 发布已经验证的同一归档；见 [CONTRIBUTING.md](CONTRIBUTING.md#npm-release)。源码工程保留 `private: true`，公开归档不包含这个字段。
 
 - **SDK 真实包名：** [Cursor Agent SDK 官方文档](https://cursor.com/docs/agent-sdk)指定的包名为 **`@grok/agent-sdk`**（旧称 `@cursor/bdk`），请勿使用早期公告中的 `@cursor/agent-sdk`；详见[上游核实说明](docs/upstream-verification.md)。生成的 `package.json` 将 `@grok/agent-sdk` 锁定为 `0.3.0`，并声明 `zod` 为 `^3.25.0`。
 - **不同步骤的账号与权限要求：**
@@ -181,7 +192,7 @@ export default defineAgent({
 | 独立转换与路由评测 | **PASS**（限定数据集） | 正常转换及安装后校验 24/24；新版自动路由 eval 在 30 个项目中 41/41 通过。3 个真实任务各重复 3 次，与直接复制/插件对照打平。[计数与源码哈希](docs/evidence/independent-evaluation.json) |
 | 真实模型运行 | **PASS**（窄用例） | 已完成官方 `agent-sdk login`。`migration-smoke` 通过（**1 条用例 / 2 个断言**：`succeeded`、`loadedSkill`）；`pr-review` 内联 diff 评审通过（**1 条用例 / 9 个断言**，同模型 3 视角）；`full-send` 本地 `run` 完成 1 次 skill 读取，0 次写入/执行/合并 |
 | GitHub PR 回放 | **PASS**（本地回放） | [私有测试 PR #1](https://github.com/mreasonyang/agent2cursor/pull/1) 经 HMAC 签名**本地回放**通过（有界快照 + 3 次子代理委派 + 中文评分表；0 工具错误、0 写入/执行、0 GitHub 评论/reaction/review；测试 PR 已关闭且未合并）。不等于线上托管 webhook 投递 |
-| 云端托管与 npm 发布 | **未运行 / 暂缓** | 测试账号未配置默认团队（`no default team`），`agent-sdk deploy --dry-run` 在前置条件处停止，未执行实际部署，无部署 URL。仓库保持私有，软件包设置 `private: true`，暂不发布 npm |
+| 云端托管 | **未运行 / 暂缓** | 测试账号未配置默认团队（`no default team`），`agent-sdk deploy --dry-run` 在前置条件处停止，未执行实际部署，无部署 URL |
 
 上述单点结果不证明任意输入下的平均模型质量、多厂商路由或子代理运行时隔离。完整记录见：[验收记录](docs/acceptance.md) · [上游核实说明](docs/upstream-verification.md) · [脱敏线上证据](docs/evidence/online-2026-10-27.json) · [官方示例来源记录](docs/official-examples.provenance.json)。
 

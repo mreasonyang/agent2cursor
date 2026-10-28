@@ -2,7 +2,7 @@
 
 更新日期：2026-10-28。版本：`0.1.0`。目标 SDK：`@grok/agent-sdk@0.3.0`。用户已确定项目名为 `agent2cursor`。
 
-用户决定：使用 `mreasonyang/agent2cursor` **私有仓库**验收；暂不公开发布。根 package.json 保持 `private: true`。
+当前用户决定（2026-10-28）：GitHub 仓库 `mreasonyang/agent2cursor` 公开，并授权将 `@kyun.si/agent2cursor@0.1.0` 发布到 npm。根 package.json 保持 `private: true`，单独构建公开消费者归档；安装后的命令仍为 `agent2cursor`。npm 发布结果单独验证。
 
 ## agent2cursor 更名（2026-10-28）
 
@@ -14,7 +14,7 @@
 
 本次 `npm run check` 通过 74 项测试（含工作区原有的 Codex 引用 skill 不加载测试）。`npm run test:sdk` 的 Claude、Codex、tstack、full-send、pr-review 五类工程通过独立安装前后检查、SDK 结构校验、严格 TypeScript 和 eval 发现，证据位于 `.validation/acceptance-XieMEy/evidence.json`。本轮未执行真实模型或部署。
 
-`npm pack` 产物为 `agent2cursor-0.1.0.tgz`，在仓库外的干净 consumer 安装后验证了真实 `agent2cursor` bin 的帮助、版本、混合 Claude/Codex/skill 转换、两个 demo 和缺依赖时的 doctor 状态；运行源码与输出不再含旧项目标识。README 动图重新渲染为 960×540、10 fps、14 秒（140 帧），并核对海报画面和 [SOURCE.json](demo-video/SOURCE.json) 的新哈希。GitHub 仓库与 origin、本地目录均已更名，私有属性不变；没有发布到 npm。
+`npm pack` 产物为 `agent2cursor-0.1.0.tgz`，在仓库外的干净 consumer 安装后验证了真实 `agent2cursor` bin 的帮助、版本、混合 Claude/Codex/skill 转换、两个 demo 和缺依赖时的 doctor 状态；运行源码与输出不再含旧项目标识。README 动图重新渲染为 960×540、10 fps、14 秒（140 帧），并核对海报画面和 [SOURCE.json](demo-video/SOURCE.json) 的新哈希。GitHub 仓库与 origin、本地目录均已更名，更名当时仍为私有；该轮没有发布到 npm。
 
 ## 已验证
 
@@ -77,7 +77,7 @@ npm run test:sdk
 - 测试 PR 事件：PASS，[私有验收 PR #1](https://github.com/mreasonyang/agent2cursor/pull/1) 经 HMAC 签名回放进入本地会话并完成。服务端读取只读快照，模型在 sandbox 内完成三次委派及中文评分表：8 次工具调用、0 工具错误、0 写入/执行调用。GitHub 评论、reaction、review 均为零。测试 PR 已关闭且未合并。回放不是 GitHub 实际 webhook 投递或托管验收。
 - 托管部署与 URL：BLOCKED；SDK `deploy --dry-run` 明确返回账号没有默认团队。需要用户提供已开通 hosting 的团队 ID；未执行实际部署，没有 URL。
 - GitHub CI：已通过 Node 22.13 / 24 单测和 npm pack，以及 SDK 兼容性任务。
-- npm / 公开 GitHub / 社交发布：按用户要求暂不执行。
+- 该轮历史验收未执行 npm / 公开 GitHub / 社交发布；本次新增的 GitHub 公开与 npm 发布授权单独执行和验收。
 
 ## 不能混同的边界
 

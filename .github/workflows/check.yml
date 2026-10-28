@@ -19,6 +19,8 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run check
       - run: npm pack --dry-run
+      - run: npm run pack:local
+      - run: npm run publish:npm -- --dry-run
   sdk-compatibility:
     runs-on: ubuntu-latest
     steps:

@@ -11,7 +11,7 @@ Offline unit tests and fixture conversions do not require a Cursor account or ne
 
 ## Project Naming
 
-Use `agent2cursor` for the package, executable, generated-code notices, demo names, and repository links. The package is private and unpublished; the old executable name is not installed as an alias. Demo workspace snapshots use `.agent2cursor/pr-review.json`, disabled script stubs return `AGENT2CURSOR_STUB_DISABLED`, and the optional merge gate uses `AGENT2CURSOR_ALLOW_MERGE` (disabled by default).
+The public npm package is `@kyun.si/agent2cursor`. Use `agent2cursor` for the executable, generated-code notices, demo names, and repository links. The source workspace keeps `private: true`; the consumer archive omits it. The old executable name is not installed as an alias. Demo workspace snapshots use `.agent2cursor/pr-review.json`, disabled script stubs return `AGENT2CURSOR_STUB_DISABLED`, and the optional merge gate uses `AGENT2CURSOR_ALLOW_MERGE` (disabled by default).
 
 Historical evaluation reports and hash-bound evidence retain the names and paths used by those runs. Do not rewrite them to imply the current sources were evaluated.
 
@@ -57,6 +57,21 @@ node scripts/build-demos.mjs
 ```
 
 After regenerating demos, run `npm run check` to verify that provenance hashes, license files (`LICENSE-tstack`), and channel/snapshot templates remain in sync.
+
+## npm Release
+
+The public GitHub repository and the npm registry are separate destinations. Keep the source workspace private to npm with `private: true`. `pack:local` builds a clean consumer archive named `kyun.si-agent2cursor-<version>.tgz` under `.validation/npm-release/`, with the scoped package name, public access, the official registry, and the source Git revision. The archive contains the explicit `files` allowlist and omits development dependencies and lifecycle scripts.
+
+```bash
+npm run check
+npm run pack:local
+npm run publish:npm -- --dry-run
+npm run publish:npm
+```
+
+Before the real publish, install the archive into an independent consumer and verify the actual `agent2cursor` executable, conversion, demos, and doctor. `publish:npm` verifies the recorded source hashes, Git revision, archive size and SHA-256, and publishes that same archive without repacking. Any changed input requires rebuilding and rechecking. Login and two-factor authentication stay in npm's own flow; no credentials belong in source or evidence.
+
+After publication, read the registry metadata and download its tarball anonymously. Verify SHA-256 and registry integrity against the candidate, then install `@kyun.si/agent2cursor@<version>` from the public registry into a clean consumer and repeat the CLI checks. Record the public metadata and verification results in `npm-publication.json`. Do not claim publication before this readback succeeds.
 
 ## Evaluation Evidence
 

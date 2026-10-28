@@ -18,7 +18,18 @@ source fields + routing checks  → MIGRATION.zh-CN.md (or .en.md) + evals/*.eva
 
 ## Quickstart
 
-`agent2cursor` (`0.1.0`, `"private": true` in [`package.json`](package.json)) has not been published to npm yet—do not run `npx agent2cursor`. Build from this checkout and run against the included [`fixtures/`](fixtures/claude) directory:
+The npm package name is **`@kyun.si/agent2cursor`**; the executable is **`agent2cursor`**:
+
+```bash
+npx --yes @kyun.si/agent2cursor@0.1.0 --help
+npm install --global @kyun.si/agent2cursor@0.1.0
+agent2cursor inspect .claude/agents
+agent2cursor convert .claude/agents --out ./my-agent
+```
+
+Pass paths that exist on your machine. Codex inputs can use `.codex/agents` and `.agents/skills`; Claude and Codex inputs can also be combined. Conversion is local and does not require a Cursor account.
+
+To try the included [`fixtures/`](fixtures/claude) instead, build from a source checkout:
 
 ```bash
 npm ci --ignore-scripts
@@ -46,7 +57,7 @@ To install the SDK inside the generated project and run structural checks from t
 node dist/cli.js doctor --dir /tmp/my-agent
 ```
 
-If you want a global `agent2cursor` command locally before npm publication, run `npm pack && npm install --global ./agent2cursor-0.1.0.tgz`.
+Maintainers build the public archive with `npm run pack:local` and publish that exact verified archive with `npm run publish:npm`; see [CONTRIBUTING.md](CONTRIBUTING.md#npm-release). The source workspace keeps `private: true`; the public archive omits that field.
 
 - **SDK package name:** [Official Cursor Agent SDK docs](https://cursor.com/docs/agent-sdk) specify **`@grok/agent-sdk`** (formerly `@cursor/bdk`). Do not substitute `@cursor/agent-sdk` from older blog posts; see [upstream verification](docs/upstream-verification.md). Generated `package.json` pins `@grok/agent-sdk` to `0.3.0` and declares `zod` `^3.25.0`.
 - **Account requirements by step:**
@@ -181,7 +192,7 @@ The [independent evaluation](evaluation/README.md) covers the corrected converte
 | Independent conversion and routing evaluation | **PASS** (bounded dataset) | 24/24 normal conversions and post-install validations; revised generated routing evals passed 41/41 across 30 projects. Three real tasks, each repeated three times, matched direct-copy/plugin baselines. [Counts and source hashes](docs/evidence/independent-evaluation.json) |
 | Live model runs | **PASS** (narrow cases) | Official `agent-sdk login` succeeded. `migration-smoke` passed (**1 case / 2 assertions**: `succeeded`, `loadedSkill`). `pr-review` council inline diff passed (**1 case / 9 assertions**, same model / 3 perspectives). `full-send` local `run` loaded the skill with 1 read call and 0 writes/execs/merges |
 | GitHub PR replay | **PASS** (local replay) | [Private test PR #1](https://github.com/mreasonyang/agent2cursor/pull/1) passed via HMAC-signed **local replay** (bounded snapshot + 3 reviewer delegates + Chinese table; 0 tool errors, 0 writes/execs, 0 GitHub comments/reactions/reviews; PR closed unmerged). Not a live hosted webhook delivery |
-| Cloud hosting & npm release | **Not run / On hold** | `agent-sdk deploy --dry-run` stopped because the test account has no default team configured; no hosted deployment or URL exists. The repository is private, the package has `private: true`, and npm release is on hold |
+| Cloud hosting | **Not run / On hold** | `agent-sdk deploy --dry-run` stopped because the test account has no default team configured; no hosted deployment or URL exists |
 
 These checks do not prove average model quality, multi-provider routing, or child-agent tool isolation. Full records: [acceptance results](docs/acceptance.md) · [upstream verification](docs/upstream-verification.md) · [sanitized online evidence](docs/evidence/online-2026-10-27.json) · [official example provenance](docs/official-examples.provenance.json).
 
