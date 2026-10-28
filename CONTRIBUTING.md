@@ -60,7 +60,7 @@ The maintained demo projects live only in `demos/`. Create personal deployment c
 
 ## Repository Rules and Safety Invariants
 
-1. **Account for every frontmatter field.** Every input frontmatter field path must appear in `MIGRATION.zh-CN.md` / `MIGRATION.en.md` as `mapped`, `degraded`, or `dropped`.
+1. **Account for every source field.** Every YAML frontmatter, Codex agent TOML, and `agents/openai.yaml` field path must appear in `MIGRATION.zh-CN.md` / `MIGRATION.en.md` as `mapped`, `degraded`, or `dropped`.
 2. **Never silently expand permissions.** Do not claim a root `tools` allowlist isolates `task` subagents, and never describe an agent with `shell` enabled as read-only.
 3. **Keep script tools disabled by default.** Source scripts under `skills/*/scripts/*` are copied without execution bits, and generated `bot/tools/*.ts` wrappers must remain disabled stubs (`CC_TO_CURSOR_AGENT_STUB_DISABLED`) until an operator implements a typed JSON stdin/stdout contract.
 4. **Safe filesystem handling.** Conversion must never execute source scripts, overwrite existing output directories, traverse symlinks, or read/copy credential files (`.env`, `.npmrc`, private keys, or sensitive YAML keys).

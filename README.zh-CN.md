@@ -1,18 +1,19 @@
 # cc-to-cursor-agent
 
-把已写好的 Claude Code 子代理（subagents）与 Agent Skills 整理成可编辑的 [Cursor Agent SDK](https://cursor.com/docs/agent-sdk)（`@grok/agent-sdk`）TypeScript 项目，同时生成路由评测（eval）骨架和逐字段迁移报告。
+把已写好的 Claude Code / Codex 子代理（subagents）与 Agent Skills 整理成可编辑的 [Cursor Agent SDK](https://cursor.com/docs/agent-sdk)（`@grok/agent-sdk`）TypeScript 项目，同时生成路由评测（eval）骨架和逐字段迁移报告。
 
 [English](README.md) · **0.1.0** · [MIT 许可证](LICENSE) · Node **>=22.13** · 适配 **`@grok/agent-sdk@0.3.0`**
 
 ![将 Claude 子代理与 Skills 转换为 Agent SDK 项目并生成逐字段迁移报告](docs/assets/cc-to-cursor-agent-demo.gif)
 
-如果你手里已经有写好的 `.claude/agents/*.md` 子代理工作说明与 YAML 配置，或存放在目录中的 `SKILL.md` 技能文件（包括 [t3dotgg/tstack](https://github.com/t3dotgg/tstack) 这类工作流），`cc-to-cursor-agent` 可以把这些散装资产整理成独立的 Cursor Agent SDK 项目。它产出可编辑源码、逐个 frontmatter 字段的去向报告和初始路由 eval——**不会**迁移底层模型本身或聊天历史，也**不会**自动保证运行时行为或子代理权限边界与 Claude Code 等价。
+如果你手里已经有写好的 `.claude/agents/*.md` 或 `.codex/agents/*.toml` 子代理，或存放在目录中的 `SKILL.md` 技能文件（包括 [t3dotgg/tstack](https://github.com/t3dotgg/tstack) 这类工作流），`cc-to-cursor-agent` 可以把这些散装资产整理成独立的 Cursor Agent SDK 项目。它产出可编辑源码、逐字段去向报告和初始路由 eval——**不会**迁移底层模型本身或聊天历史，也**不会**自动保证运行时行为或子代理权限边界与源平台等价。
 
 ```text
 .claude/agents/code-reviewer.md → bot/subagents/code-reviewer/{agent.ts,instructions.md}
+.codex/agents/reviewer.toml     → bot/subagents/<name>/{agent.ts,instructions.md}
 skills/<name>/SKILL.md          → bot/skills/<name>/SKILL.md
 skills/*/scripts/*              → bot/tools/*.ts（默认禁用的 JSON 适配存根）
-frontmatter + 路由检查           → MIGRATION.zh-CN.md（或 .en.md）+ evals/*.eval.ts
+源配置字段 + 路由检查             → MIGRATION.zh-CN.md（或 .en.md）+ evals/*.eval.ts
 ```
 
 ## 快速试用
@@ -36,7 +37,7 @@ cc-to-cursor-agent v0.1.0 → @grok/agent-sdk 0.3.0
 ...
 ```
 
-在这组内置样本输入下（4 个子代理、5 个 skill 含 4 个 `tstack` 依赖、1 个脚本存根），`cc-to-cursor-agent` 会生成 **28 个文件**，并在 `/tmp/my-agent/MIGRATION.zh-CN.md` 记录 **42 项迁移提醒**。具体文件数、提醒数与 `自检`（`Validation`）状态会随输入资产、参数及已安装依赖而变化（在 `/tmp/my-agent` 安装依赖前显示 `dependencies-missing` 属正常现象）。
+在这组内置样本输入下（4 个子代理、5 个 skill 含 4 个 `tstack` 依赖、1 个脚本存根），`cc-to-cursor-agent` 会生成 **28 个文件**，并在 `/tmp/my-agent/MIGRATION.zh-CN.md` 逐项记录迁移提醒。具体提醒数与 `自检`（`Validation`）状态会随输入资产、参数及已安装依赖而变化（在 `/tmp/my-agent` 安装依赖前显示 `dependencies-missing` 属正常现象）。
 
 保持当前仓库目录不变，直接为生成项目安装依赖并运行结构校验与 `doctor`：
 
@@ -55,6 +56,30 @@ node dist/cli.js doctor --dir /tmp/my-agent
 
 `convert` / `demo` 在工程已写出、但缺少声明的 SDK 或 `zod` 依赖时退出 0，`validation.status` 为 `dependencies-missing`，并列出缺失包名；这时尚未执行校验。安装依赖后运行 `cc-to-cursor-agent doctor --dir <project>`，`doctor` 在校验通过前仍返回非零。真实校验错误仍使转换退出 1；转换器不会自动安装依赖。
 
+## 转换 Codex 资产
+
+完成本地构建后，可以传入项目或个人子代理目录、单个 TOML 文件，以及 skill 目录；也可以与 Claude 输入一起转换：
+
+```bash
+node dist/cli.js inspect .codex/agents .agents/skills
+node dist/cli.js convert .codex/agents .agents/skills --out ./my-codex-agent
+# 仓库内的合成示例，无需安装 Codex 或登录账号
+node dist/cli.js convert fixtures/codex/project --out /tmp/codex-example
+```
+
+只传实际存在的路径，子代理和 skill 可以单独转换。个人独立子代理目录 `~/.codex/agents` 也支持。传入项目根目录时会发现这些子代理树和 skill 目录，无关 TOML 文件不会被当作子代理。
+
+| Codex 输入 | 转换方式 |
+| --- | --- |
+| 独立 TOML 的 `name`、`description`、`developer_instructions` | 必须是非空字符串；分别生成子代理 ID、委派描述和解析后的指令文本。格式不合要求时明确报错。 |
+| `model` | 默认省略，继承目标父代理模型；支持 `--model-map 源ID=目标ID` 与 `--keep-model`，校验不证明模型可调用。 |
+| `model_reasoning_effort`、`model_reasoning_summary`、`model_verbosity` | 逐字段标为丢弃；模型 ID 映射不包含这些参数。 |
+| `features.*`、`skills.*` | 逐字段标为降级，子代理能力与 skill 限制未生效；不会读取其中引用的 skill 路径。 |
+| sandbox、approval、provider、MCP 等父会话配置 | 不导入；这些字段在 Codex 独立子代理中也不能覆盖父会话。需人工设置目标运行环境。 |
+| `agents/openai.yaml` | 文件原样保留；有效的 `interface.default_prompt` 用于 eval。UI、调用策略、工具依赖及未知字段逐项说明，调用限制不生效，MCP 不自动连接。 |
+
+当前支持的是 **Codex 独立 TOML 子代理 → Cursor Agent SDK**。不转换整个会话，也不输出 Codex 配置；父级 `config.toml`、`AGENTS.md`、凭证和旧式 `[agents.<name>] config_file` 声明不会导入。继承的指令、工具与 skills 需要另行审核。Codex 专用工具名会给出迁移提示，不自动改写原文。见 [Codex 样例](fixtures/codex) 与[核实范围](docs/upstream-verification.md#codex-input-adapter-2026-10-28)。
+
 ## 适用场景与官方方案对比
 
 `@grok/agent-sdk` 已原生支持直接加载 `SKILL.md` 和挂载插件，可按手头资产选择最简方案：
@@ -64,7 +89,7 @@ node dist/cli.js doctor --dir /tmp/my-agent
 | 直接复制 `SKILL.md` | 只有现成兼容的 `SKILL.md` 目录，不需要转换子代理、脚本存根或生成逐字段迁移报告 |
 | SDK `cursorPlugin()` | 已有带清单（manifest）的 Cursor / Claude 插件，只需运行时挂载 |
 | `agent-sdk init --from automation:` / `migrate` | 从 Cursor Automation 迁移，或升级旧版 SDK 项目 |
-| **`cc-to-cursor-agent`** | 手头有散装 `.claude/agents/*.md`、多技能目录或 `tstack` 工作流，希望导出为可编辑的 SDK 源码、获得逐字段损失清单、异构工具警告、禁用脚本存根与路由 eval 骨架 |
+| **`cc-to-cursor-agent`** | 手头有散装 Claude `.md` / Codex `.toml` 子代理、多技能目录或 `tstack` 工作流，希望导出为可编辑的 SDK 源码、获得逐字段损失清单、异构工具警告、禁用脚本存根与路由 eval 骨架 |
 
 ## 转换前后实例与字段去向（`code-reviewer`）
 
@@ -108,7 +133,7 @@ export default defineAgent({
 | 子代理 `skills` | `bot/instructions.md` + `instructions.md` | `⚠️ 降级` | 生成共享 skill 加载提示（无原生子代理独立预加载机制） |
 | `permissionMode`、`hooks`、`mcpServers`、`memory` 及未知代理字段 | `MIGRATION.*.md` + `TODO(cc-to-cursor-agent)` | `❌ 丢弃` | 目标 SDK 无已核实的等价字段，在报告中列出供人工补齐 |
 | `SKILL.md` 及附属文件 | `bot/skills/<id>/**` | `✅ 已映射` / `⚠️ 降级` | 保留正文、附属文件与额外 frontmatter（`license`、`metadata.*`）；`name`/`description` 被规范化或缺失时标为 `⚠️`，`allowed-tools` 标为 `⚠️` |
-| `skills/*/agents/openai.yaml` | `evals/skills.eval.ts` | `✅ 已映射` / `⚠️ 降级` | 存在有效 `interface.default_prompt` 时用作 eval 触发词（`✅`），否则回退为默认触发词（`⚠️`） |
+| `skills/*/agents/openai.yaml` | 原样元数据文件 + `evals/skills.eval.ts` | `✅ 已映射` / `⚠️ 降级` | 有效 `interface.default_prompt` 用作 eval 触发词；UI、调用策略、工具依赖及未知字段逐项报告，仅保留元数据不代表 SDK 支持其运行时语义 |
 | `skills/*/scripts/*` | `bot/skills/<id>/scripts/*` + `bot/tools/<script>.ts` | `⚠️ 降级` | 复制脚本内容（去除可执行位），并在 `bot/tools/` 生成默认禁用的 `execution: "agent"` 存根（`CC_TO_CURSOR_AGENT_STUB_DISABLED`） |
 
 </details>
@@ -117,7 +142,7 @@ export default defineAgent({
 
 | 命令或参数 | 说明 |
 | --- | --- |
-| `convert <input...>` | 将子代理 `.md`、`.claude/agents/` 目录、skill 目录或 `tstack` 仓库转换为新的 SDK 项目 |
+| `convert <input...>` | 将 Claude `.md` / Codex 独立 `.toml`、`.claude/agents/` / `.codex/agents/`、skill 目录或 `tstack` 仓库转换为新的 SDK 项目 |
 | `inspect <input...>` | 仅输出迁移报告（或 `--json` 摘要），不写入任何文件 |
 | `demo <full-send\|pr-review>` | 导出内置的两个 `tstack` 改编示例项目（支持 `--out <dir>`、`--json`、`--no-validate`） |
 | `doctor [--dir <project>]` | 检查 Node `>=22.13` 并调用 `agent-sdk validate` 输出脱敏诊断摘要 |
@@ -146,7 +171,7 @@ export default defineAgent({
 - **工具名扫描范围：** 固定名单区分大小写检测正文和附属 Markdown 中的 `WebFetch`、`WebSearch`、`AskUserQuestion`、`request_user_input`、`delegate_task`、`orchestrator_capabilities`、`watch_pull_request`、`unwatch_pull_request`、`Monitor`。命中可能来自禁止调用的说明；未命中不代表工具兼容，不改写源提示词。
 - **根代理工具白名单不等于子代理隔离：** `--root-tools` 仅约束根代理。`@grok/agent-sdk@0.3.0` 的 `task` 子代理仍保有 harness 自身的 `task` 工具集，不能把根白名单当作子代理只读的证明；同时任何启用 `shell` 的配置都能写文件和执行任意命令，绝非只读。
 - **脚本工具默认是禁用存根：** 转换过程绝不执行输入脚本。生成的 `bot/tools/*.ts` 固定返回 `CC_TO_CURSOR_AGENT_STUB_DISABLED`，需操作员审查 `.cursor/skills/<id>/scripts/*` 中的原脚本、实现 JSON stdin/stdout 契约并开启 `shell` 后才能启用。
-- **输入与输出防护范围：** 转换器拒绝覆盖已有输出目录、拒绝符号链接、限制单次生成体积上限为 128 MiB，跳过或拒绝已知凭据路径（`.env`、`.npmrc`、私钥文件），并拒绝敏感 YAML frontmatter 键名（`token`、`apiKey`、`secret`）且不回显源值；它不会对任意正文段落或二进制附件做全量秘密扫描。
+- **输入与输出防护范围：** 转换器拒绝覆盖已有输出目录、拒绝符号链接、限制单次生成体积上限为 128 MiB，跳过或拒绝已知凭据路径（`.env`、`.npmrc`、私钥文件），并拒绝敏感 YAML/TOML 键名（`token`、`apiKey`、`secret`），解析错误不回显源值；它不会对任意正文段落或二进制附件做全量秘密扫描。
 
 **当前验收状态摘要（各证据层级严格区分）：**
 

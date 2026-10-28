@@ -3,10 +3,13 @@ import os from "node:os";
 import { lstat, readdir } from "node:fs/promises";
 import type { ConvertOptions, MigrationIR, SkillAsset } from "../ir.js";
 import { mapSubagent } from "../mapping/subagent.js";
+import { mapCodexAgent } from "../mapping/codex-agent.js";
+import { mapCodexSkillMetadata } from "../mapping/codex-skill.js";
 import { mapSkill } from "../mapping/skill.js";
 import { scriptName } from "../mapping/names.js";
 import { scanForeignTools } from "../mapping/foreign-tools.js";
 import { parseMarkdown, parseYamlMapping } from "./frontmatter.js";
+import { parseCodexAgent } from "./codex.js";
 import { assertSafePath, isSensitiveName, listSafeFiles, MAX_FILES, readSafeText, SKIP_DIRECTORIES } from "./safety.js";
 import { dependencyInfo } from "./tstack.js";
 
@@ -34,10 +37,13 @@ export async function scanInputs(inputs: string[], options: ConvertOptions): Pro
     ir.findings.push({ source: file, field: "$files", status: "dropped", message: "已跳过生成文件、依赖、缓存、版本管理或敏感路径，未读取其内容。", messageEn: reason });
   }
 
-  async function addAgent(file: string): Promise<void> {
+  async function addAgent(file: string, format: "claude" | "codex"): Promise<void> {
     const source = await assertSafePath(file);
     if (seen.has(source)) return;
-    const asset = mapSubagent(source, parseMarkdown(await readSafeText(source), source), options);
+    const text = await readSafeText(source);
+    const asset = format === "codex"
+      ? mapCodexAgent(source, parseCodexAgent(text, source), options)
+      : mapSubagent(source, parseMarkdown(text, source), options);
     claim("agent", asset.id, source);
     seen.set(source, "agent");
     ir.agents.push(asset);
@@ -66,12 +72,10 @@ export async function scanInputs(inputs: string[], options: ConvertOptions): Pro
       }
       if (relativePath === "agents/openai.yaml") {
         const metadata = parseYamlMapping(await readSafeText(file), file);
-        const interfaceValue = metadata.interface;
-        if (interfaceValue && typeof interfaceValue === "object" && !Array.isArray(interfaceValue)) {
-          const trigger = (interfaceValue as Record<string, unknown>).default_prompt;
-          if (typeof trigger === "string" && trigger.trim()) asset.trigger = trigger;
-        }
-        ir.findings.push({ source: file, field: "interface.default_prompt", status: asset.trigger ? "mapped" : "degraded", target: "evals/skills.eval.ts", message: asset.trigger ? "已用 Codex default_prompt 生成 eval 触发语；其他元数据原样保留。" : "未发现有效 default_prompt，将使用生成的 eval 触发语。", messageEn: asset.trigger ? "Used Codex default_prompt as the eval trigger; other metadata preserved." : "No valid default_prompt found; using a generated eval trigger." });
+        const mapped = mapCodexSkillMetadata(file, metadata, asset.id);
+        asset.trigger = mapped.trigger;
+        asset.findings.push(...mapped.findings);
+        ir.findings.push(...mapped.findings);
       }
       if (/\.md$/i.test(file)) ir.findings.push(...scanForeignTools(await readSafeText(file), file));
       ir.findings.push({ source: file, field: "$file", status: "mapped", target: `bot/skills/${asset.id}/${relativePath}`, message: "附属文件原样保留；保留文件不代表自动赋予工具能力。", messageEn: "Supporting file preserved unchanged; copying does not make it a callable tool." });
@@ -79,33 +83,46 @@ export async function scanInputs(inputs: string[], options: ConvertOptions): Pro
     return asset;
   }
 
-  async function discover(file: string, inAgentTree: boolean, explicit: boolean, depth: number): Promise<void> {
+  type AgentTree = "claude" | "codex" | "mixed" | undefined;
+  async function discover(file: string, inAgentTree: AgentTree, explicit: boolean, depth: number): Promise<void> {
     if (depth > 32) throw new Error(`Input nesting exceeds 32 directories: ${file}`);
     const absolute = await assertSafePath(file);
     const stat = await lstat(absolute);
     if (stat.isFile()) {
       if (path.basename(absolute) === "SKILL.md") await addSkill(path.dirname(absolute));
-      else if (/\.md$/i.test(absolute) && (explicit || inAgentTree)) await addAgent(absolute);
-      else if (explicit) throw new Error(`Expected a Markdown agent file or a skill directory: ${absolute}`);
+      else if (/\.md$/i.test(absolute) && (explicit || (inAgentTree && inAgentTree !== "codex"))) await addAgent(absolute, "claude");
+      else if (/\.toml$/i.test(absolute) && (explicit || (inAgentTree && inAgentTree !== "claude"))) {
+        if (path.basename(absolute) === "config.toml" && path.basename(path.dirname(absolute)) === ".codex") throw new Error(`Session config.toml is not supported; pass standalone Codex agent TOML files with name, description, and developer_instructions: ${absolute}`);
+        await addAgent(absolute, "codex");
+      } else if (explicit) throw new Error(`Expected a Markdown agent, standalone Codex TOML agent, or a skill directory: ${absolute}`);
       return;
     }
     if (!stat.isDirectory()) throw new Error(`Special files are not permitted: ${absolute}`);
     if (visitedDirectories.has(absolute)) return;
     visitedDirectories.add(absolute);
     if (await exists(path.join(absolute, "SKILL.md"))) { await addSkill(absolute); return; }
-    const agentTree = inAgentTree || path.basename(absolute) === "agents";
+    const parent = path.basename(path.dirname(absolute));
+    const agentTree: AgentTree = path.basename(absolute) === "agents"
+      ? parent === ".codex" ? "codex" : parent === ".claude" ? "claude" : inAgentTree ?? "mixed"
+      : inAgentTree;
     for (const entry of (await readdir(absolute, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
       const child = path.join(absolute, entry.name);
       if (++visitedEntries > MAX_FILES) throw new Error(`Scan exceeds ${MAX_FILES} entries; select narrower inputs.`);
       if (entry.isSymbolicLink()) throw new Error(`Symbolic links are not permitted: ${child}`);
       if (isSensitiveName(entry.name)) { addSkipped(child, "Sensitive path omitted from project discovery without reading it."); continue; }
       if (entry.isDirectory() && SKIP_DIRECTORIES.has(entry.name)) { addSkipped(child, "Generated, dependency, cache, or version-control directory omitted."); continue; }
-      if (entry.isDirectory() || /\.md$/i.test(entry.name)) await discover(child, agentTree, false, depth + 1);
+      if (entry.name === "config.toml" && path.basename(absolute) === ".codex") {
+        ir.findings.push({ source: child, field: "$session-config", status: "dropped",
+          message: "未读取 Codex 父会话配置；仅支持独立子代理 TOML 和 skill 目录。旧式 agents.<name>.config_file 声明未解析。",
+          messageEn: "Codex parent-session configuration was not read. Only standalone agent TOML and skill directories are supported; legacy agents.<name>.config_file declarations are not resolved." });
+        continue;
+      }
+      if (entry.isDirectory() || /\.md$/i.test(entry.name) || (agentTree && agentTree !== "claude" && /\.toml$/i.test(entry.name))) await discover(child, agentTree, false, depth + 1);
       else if (!entry.isFile()) throw new Error(`Special files are not permitted: ${child}`);
     }
   }
 
-  for (const input of inputs) await discover(expandHome(input), false, true, 0);
+  for (const input of inputs) await discover(expandHome(input), undefined, true, 0);
   if (options.withDeps) {
     // The growing queue computes the transitive closure and seen sources break cycles.
     for (let index = 0; index < ir.skills.length; index++) {
@@ -120,7 +137,7 @@ export async function scanInputs(inputs: string[], options: ConvertOptions): Pro
       }
     }
   }
-  if (!ir.agents.length && !ir.skills.length) throw new Error("No Claude agents or SKILL.md directories found. Pass agent Markdown files explicitly or select .claude/agents.");
+  if (!ir.agents.length && !ir.skills.length) throw new Error("No Claude agents, Codex standalone agents, or SKILL.md directories found. Pass agent .md/.toml files explicitly or select .claude/agents or .codex/agents.");
   ir.agents.sort((a, b) => a.id.localeCompare(b.id));
   ir.skills.sort((a, b) => a.id.localeCompare(b.id));
   ir.scripts.sort((a, b) => a.id.localeCompare(b.id));

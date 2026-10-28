@@ -2,7 +2,7 @@ import { parseDocument } from "yaml";
 
 export interface ParsedMarkdown { frontmatter: Record<string, unknown>; body: string }
 
-function assertNoSensitiveKeys(value: unknown, file: string, prefix = "", depth = 0, budget = { fields: 0 }): void {
+export function assertNoSensitiveKeys(value: unknown, file: string, prefix = "", depth = 0, budget = { fields: 0 }): void {
   if (depth > 30) throw new Error(`Frontmatter nesting exceeds 30 levels: ${file}`);
   if (!value || typeof value !== "object") return;
   for (const [key, child] of Object.entries(value)) {

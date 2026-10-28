@@ -9,6 +9,7 @@ const root = path.resolve(".");
 const cli = path.join(root, "src/cli.ts");
 const agents = path.join(root, "fixtures/claude");
 const fullSend = path.join(root, "fixtures/tstack/skills/full-send");
+const codex = path.join(root, "fixtures/codex/project");
 
 async function temp(t: { after: (fn: () => Promise<void>) => void }): Promise<string> {
   const directory = await mkdtemp(path.join(await realpath(os.tmpdir()), "cc-to-cursor-agent-cli-"));
@@ -34,6 +35,51 @@ test("CLI dry-run plans real conversion without creating output", async (t) => {
   assert.ok(data.files.includes("MIGRATION.zh-CN.md"));
   assert.equal(data.validation.status, "skipped");
   await assert.rejects(lstat(out), { code: "ENOENT" });
+});
+
+test("CLI converts Codex TOML and skills with model mapping, complete reports and permission warnings", async (t) => {
+  const directory = await temp(t);
+  const out = path.join(directory, "codex-agent");
+  const flags = ["--lang", "en", "--model-map", "codex-source-model=target-model"];
+  const inspection = await run(["inspect", codex, ...flags, "--json"]);
+  assert.equal(inspection.code, 0, inspection.stderr);
+  const inspected = JSON.parse(inspection.stdout);
+  assert.deepEqual(inspected.counts, { agents: 2, skills: 1, dependencies: 0, scripts: 0 });
+  assert.match(inspected.permissionWarning, /Codex permission\/capability configuration/);
+  assert.match(inspected.permissionWarning, /invocation policy is not enforced/);
+  const dry = await run(["convert", codex, ...flags, "--out", out, "--dry-run", "--json"]);
+  assert.equal(dry.code, 0, dry.stderr);
+  await assert.rejects(lstat(out), { code: "ENOENT" });
+  const conversion = await run(["convert", codex, ...flags, "--out", out, "--no-validate", "--json"]);
+  assert.equal(conversion.code, 0, conversion.stderr);
+  assert.deepEqual(JSON.parse(conversion.stdout).findings, inspected.findings);
+  const agent = await readFile(path.join(out, "bot/subagents/codex-reviewer/agent.ts"), "utf8");
+  assert.match(agent, /model: "target-model"/);
+  assert.doesNotMatch(agent, /^\s*(?:features|skills|model_reasoning_effort):/m);
+  const report = await readFile(path.join(out, "MIGRATION.en.md"), "utf8");
+  assert.match(report, /developer_instructions/);
+  assert.match(report, /policy.allow_implicit_invocation/);
+  assert.match(report, /dependencies.tools.0.transport/);
+  const repeated = await run(["convert", codex, "--out", out, "--no-validate", "--json"]);
+  assert.equal(repeated.code, 1);
+  assert.match(JSON.parse(repeated.stderr).error, /already exists/);
+  const human = await run(["convert", codex, "--dry-run"]);
+  assert.equal(human.code, 0);
+  assert.match(human.stdout.split("\n")[0]!, /Codex 权限\/能力配置未迁移/);
+});
+
+test("CLI rejects invalid Codex TOML without leaking parser excerpts or creating output", async (t) => {
+  const directory = await temp(t);
+  const file = path.join(directory, "invalid.toml");
+  const out = path.join(directory, "not-written");
+  for (const text of ['name = ["SYNTHETIC_ONLY"', 'name = "test"\ndescription = "test"\ndeveloper_instructions = "test"\n[metadata]\napiKey = "SYNTHETIC_ONLY"']) {
+    await writeFile(file, text);
+    const result = await run(["convert", file, "--out", out, "--json"]);
+    assert.equal(result.code, 1);
+    assert.doesNotMatch(result.stdout + result.stderr, /SYNTHETIC_ONLY/);
+    assert.match(JSON.parse(result.stderr).error, /Invalid Codex agent TOML|Sensitive frontmatter field/);
+    await assert.rejects(lstat(out), { code: "ENOENT" });
+  }
 });
 
 test("CLI inspect JSON has complete findings and tstack dependency inventory", async () => {

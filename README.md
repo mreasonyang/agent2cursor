@@ -1,18 +1,19 @@
 # cc-to-cursor-agent
 
-Convert existing Claude Code subagents and Agent Skills into editable [Cursor Agent SDK](https://cursor.com/docs/agent-sdk) (`@grok/agent-sdk`) TypeScript projects, with routing eval scaffolds and a field-by-field migration report.
+Convert existing Claude Code and Codex subagents and Agent Skills into editable [Cursor Agent SDK](https://cursor.com/docs/agent-sdk) (`@grok/agent-sdk`) TypeScript projects, with routing eval scaffolds and a field-by-field migration report.
 
 [中文说明](README.zh-CN.md) · **0.1.0** · [MIT License](LICENSE) · Node **>=22.13** · Targets **`@grok/agent-sdk@0.3.0`**
 
 ![Converting Claude subagents and skills into an Agent SDK project with a field-by-field migration report](docs/assets/cc-to-cursor-agent-demo.gif)
 
-If you already wrote subagent prompts and YAML configs in `.claude/agents/*.md` or skill folders containing `SKILL.md` (including [t3dotgg/tstack](https://github.com/t3dotgg/tstack) workflows), `cc-to-cursor-agent` turns those loose files into a standalone Cursor Agent SDK project. It generates editable source files, a per-field migration report, and initial routing evals—it does **not** migrate underlying models or chat history, and it does **not** guarantee preserved runtime behavior or subagent permission boundaries.
+If you already wrote subagents in `.claude/agents/*.md` or `.codex/agents/*.toml`, or skill folders containing `SKILL.md` (including [t3dotgg/tstack](https://github.com/t3dotgg/tstack) workflows), `cc-to-cursor-agent` turns those loose files into a standalone Cursor Agent SDK project. It generates editable source files, a per-field migration report, and initial routing evals—it does **not** migrate underlying models or chat history, and it does **not** guarantee preserved runtime behavior or subagent permission boundaries.
 
 ```text
 .claude/agents/code-reviewer.md → bot/subagents/code-reviewer/{agent.ts,instructions.md}
+.codex/agents/reviewer.toml     → bot/subagents/<name>/{agent.ts,instructions.md}
 skills/<name>/SKILL.md          → bot/skills/<name>/SKILL.md
 skills/*/scripts/*              → bot/tools/*.ts (disabled JSON adapter stubs)
-frontmatter + routing checks    → MIGRATION.zh-CN.md (or .en.md) + evals/*.eval.ts
+source fields + routing checks  → MIGRATION.zh-CN.md (or .en.md) + evals/*.eval.ts
 ```
 
 ## Quickstart
@@ -36,7 +37,7 @@ Scanned: 4 agents, 5 skills, 1 script stubs
 ...
 ```
 
-On this fixture input (4 subagents, 5 skills including 4 `tstack` dependencies, and 1 script stub), `cc-to-cursor-agent` writes **28 files** and flags **42 migration concerns** in `/tmp/my-agent/MIGRATION.en.md`. Exact counts and `Validation` status depend on your inputs, flags, and installed dependencies (`dependencies-missing` is expected before installing dependencies in `/tmp/my-agent`).
+On this fixture input (4 subagents, 5 skills including 4 `tstack` dependencies, and 1 script stub), `cc-to-cursor-agent` writes **28 files** and lists migration concerns in `/tmp/my-agent/MIGRATION.en.md`. Exact concern counts and `Validation` status depend on your inputs, flags, and installed dependencies (`dependencies-missing` is expected before installing dependencies in `/tmp/my-agent`).
 
 To install the SDK inside the generated project and run structural checks from this checkout:
 
@@ -55,6 +56,30 @@ If you want a global `cc-to-cursor-agent` command locally before npm publication
 
 `convert` and `demo` exit 0 when files are written but declared SDK or `zod` dependencies are missing: `validation.status` is `dependencies-missing`, with the missing package names. Validation has not run. Install dependencies and run `cc-to-cursor-agent doctor --dir <project>`; `doctor` exits nonzero until validation passes. Actual validation errors still make conversion exit 1. Dependencies are never installed automatically.
 
+## Convert Codex assets
+
+After building the checkout, pass project or personal agent directories, a standalone TOML file, and/or skill directories. Claude and Codex inputs can be mixed in one conversion:
+
+```bash
+node dist/cli.js inspect .codex/agents .agents/skills --lang en
+node dist/cli.js convert .codex/agents .agents/skills --out ./my-codex-agent --lang en
+# Included synthetic example: no Codex installation or account required
+node dist/cli.js convert fixtures/codex/project --out /tmp/codex-example --lang en
+```
+
+Use only paths that exist; either input can be used alone. Personal standalone agents under `~/.codex/agents` are also accepted. A project root discovers these agent trees and skill folders, while unrelated TOML files are ignored.
+
+| Codex input | Conversion |
+| --- | --- |
+| Standalone `name`, `description`, `developer_instructions` | Required non-empty strings; generates subagent ID, delegation description, and the parsed instruction text. Invalid files fail explicitly. |
+| `model` | Inherits the target parent by default. Use `--model-map source-id=target-id` or `--keep-model`; availability is not established by validation. |
+| `model_reasoning_effort`, `model_reasoning_summary`, `model_verbosity` | Reported as dropped; model-ID mapping does not migrate these parameters. |
+| `features.*`, `skills.*` | Reported as degraded; per-agent capability and skill restrictions are not enforced. Referenced skill paths are not read. |
+| Parent settings, including sandbox, approval, provider, and MCP | Not imported. These do not override the parent in a standalone Codex agent either. Configure the target environment explicitly. |
+| `agents/openai.yaml` | Copied unchanged. A valid `interface.default_prompt` becomes an eval trigger; every UI, policy, dependency, and unknown field receives a migration entry. Invocation policy is not enforced and MCP dependencies are not connected. |
+
+This supports **standalone Codex TOML agents → Cursor Agent SDK**, not whole-session migration or output for Codex. Parent `config.toml`, `AGENTS.md`, credentials, and legacy `[agents.<name>] config_file` declarations are not imported. Inherited instructions, tools, and skills must be reviewed separately. Codex tool references receive suggestions without automatic prompt rewriting. See the [Codex fixtures](fixtures/codex) and [verified scope](docs/upstream-verification.md#codex-input-adapter-2026-10-28).
+
 ## When to Use cc-to-cursor-agent
 
 `@grok/agent-sdk` already supports native skills and plugins. Choose the lightest path that fits your assets:
@@ -64,7 +89,7 @@ If you want a global `cc-to-cursor-agent` command locally before npm publication
 | Copy `SKILL.md` directly | You only have compatible `SKILL.md` directories and do not need subagent conversion, script stubs, or a migration report |
 | SDK `cursorPlugin()` | You have a Cursor/Claude plugin manifest and runtime mounting is enough |
 | `agent-sdk init --from automation:` / `migrate` | You are migrating a Cursor Automation or upgrading an older SDK project |
-| **`cc-to-cursor-agent`** | You hold loose `.claude/agents/*.md` files, skill directories, or `tstack` workflows and want editable SDK source, field-by-field loss accounting, foreign-tool warnings, disabled script stubs, and routing eval scaffolds |
+| **`cc-to-cursor-agent`** | You hold loose Claude `.md` / Codex `.toml` agents, skill directories, or `tstack` workflows and want editable SDK source, field-by-field loss accounting, foreign-tool warnings, disabled script stubs, and routing eval scaffolds |
 
 ## What Gets Migrated (Example: `code-reviewer`)
 
@@ -108,7 +133,7 @@ export default defineAgent({
 | Subagent `skills` | `bot/instructions.md` + `instructions.md` | `⚠️ Degraded` | Emits shared-skill loading hints (no native per-subagent preloading) |
 | `permissionMode`, `hooks`, `mcpServers`, `memory`, unknown agent fields | `MIGRATION.*.md` + `TODO(cc-to-cursor-agent)` | `❌ Dropped` | No verified 1:1 SDK equivalent; documented in the report for manual implementation |
 | `SKILL.md` + supporting files | `bot/skills/<id>/**` | `✅ Mapped` / `⚠️ Degraded` | Keeps body, supporting files, and extra frontmatter (`license`, `metadata.*`); `name`/`description` degrade to `⚠️` if normalized/missing, and `allowed-tools` is marked `⚠️` |
-| `skills/*/agents/openai.yaml` | `evals/skills.eval.ts` | `✅ Mapped` / `⚠️ Degraded` | Uses `interface.default_prompt` as the skill eval trigger when valid (`✅`), or falls back to a generated trigger (`⚠️`) |
+| `skills/*/agents/openai.yaml` | Copied metadata + `evals/skills.eval.ts` | `✅ Mapped` / `⚠️ Degraded` | Valid `interface.default_prompt` becomes an eval trigger; UI, invocation policy, tool dependencies, and unknown fields are reported individually as metadata without SDK runtime semantics |
 | `skills/*/scripts/*` | `bot/skills/<id>/scripts/*` + `bot/tools/<script>.ts` | `⚠️ Degraded` | Copies script without executable bits and emits a disabled `execution: "agent"` stub (`CC_TO_CURSOR_AGENT_STUB_DISABLED`) |
 
 </details>
@@ -117,7 +142,7 @@ export default defineAgent({
 
 | Command or flag | Description |
 | --- | --- |
-| `convert <input...>` | Convert subagent `.md` files, `.claude/agents/` trees, skill directories, or a `tstack` repo into a new SDK project |
+| `convert <input...>` | Convert Claude `.md` / standalone Codex `.toml` files, `.claude/agents/` / `.codex/agents/` trees, skill directories, or a `tstack` repo into a new SDK project |
 | `inspect <input...>` | Print the migration report (or `--json` summary) without writing files |
 | `demo <full-send\|pr-review>` | Export one of the two adapted `tstack` demo projects (`--out <dir>`, `--json`, `--no-validate`) |
 | `doctor [--dir <project>]` | Check Node `>=22.13` and run `agent-sdk validate` with credential-safe diagnostic summaries |
@@ -146,7 +171,7 @@ The [independent evaluation](evaluation/README.md) covers the corrected converte
 - **Tool-name scan coverage:** a fixed, case-sensitive identifier list detects `WebFetch`, `WebSearch`, `AskUserQuestion`, `request_user_input`, `delegate_task`, `orchestrator_capabilities`, `watch_pull_request`, `unwatch_pull_request`, and `Monitor` in bodies and supporting Markdown. Matches may include instructions prohibiting a call; absence of a match does not establish compatibility. Source prompts are not rewritten.
 - **Root allowlists do not isolate subagents:** `--root-tools` restricts the root agent only. In `@grok/agent-sdk@0.3.0`, `task` subagents retain the harness `task` toolset. Never assume a root allowlist makes child agents read-only, and never treat `shell` as read-only (it can write files and run arbitrary commands).
 - **Script tools are disabled stubs:** conversion never executes source scripts. Generated `bot/tools/*.ts` wrappers return `CC_TO_CURSOR_AGENT_STUB_DISABLED` until an operator audits `.cursor/skills/<id>/scripts/*`, implements the JSON stdin/stdout contract, and enables `shell`.
-- **Scoped input/output guards:** conversion refuses to overwrite existing output directories, rejects symlinks, caps output at 128 MiB, skips or rejects known credential paths (`.env`, `.npmrc`, private key files), and rejects sensitive YAML frontmatter keys (`token`, `apiKey`, `secret`). It does not scan arbitrary prose or binary attachments for secrets.
+- **Scoped input/output guards:** conversion refuses to overwrite existing output directories, rejects symlinks, caps output at 128 MiB, skips or rejects known credential paths (`.env`, `.npmrc`, private key files), and rejects sensitive YAML/TOML keys (`token`, `apiKey`, `secret`). Parser diagnostics never echo source values. It does not scan arbitrary prose or binary attachments for secrets.
 
 **Verification summary (each evidence level is tracked separately):**
 

@@ -1,0 +1,133 @@
+{
+  "generatedAt": "2026-10-28T03:37:10.151Z",
+  "scope": "Codex standalone agent and skill metadata input adapter",
+  "sdkVersion": "0.3.0",
+  "nodeVersion": "26.11.0",
+  "unit": {
+    "command": "npm run check",
+    "exitCode": 0,
+    "tests": 72,
+    "passed": 72,
+    "failed": 0
+  },
+  "sdk": {
+    "command": "npm run test:sdk",
+    "exitCode": 0,
+    "localEvidence": ".validation/acceptance-xO3xs9/evidence.json",
+    "generatedTypesChecked": true,
+    "checks": [
+      {
+        "name": "claude",
+        "counts": {
+          "agents": 4,
+          "skills": 0,
+          "dependencies": 0,
+          "scripts": 0
+        },
+        "validationOk": true,
+        "evalsListed": 4,
+        "dependencyLifecycle": {
+          "before": "dependencies-missing",
+          "after": "passed"
+        }
+      },
+      {
+        "name": "codex",
+        "counts": {
+          "agents": 2,
+          "skills": 1,
+          "dependencies": 0,
+          "scripts": 0
+        },
+        "validationOk": true,
+        "evalsListed": 3,
+        "dependencyLifecycle": {
+          "before": "dependencies-missing",
+          "after": "passed"
+        }
+      },
+      {
+        "name": "tstack",
+        "counts": {
+          "agents": 0,
+          "skills": 9,
+          "dependencies": 0,
+          "scripts": 1
+        },
+        "validationOk": true,
+        "evalsListed": 9,
+        "dependencyLifecycle": {
+          "before": "dependencies-missing",
+          "after": "passed"
+        }
+      },
+      {
+        "name": "full-send",
+        "validationOk": true,
+        "evalsListed": 6,
+        "dependencyLifecycle": {
+          "before": "dependencies-missing",
+          "after": "passed"
+        }
+      },
+      {
+        "name": "pr-review",
+        "validationOk": true,
+        "evalsListed": 3,
+        "dependencyLifecycle": {
+          "before": "dependencies-missing",
+          "after": "passed"
+        }
+      }
+    ]
+  },
+  "liveModelRun": "not-run-for-codex-adapter",
+  "deployment": "not-run",
+  "npmPublication": "not-run",
+  "sources": [
+    "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+    "https://learn.chatgpt.com/docs/build-skills"
+  ],
+  "sourceSha256": {
+    "fixtures/codex/README.md": "c90ef61abb3c7ad93dee068cbbf558a8350d21aefa0502f07c2fdd2c2beb9095",
+    "fixtures/codex/project/.agents/skills/codex-check/SKILL.md": "533b033e9f9b9677af627213dd8c9e2b686a0e129c450263259f45008a36c5be",
+    "fixtures/codex/project/.agents/skills/codex-check/agents/openai.yaml": "847b903fb935e4f6c91991927ed3c8ed3acab02b003d205ae0c9561aac45a1b0",
+    "fixtures/codex/project/.codex/agents/nested/explore.toml": "2efc2f2ef5e94e763d2fddfcbaeb1fe88195fc1bb2c49e04891fe79372ba2481",
+    "fixtures/codex/project/.codex/agents/review.toml": "95d65549d95e1c6a256c97dc595f787ed9e031aec6212d97de816d5d7f35a96b",
+    "package-lock.json": "db32be7d884ccc36b5fb949ddd12e2a4b85e0579723305151b074a839e5c3155",
+    "package.json": "a3fb8f0b41d892a2d813fa872adfcc01c4465a4a2843e32a907b80a16d7e6ae5",
+    "scripts/verify-sdk.mjs": "cd4e8a11b02aee1f93851b0d20b6af6237a841ae6f7d55696a5401091bc9893c",
+    "src/cli.ts": "fd68f302879123127e5eebc616e05fc81f73981befffa9b39641c759fce6d8ff",
+    "src/emit/common.ts": "65ea38c9d1bde53a00322cb8c126ab068ab8b6ecf88c87fe285789f40403fbd8",
+    "src/emit/evals.ts": "f816d7a4eb4fc0df96b07387b4620ffcfe74228fd247ef01ed1acf193cb98be8",
+    "src/emit/project.ts": "2b0c5e69e680279035f7bcf04a2a7335369a3e4b7524c0355da66dce6be41ad9",
+    "src/emit/report.ts": "d2badc5b8d805df6516a98366ed711eb6c5963ba616a820f418a5b9a797584ca",
+    "src/emit/subagent.ts": "a720288988791494223b5c925db431276df32a32c2ab23dab0b6cde4b2f0d411",
+    "src/emit/tool-stub.ts": "658af680b0e8cc9d980997946ab9ed23f4900c2e7a3fdc715842e06c52557a38",
+    "src/emit/tstack-license.ts": "ee7deab226cfdd389f6b0baf979844467200b70330c5ac5a56371359d41385c3",
+    "src/ir.ts": "0a838d013c57f43f5cd3ca7554b10e535ea9e2aa41c13884e0c5e9693c0e449a",
+    "src/mapping/codex-agent.ts": "70b3c25e603521f185a826b376f688171eb263c17bf947dc7e423e80340f777f",
+    "src/mapping/codex-skill.ts": "d2e6802165bc080cabedef67dedba5ba285efe18b25ea0dd9769470ec4965934",
+    "src/mapping/foreign-tools.ts": "be04b4d4d09da74d95c4694732b117a0379e9fb419f0ef313c68511629c6b2d8",
+    "src/mapping/model.ts": "e1c2cbe312a6384067173c104353dc9fa11c7b7c0e8c9ab4236063bbdffbcf6a",
+    "src/mapping/names.ts": "2ee8277f7d551b8cd0c346774306f7ef1a43e432e03d6584d0f94c2bd4d5b54a",
+    "src/mapping/permissions.ts": "6de7236c1d761b8ca3e16302c39c560683f02ca695a9ebf16c38bd21bf68c59b",
+    "src/mapping/skill.ts": "fd26ef6d3c63036f11613db85fee5df6c89a22d2c243d7f5f2b8330dab699421",
+    "src/mapping/subagent.ts": "e7298d5e45942214a41a7dfaeda0c076ab6868fcd6c16c2cbe3556d4172e9326",
+    "src/mapping/tools-names.ts": "8482df39ee4d07481eba34ac808a26d40c7d57d2e60f2d890a656a40cbf791dd",
+    "src/scan/codex.ts": "df882c99de1d22907d3037a04703947af53437919e995d79584ee031084b237f",
+    "src/scan/frontmatter.ts": "a321ffa8c62ec203c971b3d71b521ef802ea027e80d821d91355c69fc195e2cd",
+    "src/scan/index.ts": "4140c5f61f58742ef0b5747123d79caca9e1a7907028b3af77682b020d7ca84f",
+    "src/scan/safety.ts": "66cf03302cb08803f2cfb5bf6c2e33056e6c456564c96e2fcafe8b6646de4b41",
+    "src/scan/tstack.ts": "bdb106747bd94ecc50016d11b92c898058c7ba492343a381aa0366754446b65f",
+    "src/validate.ts": "31ca5cfd6268a1fd50a2ce62ea10273b3be5768c2cfebe7bd94d0a8e1dad51ee",
+    "src/write.ts": "5d538ac5c88fa978f9029d0cc6f02c0c71888ced4e9e9bc2ec67ad6a3140273d",
+    "test/cli.test.ts": "eab80d9797831742b556d56e846fe9d6ad811f16263e09af0bbf2ea12fc9c626",
+    "test/codex.test.ts": "e1d85ba6297a58cd555a8975bb9123698851848abfdbf3d85f3a9e0ecb9f0e04",
+    "test/demo-snapshot.test.ts": "03e9a6ce0029fe26589911d036854ba017c095dd347e8767a193c58e28732925",
+    "test/demo.test.ts": "907446961216e53876b6773eb23b752ed726df8768ea5f7a026bb504c8be2c5a",
+    "test/emit.test.ts": "63541ca2a4f57df3fa227be5593c852ad30c9f5bdf17b17c0780b7b39c465b3a",
+    "test/scan.test.ts": "f852edbe996b2843351702bafae98abf32fb4f70c7044b26feffe6a7f7a8f132",
+    "test/write-validate.test.ts": "205df4d5ae74b2620dd37dcc63ef5225db7ffb2b2d1884fa5a8c4299f1aa6049"
+  }
+}

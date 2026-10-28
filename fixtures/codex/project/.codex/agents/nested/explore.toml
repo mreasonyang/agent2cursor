@@ -1,0 +1,17 @@
+name = "codex-explorer"
+description = "Explain the supplied source excerpt and identify missing context."
+developer_instructions = '''Explain the source excerpt provided by the user.
+Do not edit or execute anything. Cite the supplied symbols.
+If the workflow mentions exec_command, write_stdin, apply_patch, or update_plan, report the missing integration.
+'''
+
+# Deliberately included parent-only settings to exercise migration warnings.
+sandbox_mode = "read-only"
+approval_policy = "on-request"
+model_provider = "fixture-provider"
+
+[mcp_servers.fixture]
+url = "https://example.invalid/mcp"
+
+[custom]
+owner = "synthetic-fixture"

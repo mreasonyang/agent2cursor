@@ -12,7 +12,7 @@ import { permissionWarning } from "./mapping/permissions.js";
 import { updateProjectReport, writeProject } from "./write.js";
 
 const VERSION = "0.1.0";
-const program = new Command().name("cc-to-cursor-agent").description("Claude agents / Agent Skills → editable Agent SDK projects with migration reports").version(VERSION);
+const program = new Command().name("cc-to-cursor-agent").description("Claude / Codex agents / Agent Skills → editable Agent SDK projects with migration reports").version(VERSION);
 const legalTools = new Set(["read", "grep", "glob", "ls", "shell", "edit", "task", "delete"]);
 
 function options(raw: Record<string, unknown>): ConvertOptions {
@@ -20,7 +20,7 @@ function options(raw: Record<string, unknown>): ConvertOptions {
   for (const pair of String(raw.modelMap ?? "").split(",").filter(Boolean)) {
     const [from, ...parts] = pair.split("=");
     const to = parts.join("=").trim();
-    if (!from?.trim() || !to) throw new Error("--model-map expects sonnet=<id>,opus=<id>.");
+    if (!from?.trim() || !to) throw new Error("--model-map expects source-model=target-model pairs, separated by commas.");
     map[from.trim()] = to;
   }
   const rootTools = raw.rootTools === undefined ? undefined : String(raw.rootTools).split(",").map(x => x.trim()).filter(Boolean);
@@ -49,7 +49,7 @@ function summary(ir: MigrationIR, lang: Language, extra: Record<string, unknown>
     findings: ir.findings, ...extra };
 }
 
-common(program.command("convert").argument("<input...>", "Agent files, directories, skills, or tstack repository"))
+common(program.command("convert").argument("<input...>", "Claude .md / Codex .toml agents, directories, skills, or tstack repository"))
   .option("--out <dir>", "New output directory", "./my-agent")
   .option("--dry-run", "Build a complete plan without writing or validating")
   .option("--no-validate", "Skip installed SDK validation")
@@ -57,7 +57,7 @@ common(program.command("convert").argument("<input...>", "Agent files, directori
     const opts = options(raw);
     const out = resolve(raw.out);
     const ir = await scanInputs(inputs, opts);
-    if (!ir.agents.length && !ir.skills.length) throw new Error("No Claude agents or SKILL.md assets found.");
+    if (!ir.agents.length && !ir.skills.length) throw new Error("No Claude/Codex agents or SKILL.md assets found.");
     const initial: ValidationResult = { status: "skipped", command: "agent-sdk validate", message: raw.dryRun ? "Dry run: no files written and no validation executed." : "Validation not requested." };
     const plan = await planProject(ir, opts, initial);
     let validation = initial;

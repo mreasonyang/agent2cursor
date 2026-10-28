@@ -1,7 +1,7 @@
 {
   "name": "cc-to-cursor-agent",
   "version": "0.1.0",
-  "description": "Eject Claude agents and Agent Skills into editable Cursor Agent SDK projects, with explicit migration reports.",
+  "description": "Eject Claude and Codex agents and Agent Skills into editable Cursor Agent SDK projects, with explicit migration reports.",
   "type": "module",
   "bin": {
     "cc-to-cursor-agent": "dist/cli.js"
@@ -38,6 +38,7 @@
   "license": "MIT",
   "dependencies": {
     "commander": "^14.0.0",
+    "smol-toml": "^1.9.1",
     "yaml": "^2.8.1"
   },
   "devDependencies": {

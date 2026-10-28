@@ -32,6 +32,18 @@ The immutable [online evidence](evidence/online-2026-10-27.json) retains its ori
 
 The sanitized evidence files are local, ignored artifacts. They retain pass counts and assertion results, not raw model logs or credentials. The repository remains private, the root package has `private: true`, and npm, public and social releases remain on hold. See [acceptance results](acceptance.md) for the current delivery record.
 
+## Codex input adapter (2026-10-28)
+
+The adapter follows the current [standalone custom-agent schema](https://learn.chatgpt.com/docs/agent-configuration/subagents) and [skill metadata documentation](https://learn.chatgpt.com/docs/build-skills), fetched on 2026-10-28. This extends the input formats; the output remains `@grok/agent-sdk@0.3.0`.
+
+- Standalone `.codex/agents/*.toml` files declare `name`, `description`, and `developer_instructions`. The converter requires these strings, supports nested agent directories and explicitly selected loose files, and reuses existing subagent emission and model mapping.
+- The current Codex schema allows selected feature and skill restrictions. These are reported as unsupported target semantics, with a terminal/report warning; they are not converted into ineffective child tool allowlists or Claude preload hints. Model reasoning/summary/verbosity settings are reported as dropped.
+- Codex custom agents inherit sandbox, approval, provider, and MCP configuration from their parent. The converter does not read parent session config, credentials, `AGENTS.md`, or legacy `agents.<name>.config_file` declarations. Parent-only fields found inside a standalone file receive explicit explanations.
+- `agents/openai.yaml` has per-field reporting for UI, invocation policy, dependencies, and unknown fields. Only a valid `interface.default_prompt` receives a semantic mapping to the eval trigger. Copied metadata does not enforce explicit-only invocation or install MCP connections.
+- TOML parser errors suppress source excerpts. Required fields, file size, nesting, sensitive-key, symlink, collision, and no-overwrite protections are covered by synthetic tests. The adapter never executes source commands or follows referenced configuration paths.
+
+`npm run test:sdk` now includes two synthetic Codex subagents and one Codex skill, with separate dependency installation, SDK validation/discovery, generated TypeScript checking, and listing of three routing cases. Listing these cases is not a live model eval. Earlier Claude/tstack model evidence does not establish Codex execution equivalence. See [acceptance](acceptance.md) for the recorded run result.
+
 ## Findings that change the original brief
 
 1. A script cannot safely become a callable tool merely by copying it into a string. The upstream `pr-wait` speaks CLI arguments and event lines, while agent tools require JSON stdin/stdout. Generated stubs therefore remain disabled. The demo uses a separately authored read-only server `pr_wait` for one bounded GitHub snapshot, and retains the upstream script for audit.

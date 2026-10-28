@@ -12,6 +12,7 @@ export interface Finding {
 export interface AgentAsset {
   id: string;
   source: string;
+  sourceFormat?: "claude" | "codex";
   body: string;
   frontmatter: Record<string, unknown>;
   description: string;

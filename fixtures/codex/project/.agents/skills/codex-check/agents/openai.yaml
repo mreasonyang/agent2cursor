@@ -1,0 +1,13 @@
+interface:
+  display_name: "Codex Check"
+  short_description: "Summarize supplied changes"
+  default_prompt: "Use $codex-check to review this supplied one-line change: return 1 becomes return 2."
+policy:
+  allow_implicit_invocation: false
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "fixture-docs"
+      description: "Synthetic dependency; never connect during conversion"
+      transport: "streamable_http"
+      url: "https://example.invalid/mcp"

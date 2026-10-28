@@ -1,0 +1,28 @@
+name = "codex-reviewer"
+description = "Review the supplied diff for concrete defects and explain verification limits."
+model = "codex-source-model"
+model_reasoning_effort = "high"
+model_reasoning_summary = "concise"
+model_verbosity = "low"
+developer_instructions = """
+Review the supplied diff without editing files.
+If the task requires delegation, use spawn_agent and wait_agent, then close_agent.
+Use request_user_input for missing information. Do not invent tool results.
+"""
+
+[features]
+shell_tool = false
+apps = false
+plugins = false
+memories = false
+request_permissions_tool = false
+
+[skills]
+include_instructions = false
+
+[skills.bundled]
+enabled = false
+
+[[skills.config]]
+path = "/nonexistent-fixture/disabled/SKILL.md"
+enabled = false

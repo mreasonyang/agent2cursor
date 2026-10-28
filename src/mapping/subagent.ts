@@ -43,5 +43,5 @@ export function mapSubagent(source: string, parsed: ParsedMarkdown, options: Con
   if (!("name" in frontmatter)) findings.push({ source, field: "name", status: "degraded", target: `bot/subagents/${id}/`, message: "缺少 name，已从文件名生成 ID。", messageEn: "Missing name; generated the ID from the filename." });
   if (!("description" in frontmatter)) findings.push({ source, field: "description", status: "degraded", target: "agent.ts:description", message: "缺少 description，已生成占位描述；请补充委派时机。", messageEn: "Missing description; generated a placeholder. Add delegation triggers." });
   findings.push({ source, field: "$body", status: "mapped", target: `bot/subagents/${id}/instructions.md`, message: "正文原样迁移；工具和运行时引用需按下列提示复核。", messageEn: "Body preserved; review tool and runtime references below." }, ...scanForeignTools(body, source));
-  return { id, source, body, frontmatter, description, model, findings };
+  return { id, source, sourceFormat: "claude", body, frontmatter, description, model, findings };
 }

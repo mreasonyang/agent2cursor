@@ -24,6 +24,7 @@ function skillPreloadHints(ir: MigrationIR, options: ConvertOptions): { root: st
   const agents = new Map<string, string>();
   const rootLines: string[] = [];
   for (const agent of ir.agents) {
+    if (agent.sourceFormat === "codex") continue;
     const raw = agent.frontmatter.skills;
     if (raw === undefined) continue;
     if (!Array.isArray(raw) || !raw.every((item) => typeof item === "string" && !!item.trim())) {

@@ -52,7 +52,7 @@ async function typecheck(directory) {
   const result = spawnSync(join(root, "node_modules/.bin/tsc"), ["--noEmit", "--strict", "--skipLibCheck", "--target", "ES2022", "--module", "NodeNext", "--moduleResolution", "NodeNext", ...files], { cwd: root, encoding: "utf8", timeout: 60_000 });
   assert.equal(result.status, 0, `Generated TypeScript failed type checking (${directory}); diagnostics withheld.`);
 }
-for (const [name, source] of [["claude", "fixtures/claude"], ["tstack", "fixtures/tstack/skills"]]) {
+for (const [name, source] of [["claude", "fixtures/claude"], ["codex", "fixtures/codex/project"], ["tstack", "fixtures/tstack/skills"]]) {
   const out = join(projectRoot, name);
   const converted = command(process.execPath, [cli, "convert", source, "--with-deps", "--out", out, "--json"]);
   const dependencyLifecycle = await installAndCheck(out, converted);
@@ -68,6 +68,13 @@ for (const [name, source] of [["claude", "fixtures/claude"], ["tstack", "fixture
   if (name === "tstack") {
     assert.equal(info.agents[0].skills.length, 9);
     assert.ok(info.agents[0].tools.some(tool => tool.name === "pr_wait" && tool.execution === "agent"));
+  } else if (name === "codex") {
+    assert.equal(info.agents[0].subagents.length, 2);
+    assert.equal(info.agents[0].skills.length, 1);
+    assert.equal(evals.length, 3);
+    assert.match(converted.permissionWarning, /Codex/);
+    assert.ok(converted.findings.some(f => f.field === "features.shell_tool" && f.status === "degraded"));
+    assert.ok(converted.findings.some(f => f.field === "policy.allow_implicit_invocation" && f.status === "degraded"));
   } else assert.equal(info.agents[0].subagents.length, 4);
   // The only saved data comes from generated fixtures, not user credentials or runtime traces.
   evidence.checks.push({ name, dependencyLifecycle, counts: converted.counts, skills: converted.skills, agents: converted.agents,
