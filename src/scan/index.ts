@@ -101,10 +101,15 @@ export async function scanInputs(inputs: string[], options: ConvertOptions): Pro
     if (visitedDirectories.has(absolute)) return;
     visitedDirectories.add(absolute);
     if (await exists(path.join(absolute, "SKILL.md"))) { await addSkill(absolute); return; }
-    const parent = path.basename(path.dirname(absolute));
-    const agentTree: AgentTree = path.basename(absolute) === "agents"
-      ? parent === ".codex" ? "codex" : parent === ".claude" ? "claude" : inAgentTree ?? "mixed"
-      : inAgentTree;
+    // Also recognize a directly selected subdirectory such as .codex/agents/review/.
+    const ancestors = absolute.split(path.sep);
+    let agentTree: AgentTree = inAgentTree;
+    for (let index = ancestors.length - 1; index > 0; index--) {
+      if (ancestors[index] !== "agents") continue;
+      if (ancestors[index - 1] === ".codex") { agentTree = "codex"; break; }
+      if (ancestors[index - 1] === ".claude") { agentTree = "claude"; break; }
+      agentTree ??= "mixed";
+    }
     for (const entry of (await readdir(absolute, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
       const child = path.join(absolute, entry.name);
       if (++visitedEntries > MAX_FILES) throw new Error(`Scan exceeds ${MAX_FILES} entries; select narrower inputs.`);

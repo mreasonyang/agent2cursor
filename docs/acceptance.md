@@ -9,7 +9,7 @@
 | 项目 | 结果 | 证据边界 |
 | --- | --- | --- |
 | TypeScript 构建 | PASS | 本次本机 Node 26.11.0 与生成项目严格类型检查通过；历史私有 CI Node 22.13 / 24 已通过，当前提交 CI 见工作流 |
-| 自动测试 | PASS，72 项 | 2026-10-28 重跑 npm run check；新增 Codex TOML、混合输入、逐字段元数据、权限提示、敏感字段拒绝、解析错误不回显及打包前 CLI 回归 |
+| 自动测试 | PASS，73 项 | 2026-10-28 重跑 npm run check；新增 Codex TOML、混合输入、逐字段元数据、权限提示、敏感字段拒绝、解析错误不回显及打包前 CLI 回归 |
 | Codex 转换 | PASS，2 个子代理、1 个 skill | 合成 TOML 与 openai.yaml 样例；配置发现、类型检查与 SDK 结构校验通过，未跑真实模型 |
 | 四类 Claude 示例 | PASS，4 个子代理 | 独立编写的官方示例模式 fixture；不是官方示例逐字副本 |
 | 官方原始示例 | PASS，4 个子代理，零诊断 | 从官方 Markdown 下载并提取 code-reviewer/debugger/data-scientist/db-reader，在忽略目录转换；不把官方原文作为 fixture 再分发，哈希见 official-examples.provenance.json |
@@ -17,7 +17,7 @@
 | 依赖闭包 | PASS | 单独 full-send 输入生成 5 个 skill，含 4 个依赖 |
 | SDK 结构验证 | PASS | 5 类生成项目均零 error；full-send demo 有 1 条预期禁用脚本 warning |
 | Eval 发现 | PASS | Claude 4 条、Codex 3 条、tstack 9 条、full-send 6 条、pr-review 3 条；只表示发现，不表示模型执行通过 |
-| 干净 tarball 安装 | PASS | npm pack 后在独立 consumer 安装；真实 bin 的 convert、demo、doctor 均通过 SDK 自检 |
+| 干净 tarball 安装（既有验收） | PASS | npm pack 后在独立 consumer 安装；真实 bin 的 convert、demo、doctor 均通过 SDK 自检 |
 | 许可 | PASS | 固定 tstack 提交、逐文件哈希、完整 MIT；普通 tstack 转换也保留 LICENSE-tstack |
 
 可重现命令：
@@ -29,13 +29,13 @@ npm install --prefix .validation --ignore-scripts --no-audit --no-fund @grok/age
 npm run test:sdk
 ```
 
-本机最终结构和类型检查证据在忽略目录 `.validation/acceptance-xO3xs9/evidence.json`；生成工程位于仓库外的系统临时目录，分别安装自身依赖，不再借用 `.validation` 的依赖。不包含凭证或真实模型轨迹。官方原始示例的历史产物保留在旧验收目录下的 `.validation/official-converted/`。首轮 [GitHub CI](https://github.com/mreasonyang/cc-to-cursor-agent/actions/runs/40473284090) 已通过；最终提交状态以 [check 工作流](https://github.com/mreasonyang/cc-to-cursor-agent/actions/workflows/check.yml) 为准。
+本机最终结构和类型检查证据在忽略目录 `.validation/acceptance-JjGsx6/evidence.json`；生成工程位于仓库外的系统临时目录，分别安装自身依赖，不再借用 `.validation` 的依赖。不包含凭证或真实模型轨迹。官方原始示例的历史产物保留在旧验收目录下的 `.validation/official-converted/`。首轮 [GitHub CI](https://github.com/mreasonyang/cc-to-cursor-agent/actions/runs/40473284090) 已通过；最终提交状态以 [check 工作流](https://github.com/mreasonyang/cc-to-cursor-agent/actions/workflows/check.yml) 为准。
 
 ## Codex 适配验收（2026-10-28）
 
 支持独立 `.codex/agents/*.toml`、显式选择的 TOML 文件、Codex 通用 skill 及 `agents/openai.yaml`；输出仍是 Cursor Agent SDK。旧式角色注册和父会话配置不在本次转换范围。映射边界见 [上游核实](upstream-verification.md#codex-input-adapter-2026-10-28)，本次测试结果及源码哈希见 [Codex 证据](evidence/codex-adapter.json)。
 
-72 项本地测试和 5 类 SDK 工程集成检查通过；Codex 的 3 条路由 eval 仅完成发现，没有执行真实模型。此前 Claude/tstack 的在线运行记录不能作为 Codex 运行行为等价的证据。
+73 项本地测试和 5 类 SDK 工程集成检查通过；Codex 的 3 条路由 eval 仅完成发现，没有执行真实模型。此前 Claude/tstack 的在线运行记录不能作为 Codex 运行行为等价的证据。
 
 ## 独立评测问题修复
 

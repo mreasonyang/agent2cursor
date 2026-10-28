@@ -94,6 +94,14 @@ test("Codex and Claude inputs can be mixed; cross-format normalized name collisi
   await assert.rejects(scanInputs([reviewer, claude], options), /Name collision/);
 });
 
+test("directly selecting a nested Codex agent directory retains its format and selected scope", async () => {
+  const nested = path.join(fixture, ".codex/agents/nested");
+  const ir = await scanInputs([nested], options);
+  assert.deepEqual(ir.agents.map(a => a.id), ["codex-explorer"]);
+  assert.equal(ir.agents[0]!.sourceFormat, "codex");
+  assert.equal(ir.skills.length, 0);
+});
+
 test("TOML discovery ignores unrelated configs and Codex README files without reading session config", async (t) => {
   const dir = await temp(t);
   const file = await put(dir, ".codex/agents/check.toml", basic);

@@ -1,19 +1,19 @@
 {
-  "generatedAt": "2026-10-28T03:37:10.151Z",
+  "generatedAt": "2026-10-28T03:42:08.045Z",
   "scope": "Codex standalone agent and skill metadata input adapter",
   "sdkVersion": "0.3.0",
   "nodeVersion": "26.11.0",
   "unit": {
     "command": "npm run check",
     "exitCode": 0,
-    "tests": 72,
-    "passed": 72,
+    "tests": 73,
+    "passed": 73,
     "failed": 0
   },
   "sdk": {
     "command": "npm run test:sdk",
     "exitCode": 0,
-    "localEvidence": ".validation/acceptance-xO3xs9/evidence.json",
+    "localEvidence": ".validation/acceptance-JjGsx6/evidence.json",
     "generatedTypesChecked": true,
     "checks": [
       {
@@ -117,13 +117,13 @@
     "src/mapping/tools-names.ts": "8482df39ee4d07481eba34ac808a26d40c7d57d2e60f2d890a656a40cbf791dd",
     "src/scan/codex.ts": "df882c99de1d22907d3037a04703947af53437919e995d79584ee031084b237f",
     "src/scan/frontmatter.ts": "a321ffa8c62ec203c971b3d71b521ef802ea027e80d821d91355c69fc195e2cd",
-    "src/scan/index.ts": "4140c5f61f58742ef0b5747123d79caca9e1a7907028b3af77682b020d7ca84f",
+    "src/scan/index.ts": "15469af702c50314c8b0e33bafdf0778ac1bf32f279abb623733a843dd4ec82c",
     "src/scan/safety.ts": "66cf03302cb08803f2cfb5bf6c2e33056e6c456564c96e2fcafe8b6646de4b41",
     "src/scan/tstack.ts": "bdb106747bd94ecc50016d11b92c898058c7ba492343a381aa0366754446b65f",
     "src/validate.ts": "31ca5cfd6268a1fd50a2ce62ea10273b3be5768c2cfebe7bd94d0a8e1dad51ee",
     "src/write.ts": "5d538ac5c88fa978f9029d0cc6f02c0c71888ced4e9e9bc2ec67ad6a3140273d",
     "test/cli.test.ts": "eab80d9797831742b556d56e846fe9d6ad811f16263e09af0bbf2ea12fc9c626",
-    "test/codex.test.ts": "e1d85ba6297a58cd555a8975bb9123698851848abfdbf3d85f3a9e0ecb9f0e04",
+    "test/codex.test.ts": "7f43bf85b4df0a8eb806d4e82581903008d63dcad49c8eae82a9dfd2518ed328",
     "test/demo-snapshot.test.ts": "03e9a6ce0029fe26589911d036854ba017c095dd347e8767a193c58e28732925",
     "test/demo.test.ts": "907446961216e53876b6773eb23b752ed726df8768ea5f7a026bb504c8be2c5a",
     "test/emit.test.ts": "63541ca2a4f57df3fa227be5593c852ad30c9f5bdf17b17c0780b7b39c465b3a",
