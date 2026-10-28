@@ -45,6 +45,15 @@ for (const name of ["agent2cursor-demo.gif", "agent2cursor-demo-poster.png"]) {
   await copyFile(`${root}../docs/assets/${name}`, `${out}/assets/${name}`);
 }
 await copyFile(`${root}media/agent2cursor-demo.mp4`, `${out}/assets/agent2cursor-demo.mp4`);
+for (const locale of ['en', 'zh']) {
+  for (const extension of ['mp4', 'jpg']) {
+    const name = `agent2cursor-intro-${locale}.${extension}`;
+    const data = await readFile(`${root}media/${name}`);
+    const hashed = name.replace('.', `.${createHash('sha256').update(data).digest('hex').slice(0, 10)}.`);
+    await writeFile(`${out}/assets/${hashed}`, data);
+    assets[name] = `/assets/${hashed}`;
+  }
+}
 const favicon = await readFile(`${root}favicon.svg`);
 await writeFile(`${out}/favicon.svg`, favicon);
 assets["favicon.svg"] = `/favicon.svg?v=${createHash("sha256").update(favicon).digest("hex").slice(0, 10)}`;
@@ -53,6 +62,8 @@ const external = (url, label, classes = "", extra = "") =>
 
 function page(key, entry = false) {
   const t = locales[key];
+  const introVideo = assets[`agent2cursor-intro-${key}.mp4`];
+  const introPoster = assets[`agent2cursor-intro-${key}.jpg`];
   const doc = `${repo}/blob/main/${key === "zh" ? "README.zh-CN.md" : "README.md"}`;
   const install = `npm install --global @kyun.si/agent2cursor@${pkg.version}`;
   const commands = [
@@ -75,8 +86,8 @@ function page(key, entry = false) {
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#fafafa">
 <title>${t.title}</title><meta name="description" content="${escape(t.description)}">
 <link rel="canonical" href="${origin}/${key}/"><link rel="alternate" hreflang="en" href="${origin}/en/"><link rel="alternate" hreflang="zh-CN" href="${origin}/zh/"><link rel="alternate" hreflang="x-default" href="${origin}/">
-<meta property="og:type" content="website"><meta property="og:site_name" content="agent2cursor"><meta property="og:locale" content="${t.locale}"><meta property="og:title" content="${t.title}"><meta property="og:description" content="${escape(t.description)}"><meta property="og:url" content="${origin}/${key}/"><meta property="og:image" content="${origin}/assets/agent2cursor-demo-poster.png"><meta property="og:image:width" content="960"><meta property="og:image:height" content="540"><meta property="og:image:alt" content="${t.diagram}">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${t.title}"><meta name="twitter:description" content="${escape(t.description)}"><meta name="twitter:image" content="${origin}/assets/agent2cursor-demo-poster.png"><meta name="twitter:image:alt" content="${t.diagram}">
+<meta property="og:type" content="website"><meta property="og:site_name" content="agent2cursor"><meta property="og:locale" content="${t.locale}"><meta property="og:title" content="${t.title}"><meta property="og:description" content="${escape(t.description)}"><meta property="og:url" content="${origin}/${key}/"><meta property="og:image" content="${origin}${introPoster}"><meta property="og:image:width" content="1440"><meta property="og:image:height" content="810"><meta property="og:image:alt" content="${t.demoTitle}">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${t.title}"><meta name="twitter:description" content="${escape(t.description)}"><meta name="twitter:image" content="${origin}${introPoster}"><meta name="twitter:image:alt" content="${t.demoTitle}">
 <link rel="icon" href="${assets["favicon.svg"]}" type="image/svg+xml"><link rel="stylesheet" href="${assets["style.css"]}"><script src="${assets["client.js"]}" defer></script>
 </head>
 <body data-copy-label="${t.copy}" data-copied-label="${t.copied}" data-copy-failed="${t.copyFailed}">
@@ -104,7 +115,7 @@ function page(key, entry = false) {
 <span class="code-muted">├─</span> evals/
 <span class="code-muted">├─</span> <span class="code-yellow">${t.reportFile}</span>
 <span class="code-muted">└─</span> package.json</code></pre><div class="code-note">${t.sampleNote}</div></div></div>
-<details class="demo"><summary>${t.demoTitle}<span aria-hidden="true">↗</span></summary><div class="demo-content"><img src="/assets/agent2cursor-demo-poster.png" width="960" height="540" loading="lazy" alt="${t.diagram}" id="demo-image"><div class="demo-bottom"><p>${t.demoCaption}</p><button type="button" class="button demo-play" data-play="${t.play}" data-pause="${t.pause}" aria-pressed="false">${t.play}</button></div></div></details></section>
+<details class="demo"><summary>${t.demoTitle}<span aria-hidden="true">↗</span></summary><div class="demo-content"><video id="demo-video" controls playsinline preload="none" width="1440" height="810" poster="${introPoster}" aria-label="${t.demoTitle}"><source src="${introVideo}" type="video/mp4"><a href="${introVideo}">${t.videoOpen}</a></video><div class="demo-bottom"><p>${t.demoCaption}</p>${external(introVideo, `${t.videoOpen}${icon('external')}`, 'button demo-play')}</div></div></details></section>
 <section class="quick-section" id="start"><div class="wrap"><div class="section-heading"><p class="eyebrow">${t.quickKicker}</p><h2>${t.quickTitle}</h2><p>${t.quickIntro}</p></div><div class="input-tabs" role="tablist" aria-label="${t.tabsLabel}">${t.tabs.map((tab, i) => `<button type="button" role="tab" id="tab-${i}" data-input="${["claude", "codex", "skills"][i]}" aria-controls="commands" aria-selected="${i === 0}" tabindex="${i === 0 ? "0" : "-1"}">${tab}</button>`).join("")}</div><div class="steps" role="tabpanel" id="commands" aria-labelledby="tab-0">${t.steps.map((step, i) => `<article class="step"><div class="step-description"><span class="step-number mono">0${i + 1}</span><div><h3>${step}</h3><p>${t.stepNotes[i]}</p></div></div><div class="command-block"><div class="command-toolbar"><span class="mono">${i === 2 ? "my-agent/" : "terminal"}</span>${copyButton(`command-${i}`)}</div><pre><code id="command-${i}">${escape(commands[i])}</code></pre></div></article>`).join("")}</div><div class="guide-link"><p>${t.modelNote}</p>${external(doc, `${t.docs}${icon("external")}`, "text-link")}</div><aside class="boundary"><span aria-hidden="true">↳</span><div><h3>${t.boundaryTitle}</h3><p>${t.boundaryBody}</p>${external(`${doc}#${key === "zh" ? "核心限制与验收状态" : "limitations-and-verification-status"}`, t.boundaryLink, "text-link")}</div></aside></div></section>
 <section class="section wrap faq-section" id="faq"><div class="section-heading"><p class="eyebrow">${t.faqKicker}</p><h2>${t.faqTitle}</h2></div><div class="faq-list">${t.faqs.map((f) => `<details><summary>${f[0]}<span aria-hidden="true">+</span></summary><p>${f[1]}</p></details>`).join("")}</div></section>
 <section class="closing wrap"><div class="closing-star" aria-hidden="true">${icon("star")}</div><div><p class="eyebrow">${t.closingKicker}</p><h2>${t.closingTitle}</h2><p>${t.closingBody}</p><div class="closing-actions">${star("closing-button")}${external(repo, `${t.closingSecondary}${icon("arrow")}`, "text-link", "data-github")}</div></div></section>

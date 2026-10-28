@@ -809,7 +809,8 @@ summary::-webkit-details-marker {
 .demo-content {
   padding-bottom: 23px;
 }
-.demo-content img {
+.demo-content img,
+.demo-content video {
   width: 100%;
   height: auto;
   display: block;

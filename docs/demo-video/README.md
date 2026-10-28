@@ -1,5 +1,7 @@
 # agent2cursor README animation source
 
+The website's bilingual 30-second introduction is maintained separately in [explainer/](explainer/README.md).
+
 14-second, silent terminal demonstration from an actual local fixture conversion. `SOURCE.json` records commands, field outcomes and hashes. Paths and source excerpts are shortened for readability; animation timing is illustrative. Only structural SDK validation is claimed.
 
 Built with HyperFrames 0.8.207, GSAP and Brave. `index.html` mounts `compositions/demo.html`; these are the maintained animation sources. The terminal mechanism follows the HyperFrames `code-terminal-run` primitive, with project-specific content and report layout.

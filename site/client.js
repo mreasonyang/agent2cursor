@@ -89,19 +89,7 @@ tabs.forEach((tab, index) => {
     }
   });
 });
-const demoButton = document.querySelector(".demo-play");
-const demoImage = document.getElementById("demo-image");
-function stopDemo() {
-  demoImage.src = "/assets/agent2cursor-demo-poster.png";
-  demoButton.textContent = demoButton.dataset.play;
-  demoButton.setAttribute("aria-pressed", "false");
-}
-demoButton?.addEventListener("click", () => {
-  if (demoButton.getAttribute("aria-pressed") === "true") return stopDemo();
-  demoImage.src = "/assets/agent2cursor-demo.gif";
-  demoButton.textContent = demoButton.dataset.pause;
-  demoButton.setAttribute("aria-pressed", "true");
-});
+const demoVideo = document.getElementById("demo-video");
 document.querySelector(".demo")?.addEventListener("toggle", (event) => {
-  if (!event.target.open) stopDemo();
+  if (!event.target.open) demoVideo?.pause();
 });

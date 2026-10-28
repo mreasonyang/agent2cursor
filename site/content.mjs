@@ -59,11 +59,10 @@ export const locales = {
     ],
     sample: "INSIDE THE GENERATED PROJECT",
     sampleNote: "Source instructions are preserved, not translated.",
-    demoTitle: "See a real fixture conversion",
+    demoTitle: "30 seconds: bring your Agent to Cursor",
     demoCaption:
-      "Repository fixture → generated source and field report. Structural validation is separate from a live model run.",
-    play: "Play conversion demo",
-    pause: "Pause demo",
+      "See what carries over, what you can keep editing, and what to review before running.",
+    videoOpen: "Open video",
     quickKicker: "02 / FROM YOUR TERMINAL",
     quickTitle: "Start with one agent",
     quickIntro:
@@ -184,11 +183,10 @@ export const locales = {
     ],
     sample: "生成的项目长这样",
     sampleNote: "原始指令保留原文，不会被翻译。",
-    demoTitle: "看看真实样例怎么转换",
+    demoTitle: "30 秒看懂：把写好的 Agent 带到 Cursor",
     demoCaption:
-      "仓库样例 → 生成源码与字段报告。结构校验和真实模型运行是两回事。",
-    play: "播放转换演示",
-    pause: "暂停演示",
+      "看看已有内容如何迁移、生成的项目怎么继续开发，以及运行前要检查什么。",
+    videoOpen: "单独打开视频",
     quickKicker: "02 / 从终端开始",
     quickTitle: "先带一个 Agent 过来",
     quickIntro:

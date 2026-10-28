@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-28T09:41:44.715Z",
+  "renderer": "HyperFrames 0.8.207 with Brave",
+  "timeline": [
+    {
+      "scene": "existing",
+      "start": 0,
+      "end": 5
+    },
+    {
+      "scene": "convert",
+      "start": 5,
+      "end": 11
+    },
+    {
+      "scene": "keep",
+      "start": 11,
+      "end": 17
+    },
+    {
+      "scene": "review",
+      "start": 17,
+      "end": 24
+    },
+    {
+      "scene": "finish",
+      "start": 24,
+      "end": 30
+    }
+  ],
+  "evidence": {
+    "fixture": "fixtures/claude/agents/code-reviewer.md",
+    "fixtureSha256": "9308769ecd7f80149826f614be03eb91ea044baa9c6dd2b5cee7110a4ceb4ec8",
+    "convertedInstructionsSha256": "97b881ecada16c277424038453bf7ab79cdd431f8384220cf416fe6afac94e98",
+    "excerpts": [
+      "Review the changed code.",
+      "Do not edit files."
+    ],
+    "conversionCheckedAt": "2026-10-28T09:28:53.347Z",
+    "scope": "conversion and preserved text only; no live model run",
+    "illustration": "File paths and report wording are shortened for readability."
+  },
+  "sources": [
+    {
+      "path": "docs/demo-video/explainer/compose.mjs",
+      "sha256": "a7f9d0d175374bf83dab21bdd43c82c24b0d39c98567330e0d792c9ef5a0c3b1"
+    },
+    {
+      "path": "docs/demo-video/explainer/run.mjs",
+      "sha256": "14628a355c56e13bd5050cea1deae0a89a9d531389e1f377a965c70e99f9273b"
+    },
+    {
+      "path": "docs/demo-video/explainer/zh/index.html",
+      "sha256": "21a53b7fa2236f87dbed4e3834727c1adbb282323f7bc078cfcae26940f6a872"
+    },
+    {
+      "path": "docs/demo-video/explainer/zh/hyperframes.json",
+      "sha256": "fd47b849f80d1ed819b1bec735df33a9781755ba678e7487c20456e5ad06c32c"
+    },
+    {
+      "path": "docs/demo-video/explainer/zh/compositions/convert.html",
+      "sha256": "39de3727ef9823bdeac74e4f6388a68f5136b2f75659a2ec98a65141193e4a7f"
+    },
+    {
+      "path": "docs/demo-video/explainer/zh/compositions/existing.html",
+      "sha256": "44064cfede53fece40c66a34efd953706126cc1cda949fa23a939544ad33e135"
+    },
+    {
+      "path": "docs/demo-video/explainer/zh/compositions/finish.html",
+      "sha256": "28a9749ae46a46518a5c0b2c74bc5f239cb13163fd1a641726e364be04363f0f"
+    },
+    {
+      "path": "docs/demo-video/explainer/zh/compositions/keep.html",
+      "sha256": "a0aa794870ce790577a32f3bd87ffef81e426bf017ad2e0b7ed4171e2de8a0b2"
+    },
+    {
+      "path": "docs/demo-video/explainer/zh/compositions/review.html",
+      "sha256": "c00833176088e7f7bb8ddac0d01a07326985bc668ba0ec186ec4e70d1bec069d"
+    },
+    {
+      "path": "docs/demo-video/explainer/en/index.html",
+      "sha256": "67bad1143e8f8cdf526f6f46579d165e411c438b1dc8c9c9477f3ab39f1e5852"
+    },
+    {
+      "path": "docs/demo-video/explainer/en/hyperframes.json",
+      "sha256": "fd47b849f80d1ed819b1bec735df33a9781755ba678e7487c20456e5ad06c32c"
+    },
+    {
+      "path": "docs/demo-video/explainer/en/compositions/convert.html",
+      "sha256": "7c5fdfb01a2b4843edc787f18fb2dfd9278a169836fb6637628026cb8129a216"
+    },
+    {
+      "path": "docs/demo-video/explainer/en/compositions/existing.html",
+      "sha256": "7fba5ff00ba60456250039c6b0cd60000ce69784c4f078351f8e3c734fb1f05e"
+    },
+    {
+      "path": "docs/demo-video/explainer/en/compositions/finish.html",
+      "sha256": "636e047cdeaa7eeccc2a1e46ceb1f41f512aa87c653ed40e594749d0362cba23"
+    },
+    {
+      "path": "docs/demo-video/explainer/en/compositions/keep.html",
+      "sha256": "a86e012767b1aa315945f4ed794400c07ca45f4a0944ebd6d9d2124e089f6992"
+    },
+    {
+      "path": "docs/demo-video/explainer/en/compositions/review.html",
+      "sha256": "78c87ef7246c64ab45ff0aee96e654f4f6976f7850ceab305d0afcc544a0f150"
+    }
+  ],
+  "media": [
+    {
+      "locale": "zh",
+      "path": "site/media/agent2cursor-intro-zh.mp4",
+      "sha256": "ac9bc92e5398f1486761044a116ddf0cd035889699d5e9f85330fe2fd585d6ef",
+      "bytes": 862006,
+      "durationSeconds": 30,
+      "width": 1440,
+      "height": 810,
+      "fps": 30,
+      "frames": 900,
+      "codec": "h264",
+      "pixelFormat": "yuv420p",
+      "audio": "none; designed for muted website viewing",
+      "fullDecode": "PASS",
+      "poster": {
+        "path": "site/media/agent2cursor-intro-zh.jpg",
+        "sha256": "2df2127369a8c2968ae2d8dee181ddc572fbc37819a665ae9addad750a61b758",
+        "timeSeconds": 2.5
+      }
+    },
+    {
+      "locale": "en",
+      "path": "site/media/agent2cursor-intro-en.mp4",
+      "sha256": "8d62eeb673da261a1c8dd0b153611d1f7084186b4481c7e3640c8046fc9c778a",
+      "bytes": 923113,
+      "durationSeconds": 30,
+      "width": 1440,
+      "height": 810,
+      "fps": 30,
+      "frames": 900,
+      "codec": "h264",
+      "pixelFormat": "yuv420p",
+      "audio": "none; designed for muted website viewing",
+      "fullDecode": "PASS",
+      "poster": {
+        "path": "site/media/agent2cursor-intro-en.jpg",
+        "sha256": "fc0d4bc9d71298c7a096fb5418ae2535e3b5f28546743e334ee46569f1b0cafe",
+        "timeSeconds": 2.5
+      }
+    }
+  ]
+}
