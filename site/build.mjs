@@ -44,7 +44,9 @@ for (const name of ["style.css", "client.js"]) {
 for (const name of ["agent2cursor-demo.gif", "agent2cursor-demo-poster.png"]) {
   await copyFile(`${root}../docs/assets/${name}`, `${out}/assets/${name}`);
 }
-await copyFile(`${root}favicon.svg`, `${out}/favicon.svg`);
+const favicon = await readFile(`${root}favicon.svg`);
+await writeFile(`${out}/favicon.svg`, favicon);
+assets["favicon.svg"] = `/favicon.svg?v=${createHash("sha256").update(favicon).digest("hex").slice(0, 10)}`;
 const external = (url, label, classes = "", extra = "") =>
   `<a class="${classes}" href="${url}" target="_blank" rel="noopener noreferrer" ${extra}>${label}</a>`;
 
@@ -74,7 +76,7 @@ function page(key, entry = false) {
 <link rel="canonical" href="${origin}/${key}/"><link rel="alternate" hreflang="en" href="${origin}/en/"><link rel="alternate" hreflang="zh-CN" href="${origin}/zh/"><link rel="alternate" hreflang="x-default" href="${origin}/">
 <meta property="og:type" content="website"><meta property="og:site_name" content="agent2cursor"><meta property="og:locale" content="${t.locale}"><meta property="og:title" content="${t.title}"><meta property="og:description" content="${escape(t.description)}"><meta property="og:url" content="${origin}/${key}/"><meta property="og:image" content="${origin}/assets/agent2cursor-demo-poster.png"><meta property="og:image:width" content="960"><meta property="og:image:height" content="540"><meta property="og:image:alt" content="${t.diagram}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${t.title}"><meta name="twitter:description" content="${escape(t.description)}"><meta name="twitter:image" content="${origin}/assets/agent2cursor-demo-poster.png"><meta name="twitter:image:alt" content="${t.diagram}">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="${assets["style.css"]}"><script src="${assets["client.js"]}" defer></script>
+<link rel="icon" href="${assets["favicon.svg"]}" type="image/svg+xml"><link rel="stylesheet" href="${assets["style.css"]}"><script src="${assets["client.js"]}" defer></script>
 </head>
 <body data-copy-label="${t.copy}" data-copied-label="${t.copied}" data-copy-failed="${t.copyFailed}">
 <a class="skip" href="#main">${t.skip}</a>
