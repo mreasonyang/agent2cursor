@@ -2,7 +2,7 @@
 
 Convert existing Claude Code and Codex subagents and Agent Skills into editable [Cursor Agent SDK](https://cursor.com/docs/agent-sdk) (`@grok/agent-sdk`) TypeScript projects, with routing eval scaffolds and a field-by-field migration report.
 
-[中文说明](README.zh-CN.md) · **0.1.0** · [MIT License](LICENSE) · Node **>=22.13** · Targets **`@grok/agent-sdk@0.3.0`**
+[中文说明](README.zh-CN.md) · **0.1.1** · [MIT License](LICENSE) · Node **>=22.13** · Targets **`@grok/agent-sdk@0.3.0`**
 
 ![Converting Claude subagents and skills into an Agent SDK project with a field-by-field migration report](docs/assets/agent2cursor-demo.gif)
 
@@ -18,14 +18,14 @@ source fields + routing checks  → MIGRATION.zh-CN.md (or .en.md) + evals/*.eva
 
 ## Install and use
 
-Requires **Node.js >=22.13** and npm. The npm package is **`@kyun.si/agent2cursor`**; its command is **`agent2cursor`**. Version **0.1.0** is [published on npm](https://www.npmjs.com/package/@kyun.si/agent2cursor), with [verified publication and installation results](https://github.com/mreasonyang/agent2cursor/blob/main/npm-publication.json).
+Requires **Node.js >=22.13** and npm. The npm package is **`@kyun.si/agent2cursor`**; its command is **`agent2cursor`**. The examples below pin **0.1.1**. See [npm releases](https://www.npmjs.com/package/@kyun.si/agent2cursor) and the [version-bound publication receipt](https://github.com/mreasonyang/agent2cursor/blob/main/npm-publication.json) for published artifacts and installation verification.
 
 Run the input commands from the project containing your agents or skills. Choose either global installation or one-off `npx` usage below; both create the same SDK project.
 
 ### Global installation
 
 ```bash
-npm install --global @kyun.si/agent2cursor@0.1.0
+npm install --global @kyun.si/agent2cursor@0.1.1
 agent2cursor --help
 agent2cursor inspect .claude/agents --lang en
 agent2cursor convert .claude/agents --out ./my-agent --lang en
@@ -34,8 +34,8 @@ agent2cursor convert .claude/agents --out ./my-agent --lang en
 ### Without global installation
 
 ```bash
-npx --yes @kyun.si/agent2cursor@0.1.0 inspect .claude/agents --lang en
-npx --yes @kyun.si/agent2cursor@0.1.0 convert .claude/agents --out ./my-agent --lang en
+npx --yes @kyun.si/agent2cursor@0.1.1 inspect .claude/agents --lang en
+npx --yes @kyun.si/agent2cursor@0.1.1 convert .claude/agents --out ./my-agent --lang en
 ```
 
 Pass only paths that exist. Claude Code skills can be supplied as `.claude/skills`, or as an individual directory containing `SKILL.md`. A standalone agent file, an agent directory, or a skill directory can be used alone; multiple inputs can be combined. See [Codex inputs](#convert-codex-assets) below. The default report language is Chinese; these English examples select `--lang en` explicitly. Source instructions are preserved rather than translated.
@@ -51,7 +51,7 @@ cd my-agent
 npm install
 npm run validate
 npx agent-sdk eval --dir . --list
-npx --yes @kyun.si/agent2cursor@0.1.0 doctor --dir .
+npx --yes @kyun.si/agent2cursor@0.1.1 doctor --dir .
 ```
 
 These are structural checks and eval discovery; they do not run the model evals. The converter and generated SDK project have separate dependencies, so installing `agent2cursor` globally does not replace `npm install` inside `my-agent`.
@@ -89,7 +89,7 @@ On this fixture input, the converter generates **28 files**: 4 subagents, 5 skil
 
 ## Convert Codex assets
 
-Using the installed command (or replacing `agent2cursor` with `npx --yes @kyun.si/agent2cursor@0.1.0`), pass project or personal agent directories, a standalone TOML file, and/or skill directories. The mixed-input example is an alternative; pass only paths that exist:
+Using the installed command (or replacing `agent2cursor` with `npx --yes @kyun.si/agent2cursor@0.1.1`), pass project or personal agent directories, a standalone TOML file, and/or skill directories. The mixed-input example is an alternative; pass only paths that exist:
 
 ```bash
 agent2cursor inspect .codex/agents .agents/skills --lang en
@@ -195,7 +195,7 @@ agent2cursor demo full-send --out ./full-send-agent
 agent2cursor demo pr-review --out ./pr-review-agent
 ```
 
-Use the same `npx --yes @kyun.si/agent2cursor@0.1.0` prefix if you chose the one-off route. The demos remain Chinese workflows; `demo` does not accept `--lang`. After export, run `npm install` and `npm run validate` inside the chosen demo directory.
+Use the same `npx --yes @kyun.si/agent2cursor@0.1.1` prefix if you chose the one-off route. The demos remain Chinese workflows; `demo` does not accept `--lang`. After export, run `npm install` and `npm run validate` inside the chosen demo directory.
 
 - **`full-send` ([operation guide](demos/full-send/README.md)):** five skills (`full-send`, `sol-loop`, `file-pr`, `babysit-pr`, `leaving-pr-comments`), a `reviewer` subagent, a one-shot read-only `pr_wait` snapshot tool (no polling), a disabled `pr_wait_script` stub alongside the retained Python `pr-wait` script, and a gated `merge_pr` tool. Its root tools exclude `shell`, so **it prepares local edits and a PR draft and stops before publishing or merging**—automatic test execution, `git push`, and PR creation are not implemented. `merge_pr` is off by default and requires `AGENT2CURSOR_ALLOW_MERGE=1`, human approval, a matching configured GitHub session, an open/non-draft/clean PR, and the exact current head SHA (eval sessions cannot merge).
 - **`pr-review` ([operation guide](demos/pr-review/README.md)):** `council` and `leaving-pr-comments` with three reviewer subagents (`reviewer-a`, `reviewer-b`, `reviewer-c`). All three inherit the same parent model, outputting a Chinese `Council review` table and an explicit notice that the review uses three perspectives on one model rather than three separate model providers. Its root tools are read/search/delegate only, and its authored tools never post comments or edit PR descriptions.
@@ -215,7 +215,7 @@ The [independent evaluation](evaluation/README.md) covers the corrected converte
 
 | Evidence level | Status | What is and is not proven |
 | --- | --- | --- |
-| npm release & installation | **PASS — 0.1.0** | Public registry bytes match the tested archive. Anonymous clean installation, pinned/default `npx`, mixed conversion, both demo exports, and doctor before/after installing project dependencies passed. [Publication receipt](https://github.com/mreasonyang/agent2cursor/blob/main/npm-publication.json) |
+| npm release & installation | **Tracked per version** | The [publication receipt](https://github.com/mreasonyang/agent2cursor/blob/main/npm-publication.json) records the exact published version, archive hash, anonymous installation, pinned/default `npx`, mixed conversion, both demo exports, and doctor checks. Historical receipts are retained separately |
 | Offline tests & SDK structure | **PASS — 74 tests** | Node 22.13 / 24 CI passed. Claude, Codex, tstack, full-send, and pr-review generated projects passed SDK structure checks, strict TypeScript and eval discovery with independent dependencies. `eval --list` proves discovery, not live execution. [CI](https://github.com/mreasonyang/agent2cursor/actions/workflows/check.yml) |
 | Independent conversion and routing evaluation | **PASS** (bounded dataset) | 24/24 normal conversions and post-install validations; revised generated routing evals passed 41/41 across 30 projects. Three real tasks, each repeated three times, matched direct-copy/plugin baselines. [Counts and source hashes](docs/evidence/independent-evaluation.json) |
 | Live model runs | **Historical PASS** (narrow cases) | Official `agent-sdk login` succeeded. `migration-smoke` passed (**1 case / 2 assertions**: `succeeded`, `loadedSkill`). `pr-review` council inline diff passed (**1 case / 9 assertions**, same model / 3 perspectives). `full-send` local `run` loaded the skill with 1 read call and 0 writes/execs/merges |
@@ -226,6 +226,6 @@ The historical model and PR replay runs were not rerun for the Codex adapter, np
 
 ## Contributing and License
 
-Maintainer commands (`npm run check`, `npm run test:sdk`, `node scripts/build-demos.mjs`) and safety invariants are in [CONTRIBUTING.md](CONTRIBUTING.md). The source workspace keeps `private: true` to npm; `pack:local` creates a separate public archive. GitHub is public. The README files embedded in the immutable npm `0.1.0` tarball are release snapshots; this GitHub checkout contains the latest documentation corrections.
+Maintainer commands (`npm run check`, `npm run test:sdk`, `node scripts/build-demos.mjs`) and safety invariants are in [CONTRIBUTING.md](CONTRIBUTING.md). The source workspace keeps `private: true` to npm; `pack:local` creates a separate public archive. GitHub is public. Both language READMEs ship inside the npm package. Version `0.1.1` includes the reviewed installation and usage instructions; [CHANGELOG.md](CHANGELOG.md) records the documentation update.
 
 `agent2cursor` is MIT-licensed (`Copyright (c) 2026 Eason Yang`, [LICENSE](LICENSE)). The pinned snapshot in [`fixtures/tstack`](fixtures/tstack) ([`PROVENANCE.json`](fixtures/tstack/PROVENANCE.json)) and the adapted demos derive from [t3dotgg/tstack](https://github.com/t3dotgg/tstack), `Copyright (c) 2026 Theo Browne`, under the MIT license ([`fixtures/tstack/LICENSE`](fixtures/tstack/LICENSE) and `LICENSE-tstack`); recognized `tstack` inputs must retain this MIT notice. `@grok/agent-sdk@0.3.0` is a proprietary dependency (no SDK source or docs are vendored here). Not affiliated with or endorsed by Theo Browne, T3, Anthropic, Cursor, Anysphere, or xAI. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

@@ -1,6 +1,6 @@
 {
   "name": "@kyun.si/agent2cursor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Convert Claude Code and Codex agents and skills into editable Cursor Agent SDK projects, with field-by-field migration reports.",
   "type": "module",
   "bin": {
@@ -16,12 +16,13 @@
     "docs/acceptance.md",
     "docs/upstream-verification.md",
     "evaluation/README.md",
-    "evaluation/20261027-2216/复测结论.md",
+    "evaluation/20261027-2216/\u590d\u6d4b\u7ed3\u8bba.md",
     "README.md",
     "README.zh-CN.md",
     "CONTRIBUTING.md",
     "LICENSE",
-    "THIRD_PARTY_NOTICES.md"
+    "THIRD_PARTY_NOTICES.md",
+    "CHANGELOG.md"
   ],
   "engines": {
     "node": ">=22.13"

@@ -2,7 +2,7 @@
 
 把已写好的 Claude Code / Codex 子代理（subagents）与 Agent Skills 整理成可编辑的 [Cursor Agent SDK](https://cursor.com/docs/agent-sdk)（`@grok/agent-sdk`）TypeScript 项目，同时生成路由评测（eval）骨架和逐字段迁移报告。
 
-[English](README.md) · **0.1.0** · [MIT 许可证](LICENSE) · Node **>=22.13** · 适配 **`@grok/agent-sdk@0.3.0`**
+[English](README.md) · **0.1.1** · [MIT 许可证](LICENSE) · Node **>=22.13** · 适配 **`@grok/agent-sdk@0.3.0`**
 
 ![将 Claude 子代理与 Skills 转换为 Agent SDK 项目并生成逐字段迁移报告](docs/assets/agent2cursor-demo.gif)
 
@@ -18,14 +18,14 @@ skills/*/scripts/*              → bot/tools/*.ts（默认禁用的 JSON 适配
 
 ## 安装与使用
 
-需要 **Node.js >=22.13** 和 npm。npm 包名为 **`@kyun.si/agent2cursor`**，命令为 **`agent2cursor`**。**0.1.0** 已[发布到 npm](https://www.npmjs.com/package/@kyun.si/agent2cursor)，[发布回执](https://github.com/mreasonyang/agent2cursor/blob/main/npm-publication.json)记录了归档校验与独立安装结果。
+需要 **Node.js >=22.13** 和 npm。npm 包名为 **`@kyun.si/agent2cursor`**，命令为 **`agent2cursor`**。以下示例固定使用 **0.1.1**。[npm 发行信息](https://www.npmjs.com/package/@kyun.si/agent2cursor)与[版本绑定的发布回执](https://github.com/mreasonyang/agent2cursor/blob/main/npm-publication.json)记录了公开归档及独立安装验证结果。
 
 请在存放子代理或 skill 的项目目录运行输入命令。下面的全局安装和一次性 `npx` 用法任选一种，两种方式生成相同的 SDK 项目。
 
 ### 全局安装
 
 ```bash
-npm install --global @kyun.si/agent2cursor@0.1.0
+npm install --global @kyun.si/agent2cursor@0.1.1
 agent2cursor --help
 agent2cursor inspect .claude/agents --lang zh
 agent2cursor convert .claude/agents --out ./my-agent --lang zh
@@ -34,8 +34,8 @@ agent2cursor convert .claude/agents --out ./my-agent --lang zh
 ### 不全局安装
 
 ```bash
-npx --yes @kyun.si/agent2cursor@0.1.0 inspect .claude/agents --lang zh
-npx --yes @kyun.si/agent2cursor@0.1.0 convert .claude/agents --out ./my-agent --lang zh
+npx --yes @kyun.si/agent2cursor@0.1.1 inspect .claude/agents --lang zh
+npx --yes @kyun.si/agent2cursor@0.1.1 convert .claude/agents --out ./my-agent --lang zh
 ```
 
 只传实际存在的路径。Claude Code skills 可传 `.claude/skills`，也可传包含 `SKILL.md` 的单个目录。单个代理文件、代理目录或 skill 目录都可单独使用，也可组合多个输入；Codex 用法见下文的[转换 Codex 资产](#转换-codex-资产)。报告语言默认中文，这里的示例显式使用 `--lang zh`；原始指令保留原文，不会翻译。
@@ -51,7 +51,7 @@ cd my-agent
 npm install
 npm run validate
 npx agent-sdk eval --dir . --list
-npx --yes @kyun.si/agent2cursor@0.1.0 doctor --dir .
+npx --yes @kyun.si/agent2cursor@0.1.1 doctor --dir .
 ```
 
 这些步骤只做结构校验和 eval 发现，不执行模型 eval。转换器和生成的 SDK 项目分别管理依赖，因此全局安装 `agent2cursor` 不能替代在 `my-agent` 内运行 `npm install`。
@@ -89,7 +89,7 @@ node dist/cli.js convert ./fixtures/claude ./fixtures/tstack/skills/full-send \
 
 ## 转换 Codex 资产
 
-使用已安装的命令（也可把 `agent2cursor` 替换为 `npx --yes @kyun.si/agent2cursor@0.1.0`），传入项目或个人子代理目录、单个 TOML 文件及 skill 目录。混合输入是另一种用法；只传实际存在的路径：
+使用已安装的命令（也可把 `agent2cursor` 替换为 `npx --yes @kyun.si/agent2cursor@0.1.1`），传入项目或个人子代理目录、单个 TOML 文件及 skill 目录。混合输入是另一种用法；只传实际存在的路径：
 
 ```bash
 agent2cursor inspect .codex/agents .agents/skills --lang zh
@@ -195,7 +195,7 @@ agent2cursor demo full-send --out ./full-send-agent
 agent2cursor demo pr-review --out ./pr-review-agent
 ```
 
-使用一次性方式时，把命令前缀换成 `npx --yes @kyun.si/agent2cursor@0.1.0`。示例固定为中文工作流，`demo` 不接受 `--lang`。导出后进入所选示例目录，运行 `npm install` 和 `npm run validate`。
+使用一次性方式时，把命令前缀换成 `npx --yes @kyun.si/agent2cursor@0.1.1`。示例固定为中文工作流，`demo` 不接受 `--lang`。导出后进入所选示例目录，运行 `npm install` 和 `npm run validate`。
 
 - **`full-send`（[操作说明](demos/full-send/README.md)）：** 含 5 个技能（`full-send`、`sol-loop`、`file-pr`、`babysit-pr`、`leaving-pr-comments`）、1 个 `reviewer` 子代理、做一次只读快照且不轮询的 `pr_wait` 工具、默认禁用的 `pr_wait_script` 存根（保留原版 Python `pr-wait` 供审阅），以及带门禁的 `merge_pr` 工具。根代理不含 `shell`，因此**默认只完成本地代码修改、评审并输出 PR 草稿，在发布和合并前停止**——未实现自动跑测试、`git push` 和创建 PR。`merge_pr` 默认关闭，必须同时满足 `AGENT2CURSOR_ALLOW_MERGE=1`、人工批准本次调用、匹配已配置 GitHub 仓库会话、PR 处于 open/非 draft/clean 状态且 `expectedHead` 精确匹配当前 head SHA（eval 会话禁止合并）。
 - **`pr-review`（[操作说明](demos/pr-review/README.md)）：** 含 `council` 与 `leaving-pr-comments` 技能及 3 个评审子代理（`reviewer-a`、`reviewer-b`、`reviewer-c`）。三个子代理继承同一父模型，输出中文 `Council review` 评分表，并明确声明当前是同一模型的三种视角而非三家模型厂商。根代理仅保留只读搜索与委派工具，不提供发评论或改 PR 描述的工具。
@@ -215,7 +215,7 @@ agent2cursor demo pr-review --out ./pr-review-agent
 
 | 证据层级 | 状态 | 已验证范围与未覆盖边界 |
 | --- | --- | --- |
-| npm 发布与安装 | **PASS — 0.1.0** | 公开 registry 归档与已测试候选字节一致。匿名干净安装、固定版本／默认 `npx`、混合转换、两个 demo 导出，以及安装输出依赖前后的 doctor 检查均通过。[发布回执](https://github.com/mreasonyang/agent2cursor/blob/main/npm-publication.json) |
+| npm 发布与安装 | **按版本记录** | [发布回执](https://github.com/mreasonyang/agent2cursor/blob/main/npm-publication.json)绑定实际版本和归档哈希，并记录匿名安装、固定版本／默认 `npx`、混合转换、两个 demo 导出及 doctor 检查；历史回执单独保留 |
 | 离线单测与结构校验 | **PASS — 74 项测试** | Node 22.13 / 24 CI 通过。Claude、Codex、tstack、full-send 和 pr-review 五类生成项目安装独立依赖后，通过 SDK 结构检查、严格 TypeScript 和 eval 发现；`eval --list` 不代表真实执行通过。[CI](https://github.com/mreasonyang/agent2cursor/actions/workflows/check.yml) |
 | 独立转换与路由评测 | **PASS**（限定数据集） | 正常转换及安装后校验 24/24；新版自动路由 eval 在 30 个项目中 41/41 通过。3 个真实任务各重复 3 次，与直接复制/插件对照打平。[计数与源码哈希](docs/evidence/independent-evaluation.json) |
 | 真实模型运行 | **历史 PASS**（窄用例） | 已完成官方 `agent-sdk login`。`migration-smoke` 通过（**1 条用例 / 2 个断言**：`succeeded`、`loadedSkill`）；`pr-review` 内联 diff 评审通过（**1 条用例 / 9 个断言**，同模型 3 视角）；`full-send` 本地 `run` 完成 1 次 skill 读取，0 次写入/执行/合并 |
@@ -226,6 +226,6 @@ agent2cursor demo pr-review --out ./pr-review-agent
 
 ## 开发维护与许可证
 
-维护者自检命令（`npm run check`、`npm run test:sdk`、`node scripts/build-demos.mjs`）与仓库安全守则见 [CONTRIBUTING.md](CONTRIBUTING.md)。源码工程保留面向 npm 的 `private: true`，`pack:local` 另行生成公开归档；GitHub 仓库已公开。npm `0.1.0` 不可变归档内的两份 README 是发布时快照，GitHub 当前版本包含最新文档修正。
+维护者自检命令（`npm run check`、`npm run test:sdk`、`node scripts/build-demos.mjs`）与仓库安全守则见 [CONTRIBUTING.md](CONTRIBUTING.md)。源码工程保留面向 npm 的 `private: true`，`pack:local` 另行生成公开归档；GitHub 仓库已公开。npm 包内同时包含两份语言文档。`0.1.1` 包含已核对的安装与使用说明，文档更新记录见 [CHANGELOG.md](CHANGELOG.md)。
 
 `agent2cursor` 采用 [MIT 许可证](LICENSE)（`Copyright (c) 2026 Eason Yang`）。[`fixtures/tstack`](fixtures/tstack)（[`PROVENANCE.json`](fixtures/tstack/PROVENANCE.json)）中的固定快照与两个改编示例源自 [t3dotgg/tstack](https://github.com/t3dotgg/tstack)，`Copyright (c) 2026 Theo Browne`，采用 MIT 许可（保存在 [`fixtures/tstack/LICENSE`](fixtures/tstack/LICENSE) 与 `LICENSE-tstack` 中）；被识别的 `tstack` 输入源必须保留该 MIT 声明。`@grok/agent-sdk@0.3.0` 是专有依赖（本仓库不内置或再分发其源码与文档）。本项目与 Theo Browne、T3、Anthropic、Cursor、Anysphere 或 xAI 无官方关联或背书。详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

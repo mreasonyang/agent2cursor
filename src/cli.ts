@@ -11,7 +11,7 @@ import { validateProject, findSdk, supportedNode, validationMessage } from "./va
 import { permissionWarning } from "./mapping/permissions.js";
 import { updateProjectReport, writeProject } from "./write.js";
 
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 const program = new Command().name("agent2cursor").description("Claude Code / Codex agents / Agent Skills → editable Cursor Agent SDK projects with migration reports").version(VERSION);
 const legalTools = new Set(["read", "grep", "glob", "ls", "shell", "edit", "task", "delete"]);
 

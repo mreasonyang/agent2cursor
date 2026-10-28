@@ -1,8 +1,8 @@
 # agent2cursor 验收记录
 
-更新日期：2026-10-28。版本：`0.1.0`。目标 SDK：`@grok/agent-sdk@0.3.0`。用户已确定项目名为 `agent2cursor`。
+更新日期：2026-10-28。版本：`0.1.1`。目标 SDK：`@grok/agent-sdk@0.3.0`。用户已确定项目名为 `agent2cursor`。
 
-当前用户决定（2026-10-28）：GitHub 仓库 `mreasonyang/agent2cursor` 公开，并授权将 `@kyun.si/agent2cursor@0.1.0` 发布到 npm。根 package.json 保持 `private: true`，单独构建公开消费者归档；安装后的命令仍为 `agent2cursor`。npm 发布结果单独验证。
+当前用户决定（2026-10-28）：GitHub 仓库 `mreasonyang/agent2cursor` 公开，已完成 npm 0.1.0 发布，并授权用 `@kyun.si/agent2cursor@0.1.1` 同步安装包内的双语文档。根 package.json 保持 `private: true`，单独构建公开消费者归档；安装后的命令仍为 `agent2cursor`。npm 发布结果单独验证。
 
 ## agent2cursor 更名（2026-10-28）
 
@@ -18,7 +18,7 @@
 
 ## npm 0.1.0 公开发布（2026-10-28）
 
-`@kyun.si/agent2cursor@0.1.0` 已发布到 npm 官方 registry。发布源码为 `b0e30fa5eb85d479e3ab64ee8ebd022061160a4a`，该提交的 Node 22.13 / 24 测试、打包预演和五类 SDK 集成 CI 全部通过。[发布回执](../npm-publication.json)绑定该源提交和实际发布归档，后续文档及发布工具调整不改写这份已发布的包。
+`@kyun.si/agent2cursor@0.1.0` 已发布到 npm 官方 registry。发布源码为 `b0e30fa5eb85d479e3ab64ee8ebd022061160a4a`，该提交的 Node 22.13 / 24 测试、打包预演和五类 SDK 集成 CI 全部通过。[0.1.0 发布回执](evidence/npm-publication-0.1.0.json)绑定该源提交和实际发布归档，后续文档及发布工具调整不改写这份已发布的包。
 
 通过匿名版本接口读回 registry 元数据并下载公开 tarball，字节数（573541）、SHA-256 和 registry SHA-512 integrity 与发布候选完全一致。在仓库外使用空的用户/全局 npm 配置、新缓存，实际从 registry 安装；真实 bin 的帮助和版本通过。另用独立空目录验证固定 `0.1.0` 的 `npx --help` 和默认 `latest` 的 `npx --version`，实际均为 `0.1.0`。
 
