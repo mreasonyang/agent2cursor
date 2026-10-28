@@ -51,6 +51,21 @@ test("Codex project discovery deduplicates TOML inputs and preserves every field
   assert.match(permissionWarning(ir, "en")!, /Codex skill invocation policy is not enforced/);
 });
 
+test("Codex skills.config paths stay unloaded and their file contents stay out of the project", async (t) => {
+  const dir = await temp(t);
+  const canary = "CODEX_REFERENCED_SKILL_CANARY_7c2e";
+  const skill = await put(dir, "outside/SKILL.md", `---\nname: outside-skill\ndescription: Must not be copied.\n---\n${canary}\n`);
+  const agent = await put(dir, "locked.toml", `${basic}[[skills.config]]\npath = ${JSON.stringify(skill)}\nenabled = false\n`);
+  const ir = await scanInputs([agent], options);
+  assert.equal(ir.skills.length, 0);
+  const pathFinding = ir.findings.find(finding => finding.field === "skills.config.0.path");
+  assert.equal(pathFinding?.status, "degraded");
+  assert.match(pathFinding?.message ?? "", /未加载任何引用的配置或 skill 文件/);
+  const plan = await planProject(ir, options);
+  assert.equal(plan.files.has("bot/skills/outside-skill/SKILL.md"), false);
+  for (const [file, text] of plan.files) assert.equal(String(text).includes(canary), false, file);
+});
+
 test("Codex source models use explicit mappings and never inherit Claude preload semantics", async () => {
   const source = parseCodexAgent(await readFile(reviewer, "utf8"), reviewer);
   for (const opts of [options, { ...options, keepModel: true }, { ...options, modelMap: { "codex-source-model": "target-fixture-model" } }]) {
