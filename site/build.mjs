@@ -65,7 +65,7 @@ function page(key, entry = false) {
   const introVideo = assets[`agent2cursor-intro-${key}.mp4`];
   const introPoster = assets[`agent2cursor-intro-${key}.jpg`];
   const doc = `${repo}/blob/main/${key === "zh" ? "README.zh-CN.md" : "README.md"}`;
-  const install = `npm install --global @kyun.si/agent2cursor@${pkg.version}`;
+  const install = "npm install -g @kyun.si/agent2cursor";
   const commands = [
     `agent2cursor inspect .claude/agents --lang ${key}`,
     `agent2cursor convert .claude/agents --out ./my-agent --lang ${key}`,
