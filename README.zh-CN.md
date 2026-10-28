@@ -18,7 +18,9 @@ skills/*/scripts/*              → bot/tools/*.ts（默认禁用的 JSON 适配
 
 ## 快速试用
 
-npm 包名为 **`@kyun.si/agent2cursor`**，安装后的命令为 **`agent2cursor`**：
+npm 包名为 **`@kyun.si/agent2cursor`**，安装后的命令为 **`agent2cursor`**。
+
+**0.1.0** 已[发布到 npm](https://www.npmjs.com/package/@kyun.si/agent2cursor)。[发布回执](npm-publication.json)记录了源提交、registry 归档哈希与独立安装验证结果。
 
 ```bash
 npx --yes @kyun.si/agent2cursor@0.1.0 --help

@@ -9,7 +9,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const registry = 'https://registry.npmjs.org/';
 const releaseRoot = join(root, '.validation/npm-release');
 const [action, ...flags] = process.argv.slice(2);
-assert.ok(['pack', 'publish'].includes(action), 'Use pack or publish');
+assert.ok(['pack', 'verify', 'publish'].includes(action), 'Use pack, verify or publish');
 assert.ok(flags.length === 0 || (action === 'publish' && flags.length === 1 && flags[0] === '--dry-run'), 'Only publish accepts --dry-run');
 const pkg = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 assert.equal(pkg.name, '@kyun.si/agent2cursor');
@@ -79,8 +79,13 @@ if (action === 'pack') {
   const bytes = await readFile(artifact);
   assert.equal(bytes.length, manifest.bytes);
   assert.equal(sha256(bytes), manifest.sha256, 'Release archive changed; rebuild and verify it');
-  const result = spawnSync('npm', ['publish', artifact, '--access=public', '--ignore-scripts', `--registry=${registry}`, ...flags],
-    { cwd: root, stdio: 'inherit' });
-  if (result.error) throw new Error(`Unable to start npm: ${result.error.code ?? 'error'}`);
-  process.exitCode = result.status ?? 1;
+  if (action === 'verify') {
+    console.log(json({ verified: true, name: manifest.name, version: manifest.version,
+      artifact: manifest.artifact, sha256: manifest.sha256, sourceRevision }));
+  } else {
+    const result = spawnSync('npm', ['publish', artifact, '--access=public', '--ignore-scripts', `--registry=${registry}`, ...flags],
+      { cwd: root, stdio: 'inherit' });
+    if (result.error) throw new Error(`Unable to start npm: ${result.error.code ?? 'error'}`);
+    process.exitCode = result.status ?? 1;
+  }
 }

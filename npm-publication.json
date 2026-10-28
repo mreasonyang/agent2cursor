@@ -1,0 +1,46 @@
+{
+  "verifiedAt": "2026-10-28T07:08:02.624501+00:00",
+  "name": "@kyun.si/agent2cursor",
+  "version": "0.1.0",
+  "registry": "https://registry.npmjs.org/",
+  "sourceRevision": "b0e30fa5eb85d479e3ab64ee8ebd022061160a4a",
+  "publicationExitCode": 0,
+  "distTag": "latest",
+  "latestVersionVerifiedBy": "npx @kyun.si/agent2cursor --version in an empty directory and fresh cache",
+  "tarball": "https://registry.npmjs.org/@kyun.si/agent2cursor/-/agent2cursor-0.1.0.tgz",
+  "integrity": "sha512-vYcNz181tue/3szNeKjarOjU8ah9aEo2zODqnwEQtyiUlvMHWkNz4Uo3sDFhSrQNWgeizYJbzuLtNQbElH8jmA==",
+  "shasum": "e907056c24f7ec2b0290fc6c67b0468c36f62e8d",
+  "bytes": 573541,
+  "sha256": "caaf9f021033b47c664bb940ee36dfb2d7dce4fc8fcbf5f762dc98d13e00a94b",
+  "registryBytesMatchCandidate": true,
+  "anonymousRegistryReadback": true,
+  "verification": {
+    "cleanRegistryInstall": true,
+    "emptyUserAndGlobalConfig": true,
+    "cliHelpAndVersion": true,
+    "npxPinnedHelp": true,
+    "npxLatestVersion": "0.1.0",
+    "mixedInspectAndConvert": {
+      "agents": 6,
+      "skills": 6,
+      "dependencies": 4,
+      "scripts": 1
+    },
+    "demos": [
+      "full-send",
+      "pr-review"
+    ],
+    "doctorBeforeInstall": "dependencies-missing",
+    "doctorAfterInstall": "passed"
+  },
+  "ci": {
+    "url": "https://github.com/mreasonyang/agent2cursor/actions/runs/40645554908",
+    "conclusion": "success"
+  },
+  "github": {
+    "url": "https://github.com/mreasonyang/agent2cursor",
+    "visibility": "public"
+  },
+  "liveModelRun": "not-run-for-publication",
+  "deployment": "not-run"
+}

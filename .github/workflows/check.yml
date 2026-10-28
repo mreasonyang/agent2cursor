@@ -20,7 +20,7 @@ jobs:
       - run: npm run check
       - run: npm pack --dry-run
       - run: npm run pack:local
-      - run: npm run publish:npm -- --dry-run
+      - run: npm run verify:package
   sdk-compatibility:
     runs-on: ubuntu-latest
     steps:

@@ -33,6 +33,7 @@
     "dev": "tsx src/cli.ts",
     "prepack": "npm run build",
     "pack:local": "npm run build && node scripts/npm-release.mjs pack",
+    "verify:package": "node scripts/npm-release.mjs verify",
     "publish:npm": "node scripts/npm-release.mjs publish",
     "test:sdk": "node scripts/verify-sdk.mjs"
   },

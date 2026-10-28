@@ -16,6 +16,16 @@
 
 `npm pack` 产物为 `agent2cursor-0.1.0.tgz`，在仓库外的干净 consumer 安装后验证了真实 `agent2cursor` bin 的帮助、版本、混合 Claude/Codex/skill 转换、两个 demo 和缺依赖时的 doctor 状态；运行源码与输出不再含旧项目标识。README 动图重新渲染为 960×540、10 fps、14 秒（140 帧），并核对海报画面和 [SOURCE.json](demo-video/SOURCE.json) 的新哈希。GitHub 仓库与 origin、本地目录均已更名，更名当时仍为私有；该轮没有发布到 npm。
 
+## npm 0.1.0 公开发布（2026-10-28）
+
+`@kyun.si/agent2cursor@0.1.0` 已发布到 npm 官方 registry。发布源码为 `b0e30fa5eb85d479e3ab64ee8ebd022061160a4a`，该提交的 Node 22.13 / 24 测试、打包预演和五类 SDK 集成 CI 全部通过。[发布回执](../npm-publication.json)绑定该源提交和实际发布归档，后续文档及发布工具调整不改写这份已发布的包。
+
+通过匿名版本接口读回 registry 元数据并下载公开 tarball，字节数（573541）、SHA-256 和 registry SHA-512 integrity 与发布候选完全一致。在仓库外使用空的用户/全局 npm 配置、新缓存，实际从 registry 安装；真实 bin 的帮助和版本通过。另用独立空目录验证固定 `0.1.0` 的 `npx --help` 和默认 `latest` 的 `npx --version`，实际均为 `0.1.0`。
+
+公开安装产物完成 Claude / Codex / full-send skill 混合输入的 inspect 与 convert（6 个子代理、6 个 skill、4 个依赖、1 个禁用脚本存根），两个 demo 导出正常。doctor 在依赖缺失时明确失败，安装生成工程自身依赖后通过 SDK 结构自检。包内无 `private`、开发依赖或生命周期脚本。本次发布未执行真实模型或托管部署。
+
+GitHub 仓库已改为 public，并通过无认证 API 请求确认匿名访问返回 200。
+
 ## 已验证
 
 | 项目 | 结果 | 证据边界 |

@@ -18,7 +18,9 @@ source fields + routing checks  → MIGRATION.zh-CN.md (or .en.md) + evals/*.eva
 
 ## Quickstart
 
-The npm package name is **`@kyun.si/agent2cursor`**; the executable is **`agent2cursor`**:
+The npm package name is **`@kyun.si/agent2cursor`**; the executable is **`agent2cursor`**.
+
+Version **0.1.0** is [published on npm](https://www.npmjs.com/package/@kyun.si/agent2cursor). The [publication receipt](npm-publication.json) records the source revision, registry archive hash, and independent installation checks.
 
 ```bash
 npx --yes @kyun.si/agent2cursor@0.1.0 --help

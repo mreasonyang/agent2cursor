@@ -65,11 +65,14 @@ The public GitHub repository and the npm registry are separate destinations. Kee
 ```bash
 npm run check
 npm run pack:local
+npm run verify:package
 npm run publish:npm -- --dry-run
 npm run publish:npm
 ```
 
 Before the real publish, install the archive into an independent consumer and verify the actual `agent2cursor` executable, conversion, demos, and doctor. `publish:npm` verifies the recorded source hashes, Git revision, archive size and SHA-256, and publishes that same archive without repacking. Any changed input requires rebuilding and rechecking. Login and two-factor authentication stay in npm's own flow; no credentials belong in source or evidence.
+
+CI uses `verify:package` to check the archive without publishing. npm rejects publishing an existing version even with `--dry-run`; after a version is released, bump the version before preparing its successor. Published bytes remain bound to the `sourceRevision` in the publication receipt.
 
 After publication, read the registry metadata and download its tarball anonymously. Verify SHA-256 and registry integrity against the candidate, then install `@kyun.si/agent2cursor@<version>` from the public registry into a clean consumer and repeat the CLI checks. Record the public metadata and verification results in `npm-publication.json`. Do not claim publication before this readback succeeds.
 
