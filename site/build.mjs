@@ -133,9 +133,10 @@ await writeFile(
     .join("")}</urlset>`,
 );
 await writeFile(`${out}/_redirects`, "/en /en/ 301\n/zh /zh/ 301\n");
+// Keep npm's package@version syntax intact: it can look like an email to edge transforms.
 await writeFile(
   `${out}/_headers`,
-  `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Cache-Control: public, max-age=0, must-revalidate\n/assets/*\n  Cache-Control: public, max-age=86400\n`,
+  `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Cache-Control: public, max-age=0, must-revalidate, no-transform\n/assets/*\n  Cache-Control: public, max-age=86400, no-transform\n`,
 );
 console.log(
   "Built bilingual site: site/dist (en, zh, language entry, 404, SEO and static assets)",

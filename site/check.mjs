@@ -49,6 +49,10 @@ assert(
   (await readFile(`${root}_headers`, "utf8")).includes("script-src 'self'"),
 );
 assert(
+  (await readFile(`${root}_headers`, "utf8")).includes("must-revalidate, no-transform"),
+  "The edge must not rewrite package@version in copyable installation commands",
+);
+assert(
   (await readdir(`${root}assets`)).some((name) =>
     /^client\.[a-f0-9]{10}\.js$/.test(name),
   ),

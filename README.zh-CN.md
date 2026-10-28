@@ -2,7 +2,7 @@
 
 把已写好的 Claude Code / Codex 子代理（subagents）与 Agent Skills 整理成可编辑的 [Cursor Agent SDK](https://cursor.com/docs/agent-sdk)（`@grok/agent-sdk`）TypeScript 项目，同时生成路由评测（eval）骨架和逐字段迁移报告。
 
-[English](README.md) · **0.1.1** · [MIT 许可证](LICENSE) · Node **>=22.13** · 适配 **`@grok/agent-sdk@0.3.0`**
+[官网](https://agent2cursor.kyun.si/zh/) · [English](README.md) · **0.1.1** · [MIT 许可证](LICENSE) · Node **>=22.13** · 适配 **`@grok/agent-sdk@0.3.0`**
 
 ![将 Claude 子代理与 Skills 转换为 Agent SDK 项目并生成逐字段迁移报告](docs/assets/agent2cursor-demo.gif)
 

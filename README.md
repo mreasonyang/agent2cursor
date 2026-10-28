@@ -2,7 +2,7 @@
 
 Convert existing Claude Code and Codex subagents and Agent Skills into editable [Cursor Agent SDK](https://cursor.com/docs/agent-sdk) (`@grok/agent-sdk`) TypeScript projects, with routing eval scaffolds and a field-by-field migration report.
 
-[中文说明](README.zh-CN.md) · **0.1.1** · [MIT License](LICENSE) · Node **>=22.13** · Targets **`@grok/agent-sdk@0.3.0`**
+[Website](https://agent2cursor.kyun.si/en/) · [中文说明](README.zh-CN.md) · **0.1.1** · [MIT License](LICENSE) · Node **>=22.13** · Targets **`@grok/agent-sdk@0.3.0`**
 
 ![Converting Claude subagents and skills into an Agent SDK project with a field-by-field migration report](docs/assets/agent2cursor-demo.gif)
 
